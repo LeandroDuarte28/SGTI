@@ -1,11 +1,12 @@
 # SGTI — Sistema de Gestão de Tecnologia da Informação
 ## Documento de Contexto do Projeto
 
-> **Classificação:** Interno — Restrito  
-> **Versão:** 1.0.0  
-> **Status:** Aprovado para Desenvolvimento  
-> **Última Atualização:** 2026-06-09  
+> **Classificação:** Interno — Restrito
+> **Versão:** 2.0.0
+> **Status:** Aprovado para Desenvolvimento
+> **Última Atualização:** 2026-06-09
 > **Responsável:** Arquitetura Corporativa de TI
+> **Documento Relacionado:** [00_README.md](./00_README.md)
 
 ---
 
@@ -14,22 +15,22 @@
 1. [Resumo Executivo](#1-resumo-executivo)
 2. [Objetivo do Sistema](#2-objetivo-do-sistema)
 3. [Escopo Geral](#3-escopo-geral)
-4. [Principais Módulos](#4-principais-módulos)
+4. [Módulos Principais](#4-módulos-principais)
 5. [Benefícios Esperados](#5-benefícios-esperados)
-6. [Público-Alvo](#6-público-alvo)
-7. [Restrições Técnicas](#7-restrições-técnicas)
-8. [Integrações Obrigatórias](#8-integrações-obrigatórias)
-9. [Indicadores Estratégicos](#9-indicadores-estratégicos)
+6. [Integrações](#6-integrações)
+7. [Indicadores Estratégicos](#7-indicadores-estratégicos)
+8. [Restrições Técnicas](#8-restrições-técnicas)
+9. [Critérios de Sucesso](#9-critérios-de-sucesso)
 
 ---
 
 ## 1. Resumo Executivo
 
-O **SGTI (Sistema de Gestão de Tecnologia da Informação)** é uma plataforma corporativa unificada concebida para centralizar, automatizar e governar os processos de TI da organização. O sistema foi projetado com base nas práticas do **ITIL v4**, incorporando gestão de serviços, ativos, identidades, conformidade regulatória e controle financeiro de TI em uma única solução integrada.
+O **SGTI (Sistema de Gestão de Tecnologia da Informação)** é uma plataforma corporativa unificada projetada para centralizar, automatizar e governar todos os processos de TI da organização. Fundamentado no framework **ITIL v4** (*Information Technology Infrastructure Library*), o sistema consolida em uma única solução a gestão de incidentes, requisições, problemas, ativos, identidades, conformidade, projetos, compras, controle financeiro e base de conhecimento.
 
-A ausência de um sistema unificado de gestão de TI gera fragmentação de processos, dificuldade na rastreabilidade de ativos, inconsistência no controle de acessos, baixa visibilidade sobre SLAs e ausência de indicadores financeiros confiáveis para decisões de CAPEX e OPEX. O SGTI resolve diretamente esse conjunto de problemas ao estabelecer uma camada de governança transversal, integrada às ferramentas já em uso na organização — Google Workspace e GLPI — e orientada a dashboards executivos, operacionais, financeiros e de compliance.
+A ausência de um sistema integrado de gestão de TI impõe custos operacionais crescentes: processos fragmentados, rastreabilidade insuficiente de ativos, controle manual de acessos, ausência de visibilidade sobre SLAs e incapacidade de medir com precisão os custos reais de TI (OPEX e CAPEX). O SGTI resolve diretamente esse conjunto de problemas ao estabelecer uma camada de governança transversal, integrada ao ecossistema tecnológico existente — **Google Workspace**, **GLPI**, **Supabase**, **GitHub** e **Vercel** — e orientada a decisões baseadas em dados por meio de dashboards executivos e operacionais.
 
-O projeto é de caráter estratégico e seu desenvolvimento seguirá os princípios de **Clean Architecture**, **Domain-Driven Design (DDD)** e separação clara de responsabilidades técnicas, garantindo manutenibilidade, escalabilidade e auditabilidade em todas as camadas do sistema.
+O projeto adota **Clean Architecture**, **Domain-Driven Design (DDD)**, **NestJS** no backend, **NextJS** no frontend e **PostgreSQL via Supabase** como base de dados, garantindo manutenibilidade, escalabilidade, auditabilidade e alinhamento com as melhores práticas de engenharia de software.
 
 ---
 
@@ -37,167 +38,242 @@ O projeto é de caráter estratégico e seu desenvolvimento seguirá os princíp
 
 ### 2.1 Objetivo Geral
 
-Prover uma plataforma centralizada de Gestão de TI que unifique os processos de suporte, controle de ativos, gerenciamento de identidades, compliance regulatório e visibilidade financeira, alinhada ao framework ITIL v4 e integrada ao ecossistema tecnológico existente da organização.
+Prover uma plataforma centralizada de Gestão de TI que unifique os processos de suporte, controle de ativos, gerenciamento de identidades, conformidade regulatória, gestão financeira e visibilidade estratégica, alinhada ao framework ITIL v4 e integrada ao ecossistema tecnológico existente da organização.
 
 ### 2.2 Objetivos Específicos
 
-**Governança e Compliance**
-- Estabelecer rastreabilidade completa de ativos de TI, do ciclo de aquisição ao descarte.
-- Garantir conformidade com políticas internas de segurança e regulações aplicáveis (LGPD, ISO/IEC 27001, auditorias internas).
-- Formalizar e monitorar SLAs de todos os serviços de TI catalogados.
-
 **Operacional**
-- Centralizar o registro e o acompanhamento de chamados de Service Desk com vínculo direto ao GLPI.
-- Automatizar o ciclo de vida de identidades e acessos, reduzindo operações manuais e riscos de acesso indevido.
-- Disponibilizar uma Base de Conhecimento estruturada acessível a usuários finais e técnicos.
+- Centralizar o registro, categorização e acompanhamento de incidentes, requisições e problemas com integração bidirecional ao GLPI.
+- Reduzir o tempo médio de resolução (MTTR) por meio de fluxos estruturados, SLAs automatizados e acesso à Base de Conhecimento.
+- Formalizar o Catálogo de Serviços de TI com SLAs definidos, publicados e monitorados.
+
+**Governança e Compliance**
+- Estabelecer rastreabilidade completa de ativos de TI do ciclo de aquisição ao descarte.
+- Automatizar o ciclo de vida de identidades e acessos, eliminando operações manuais e riscos de acesso indevido.
+- Garantir conformidade com políticas internas, LGPD e frameworks de segurança (ISO/IEC 27001).
 
 **Estratégico e Financeiro**
-- Oferecer visibilidade em tempo real sobre o consumo de recursos de TI (OPEX) e investimentos (CAPEX).
-- Subsidiar decisões de renovação, descontinuação e aquisição de ativos com dados concretos.
-- Prover dashboards executivos com KPIs estratégicos de TI para alta direção.
+- Prover controle granular de OPEX e CAPEX de TI com rateio por centro de custo.
+- Subsidiar decisões de investimento em TI com dados concretos de ciclo de vida, consumo e performance.
+- Disponibilizar dashboards executivos com KPIs estratégicos para a alta direção.
+
+**Desenvolvimento e Entrega**
+- Integrar o ciclo de vida de projetos de TI com controle de escopo, prazo, custo e entrega.
+- Centralizar o processo de compras de TI com aprovações, fornecedores e contratos rastreáveis.
+- Automatizar o pipeline de implantação via GitHub e Vercel com rastreabilidade de mudanças.
 
 ---
 
 ## 3. Escopo Geral
 
-### 3.1 O que está no escopo
+### 3.1 Dentro do Escopo
 
 | Área | Descrição |
 |------|-----------|
-| Service Desk | Gestão de chamados, SLA, categorização, escalonamento e histórico |
-| Catálogo de Serviços | Definição, publicação e controle de versões dos serviços de TI |
-| Gestão de Ativos | Inventário, ciclo de vida, localização, responsáveis e depreciação |
-| Gestão de Identidades | Provisionamento, desprovisionamento, controle de acessos e revisão periódica |
-| Compliance | Auditorias, políticas, evidências, não-conformidades e planos de ação |
-| Base de Conhecimento | Artigos, FAQs, soluções de contorno e procedimentos técnicos |
-| Gestão Financeira de TI | Controle de CAPEX, OPEX, orçamento, contratos e fornecedores |
-| Dashboards | Executivo, Operacional, Financeiro e Compliance |
-| Integrações | Google Workspace e GLPI |
+| Gestão de Incidentes | Registro, priorização, escalonamento e resolução de interrupções de serviço. |
+| Gestão de Requisições | Atendimento de solicitações de serviço com fluxo de aprovação e SLA. |
+| Gestão de Problemas | Investigação de causa raiz, workarounds e erros conhecidos. |
+| Gestão de Ativos (ITAM) | Inventário, ciclo de vida, localização, responsáveis e depreciação. |
+| Gestão de Identidades (IAM) | Provisionamento, revisão e revogação de acessos com integração Google Workspace. |
+| Compliance | Políticas, controles, auditorias, não-conformidades e evidências. |
+| OPEX e CAPEX | Orçamento, contratos, despesas recorrentes e investimentos de TI. |
+| Projetos de TI | Gestão de iniciativas, escopo, cronograma, custo e entregas. |
+| Compras de TI | Requisições de compra, fornecedores, aprovações e contratos. |
+| Base de Conhecimento | Artigos, FAQs, procedimentos e soluções vinculadas a incidentes resolvidos. |
+| Catálogo de Serviços | Definição, publicação e controle de versões dos serviços de TI oferecidos. |
+| SLA | Definição, monitoramento e reporte de acordos de nível de serviço. |
+| Dashboards Executivos | KPIs estratégicos para alta direção: custo, SLA, compliance e disponibilidade. |
+| Dashboards Operacionais | Visibilidade diária para gestores e técnicos: filas, alertas e performance. |
+| Integrações | Google Workspace, GLPI, e-mail, Supabase, GitHub e Vercel. |
 
-### 3.2 O que está fora do escopo
+### 3.2 Fora do Escopo
 
-- Desenvolvimento ou substituição do GLPI (o SGTI se integra ao GLPI existente, não o substitui).
-- Gestão de infraestrutura de rede (roteadores, switches, firewall) — monitorado por ferramentas específicas.
-- Sistemas de ERP, CRM ou outras plataformas corporativas não relacionadas à TI.
-- Desenvolvimento de aplicativos móveis nativos na fase inicial.
-- Gestão de projetos de TI (escopo futuro — fora do MVP).
+- Substituição do GLPI — o SGTI integra-se ao GLPI existente, sem substituí-lo.
+- Monitoramento de infraestrutura de rede (switches, roteadores, firewall) — gerenciado por ferramentas específicas.
+- Sistemas de ERP, CRM ou plataformas corporativas não relacionadas à TI.
+- Aplicativos móveis nativos na fase inicial do projeto.
+- Gestão de RH — o SGTI consome eventos de RH via integração, mas não os gerencia.
 
-### 3.3 Premissas do Projeto
+### 3.3 Premissas
 
-- A organização já possui o Google Workspace ativo com domínio gerenciado.
-- O GLPI está instalado e operacional com base de dados acessível via API.
-- A equipe de TI possui processos informais que serão formalizados pelo SGTI.
-- Existe um patrocinador executivo responsável pela aprovação de investimentos CAPEX do projeto.
+- Google Workspace ativo com domínio gerenciado e conta de serviço disponível para integração.
+- GLPI instalado, operacional e acessível via REST API (versão 10.x ou superior).
+- Repositório GitHub criado e com permissões para o pipeline de CI/CD.
+- Projeto Vercel configurado para o frontend NextJS.
+- Projeto Supabase criado com PostgreSQL disponível para o backend.
+- Patrocinador executivo identificado e comprometido com a aprovação de CAPEX do projeto.
 
 ---
 
-## 4. Principais Módulos
+## 4. Módulos Principais
 
-### 4.1 Módulo de Service Desk
+### 4.1 Gestão de Incidentes
 
-Responsável pelo ciclo completo de atendimento a chamados de TI, desde a abertura até o fechamento com avaliação de satisfação. Integra-se bidireccionalmente ao GLPI, preservando o histórico de tickets e habilitando workflows de escalonamento automático baseados em SLA.
+Gerenciamento do ciclo completo de interrupções não planejadas de serviço, desde o registro até a resolução, com priorização por impacto e urgência, escalonamento automático por SLA e comunicação proativa ao usuário.
 
-Funcionalidades centrais:
-- Abertura de chamados por usuário final, técnico ou integração automática.
-- Categorização por tipo, impacto e urgência (matriz de prioridade ITIL).
-- Painel de fila de atendimento por técnico e por grupo.
-- Controle de tempo de resposta e resolução com alertas de SLA.
-- Registro de solução vinculado à Base de Conhecimento.
-- Avaliação de satisfação pós-atendimento (CSAT).
-- Histórico completo por usuário, ativo e serviço.
+Capacidades principais:
+- Registro por portal, e-mail ou integração automática com monitoramento.
+- Matriz de prioridade ITIL: Crítico, Alto, Médio e Baixo.
+- Escalonamento funcional e hierárquico baseado em tempo e SLA.
+- Vínculo a ativos afetados, serviços impactados e usuários envolvidos.
+- Comunicação automática de status via e-mail (implantacao@pinpag.com.br como remetente de sistema).
+- Encerramento com solução vinculada à Base de Conhecimento.
+- Integração bidirecional com GLPI para sincronização de tickets.
 
-### 4.2 Módulo de Catálogo de Serviços
+### 4.2 Gestão de Requisições
 
-Repositório formal de todos os serviços de TI oferecidos à organização, com definição clara de escopo, responsáveis, canais de solicitação, SLAs acordados e custos associados.
+Atendimento estruturado de solicitações de serviço previstas no Catálogo, com fluxos de aprovação configuráveis, SLAs específicos por tipo de requisição e rastreabilidade completa.
 
-Funcionalidades centrais:
+Capacidades principais:
+- Portal de autoatendimento com catálogo de requisições disponíveis.
+- Fluxos de aprovação multinível configuráveis por tipo de serviço.
+- SLAs diferenciados por categoria de requisição e perfil do solicitante.
+- Acompanhamento em tempo real pelo solicitante.
+- Integração com o módulo de IAM para requisições de acesso.
+- Integração com o módulo de Compras para requisições de aquisição.
+
+### 4.3 Gestão de Problemas
+
+Investigação sistemática das causas raiz de incidentes recorrentes ou de alto impacto, com registro de *workarounds*, erros conhecidos e publicação de soluções definitivas.
+
+Capacidades principais:
+- Criação de problemas a partir de incidentes individuais ou agrupados.
+- Registro e publicação de *workarounds* para uso imediato pelo Service Desk.
+- Controle de Erros Conhecidos (*Known Error Database* — KEDB).
+- Análise de causa raiz com registro de metodologia utilizada (ex: 5 Porquês, Ishikawa).
+- Vinculação de solução definitiva à Base de Conhecimento.
+- Relatórios de tendência de incidentes por categoria e serviço.
+
+### 4.4 Gestão de Ativos (ITAM)
+
+Controle completo do ciclo de vida dos ativos de TI — hardware, software, licenças e infraestrutura — desde a requisição de compra até o descarte, com rastreabilidade por número de série, responsável, localização e estado de conformidade.
+
+Capacidades principais:
+- Inventário com campos configuráveis por categoria de ativo.
+- Ciclo de vida gerenciado: Requisição → Aquisição → Implantação → Em Uso → Manutenção → Descarte.
+- Vinculação de ativos a usuários, setores, contratos e chamados.
+- Controle de licenças de software: quantidade adquirida vs. utilizada vs. disponível.
+- Cálculo de depreciação para CAPEX e balanço patrimonial.
+- Alertas automáticos de garantia, licença e manutenção preventiva.
+- Sincronização de inventário com GLPI.
+
+### 4.5 Gestão de Identidades e Acessos (IAM)
+
+Administração do ciclo de vida de identidades digitais com integração ao Google Workspace como provedor de identidade central, garantindo provisionamento ágil, revisão periódica e revogação imediata de acessos.
+
+Capacidades principais:
+- Provisionamento automatizado a partir de eventos de admissão, transferência e desligamento.
+- Integração direta com Google Workspace (criação, desativação e gestão de grupos).
+- Controle de acesso baseado em papéis (*Role-Based Access Control* — RBAC).
+- Fluxo de aprovação para concessão de acessos privilegiados.
+- Revisão periódica de acessos (*Access Review* / Recertificação).
+- Registro de auditoria imutável de todas as alterações de acesso.
+- Alertas para contas inativas, acessos expirados e acessos sem revisão.
+
+### 4.6 Compliance
+
+Centralização dos processos de conformidade de TI com gestão de políticas, controles, evidências e não-conformidades, garantindo rastreabilidade para auditorias internas e externas.
+
+Capacidades principais:
+- Cadastro e publicação de políticas e normas de TI com controle de versão e aprovação.
+- Mapeamento de controles por framework (LGPD, ISO/IEC 27001, ITIL v4).
+- Registro e acompanhamento de não-conformidades com plano de ação.
+- Coleta e armazenamento de evidências com vínculo a controles.
+- Agenda de auditorias internas com checklist dinâmico.
+- Relatórios de maturidade de conformidade por domínio e período.
+
+### 4.7 OPEX e CAPEX
+
+Visibilidade e controle sobre os custos de TI, integrando dados de contratos, ativos, licenças e consumo de serviços para subsidiar planejamento orçamentário e decisões de investimento.
+
+Capacidades principais:
+- Registro e controle de contratos com fornecedores, incluindo renovações e vencimentos.
+- Rateio de custos de TI por setor e centro de custo.
+- Planejamento e acompanhamento do orçamento de TI (CAPEX e OPEX).
+- Controle de despesas recorrentes e não-recorrentes com categorização.
+- Alertas de vencimento contratual e desvio de orçamento.
+- Relatórios de custo total por serviço, ativo e período (TCO).
+
+### 4.8 Projetos de TI
+
+Gestão de iniciativas e projetos de TI com controle de escopo, cronograma, custo, riscos e entregas, integrada ao ciclo de vida de mudanças e ao controle financeiro.
+
+Capacidades principais:
+- Registro de projetos com escopo, justificativa, patrocinador e equipe.
+- Cronograma com marcos e entregas rastreáveis.
+- Controle de orçamento de projeto vinculado ao módulo CAPEX.
+- Gestão de riscos e pendências (*issues*).
+- Integração com GitHub para rastreabilidade de entregas técnicas.
+- Relatórios de progresso e status para stakeholders.
+
+### 4.9 Compras de TI
+
+Centralização do processo de aquisição de produtos e serviços de TI, com rastreabilidade desde a requisição até o recebimento, integrada ao módulo de Ativos e ao controle financeiro.
+
+Capacidades principais:
+- Registro de requisições de compra com justificativa e vinculação ao orçamento.
+- Fluxo de aprovação multinível por valor e categoria.
+- Cadastro de fornecedores com histórico de aquisições e avaliação.
+- Vinculação de pedidos de compra a contratos e ativos adquiridos.
+- Controle de recebimento e aceite de itens adquiridos.
+- Integração com módulo CAPEX para baixa automática no orçamento.
+
+### 4.10 Base de Conhecimento (KMDB)
+
+Repositório estruturado de conhecimento técnico e operacional, acessível a técnicos e usuários finais, com controle editorial e vinculação a chamados resolvidos.
+
+Capacidades principais:
+- Criação e publicação de artigos com categorização por serviço e público-alvo.
+- Controle de versão e fluxo de aprovação editorial.
+- Busca *full-text* com relevância por uso e avaliação dos leitores.
+- Vínculo automático entre artigo publicado e incidente/problema resolvido.
+- Relatórios de utilização, artigos mais acessados e lacunas de conhecimento.
+
+### 4.11 Catálogo de Serviços
+
+Repositório formal de todos os serviços de TI oferecidos à organização, com definição de escopo, canais de solicitação, SLAs e custos.
+
+Capacidades principais:
 - Cadastro e publicação de serviços com descrição técnica e para o usuário final.
 - Versionamento do catálogo com controle de aprovação.
 - Associação de SLAs por tipo de serviço e perfil de usuário.
-- Classificação por categoria (Infraestrutura, Aplicações, Segurança, Suporte, etc.).
-- Portal de solicitação integrado ao Service Desk.
+- Portal de solicitação integrado ao módulo de Requisições.
 - Relatório de demanda por serviço para planejamento de capacidade.
 
-### 4.3 Módulo de Gestão de Ativos (ITAM)
+### 4.12 SLA (Acordo de Nível de Serviço)
 
-Controle completo do ciclo de vida dos ativos de TI — hardware, software, licenças e infraestrutura — desde a requisição de compra até o descarte. Inclui rastreabilidade por número de série, responsável, localização e estado de conformidade.
+Definição, monitoramento e reporte de todos os acordos de nível de serviço do SGTI, com alertas proativos, relatórios de desempenho e histórico para auditoria.
 
-Funcionalidades centrais:
-- Inventário de ativos com campos configuráveis por categoria.
-- Gestão de ciclo de vida: Aquisição → Implantação → Em uso → Manutenção → Descarte.
-- Vinculação de ativos a usuários, setores e contratos.
-- Controle de licenças de software (quantidade adquirida vs. utilizada).
-- Cálculo de depreciação para fins de CAPEX e balanço patrimonial.
-- Alertas de garantia, licença e manutenção preventiva.
-- Integração com GLPI para sincronização de inventário.
+Capacidades principais:
+- Definição de SLAs por tipo de chamado, categoria de serviço e prioridade.
+- Monitoramento em tempo real com alertas de risco de violação.
+- Pausa de SLA para situações previstas em contrato (aguardando usuário, aprovação externa).
+- Relatórios de cumprimento de SLA por período, equipe e serviço.
+- Vinculação de SLAs ao Catálogo de Serviços e contratos com fornecedores.
 
-### 4.4 Módulo de Gestão de Identidades e Acessos (IAM)
+### 4.13 Dashboards Executivos
 
-Administração do ciclo de vida de identidades digitais — criação, manutenção, revisão e revogação de acessos — com integração ao Google Workspace como provedor de identidade central.
+Visão de alto nível para a alta direção, com KPIs estratégicos de TI apresentados em painéis de fácil leitura e atualizados em tempo real.
 
-Funcionalidades centrais:
-- Provisionamento automatizado de usuários a partir de eventos de RH (admissão, transferência, desligamento).
-- Integração com Google Workspace para criação e desativação de contas.
-- Gestão de grupos, perfis e permissões por sistema.
-- Fluxo de aprovação para concessão de acessos privilegiados.
-- Revisão periódica de acessos (Access Review / Recertificação).
-- Registro de auditoria de todas as alterações de acesso.
-- Alertas para contas inativas, acessos expirados e anomalias.
+Indicadores centrais:
+- SLA Global de TI (% de chamados atendidos dentro do prazo).
+- Disponibilidade de serviços críticos (uptime).
+- Satisfação do usuário (CSAT médio).
+- Custo Total de TI (CAPEX + OPEX) vs. orçamento.
+- Maturidade de Compliance (% de controles implementados).
+- Status de projetos estratégicos de TI.
 
-### 4.5 Módulo de Compliance e Governança
+### 4.14 Dashboards Operacionais
 
-Centralização dos processos de conformidade de TI, incluindo gestão de políticas, controles, evidências e não-conformidades, com rastreabilidade para auditorias internas e externas.
+Painel de acompanhamento diário para coordenadores e técnicos de TI, com foco em filas, alertas e performance de atendimento.
 
-Funcionalidades centrais:
-- Cadastro e publicação de políticas e normas de TI com controle de versão.
-- Mapeamento de controles por framework (ISO 27001, LGPD, ITIL v4).
-- Registro e acompanhamento de não-conformidades com plano de ação.
-- Coleta e armazenamento de evidências de conformidade.
-- Agenda de auditorias internas com checklist dinâmico.
-- Relatórios de maturidade de conformidade por domínio.
-- Dashboard de Compliance com indicadores de risco e progresso.
-
-### 4.6 Módulo de Base de Conhecimento (KMDB)
-
-Repositório estruturado de conhecimento técnico e operacional, acessível a técnicos e usuários finais, com controle de qualidade editorial e vinculação a chamados resolvidos.
-
-Funcionalidades centrais:
-- Criação e publicação de artigos com categorização por serviço e público-alvo.
-- Controle de versão e aprovação editorial de artigos.
-- Busca full-text com relevância por uso e avaliação.
-- Vínculo entre artigo e chamado resolvido (Conhecimento originado de incidente).
-- Relatórios de utilização e lacunas de conhecimento.
-- Avaliação de utilidade por leitores.
-
-### 4.7 Módulo de Gestão Financeira de TI
-
-Visibilidade e controle sobre os custos de TI, integrando dados de contratos, ativos, licenças e consumo de serviços para subsidiar planejamento de CAPEX e OPEX.
-
-Funcionalidades centrais:
-- Registro e controle de contratos com fornecedores e suas renovações.
-- Rateio de custos de TI por setor/centro de custo.
-- Planejamento e acompanhamento do orçamento de TI (CAPEX e OPEX).
-- Controle de despesas recorrentes e não-recorrentes.
-- Alertas de vencimento contratual e estouro de orçamento.
-- Relatórios de custo por serviço, por ativo e por período.
-
-### 4.8 Módulo de Dashboards
-
-Camada de visualização estratégica e operacional do SGTI, com painéis dedicados para diferentes perfis de audiência, atualizados em tempo real ou near-real-time.
-
-Sub-módulos:
-
-**Dashboard Executivo**
-Visão de alto nível para a alta direção, com KPIs estratégicos de TI: nível de SLA global, satisfação de usuários, custo total de TI, maturidade de compliance e disponibilidade de serviços críticos.
-
-**Dashboard Operacional**
-Painel de acompanhamento diário para coordenadores e técnicos de TI: fila de chamados em aberto, SLAs em risco, ativos em manutenção, acessos pendentes de aprovação e alertas operacionais.
-
-**Dashboard de Compliance**
-Visibilidade sobre o estado de conformidade da TI: políticas publicadas vs. vigentes, controles implementados vs. pendentes, não-conformidades abertas, próximas auditorias e nível de maturidade por domínio.
-
-**Dashboard Financeiro**
-Controle orçamentário em tempo real: realizado vs. orçado (CAPEX e OPEX), contratos a vencer, custo por serviço, evolução mensal de despesas e alertas de desvio financeiro.
+Indicadores centrais:
+- Fila de chamados em aberto por técnico e por grupo.
+- Chamados com SLA em risco (próximos do vencimento).
+- MTTR e MTTA por categoria de chamado.
+- Ativos em manutenção e com garantia próxima do vencimento.
+- Acessos pendentes de aprovação e revisão.
+- Projetos com prazo em risco.
 
 ---
 
@@ -205,203 +281,283 @@ Controle orçamentário em tempo real: realizado vs. orçado (CAPEX e OPEX), con
 
 ### 5.1 Benefícios Operacionais
 
-- Redução do tempo médio de resolução de chamados (MTTR) pela estruturação do fluxo de atendimento e acesso à Base de Conhecimento.
-- Eliminação de processos manuais no provisionamento e revogação de acessos, reduzindo o risco de acesso indevido por atraso operacional.
-- Aumento da visibilidade sobre o estado real do parque de ativos, evitando compras desnecessárias e perda de equipamentos.
+- Redução do MTTR pela estruturação dos fluxos de atendimento e acesso direto à Base de Conhecimento durante o atendimento.
+- Eliminação de processos manuais no provisionamento e revogação de acessos, reduzindo o risco de acessos indevidos por atraso operacional.
+- Aumento da visibilidade sobre o parque de ativos, evitando compras desnecessárias e extravios.
 - Padronização dos processos de TI com base no ITIL v4, promovendo consistência e previsibilidade no atendimento.
+- Redução de retrabalho por causa raiz não investigada, por meio da Gestão de Problemas.
 
 ### 5.2 Benefícios Estratégicos
 
-- Habilitação de decisões de investimento (CAPEX) baseadas em dados concretos de ciclo de vida de ativos e tendências de consumo.
-- Visibilidade executiva sobre desempenho, custo e conformidade da TI sem necessidade de relatórios manuais.
+- Habilitação de decisões de CAPEX baseadas em dados concretos de ciclo de vida de ativos e tendências de consumo.
+- Visibilidade executiva sobre desempenho, custo e conformidade da TI sem dependência de relatórios manuais.
 - Redução de riscos regulatórios e de segurança por meio da gestão contínua de compliance.
 - Sustentação de auditorias internas e externas com evidências rastreáveis e centralizadas.
+- Gestão estruturada de projetos de TI com rastreabilidade financeira e técnica.
 
 ### 5.3 Benefícios Financeiros
 
 - Controle efetivo do OPEX de TI com rateio por área e identificação de desperdícios.
 - Prevenção de renovações automáticas de contratos e licenças desnecessárias.
-- Redução de horas improdutivas por interrupções de serviço com SLAs mal gerenciados.
+- Redução de horas improdutivas geradas por interrupções de serviço sem SLA gerenciado.
 - Subsídio para negociações com fornecedores baseadas em dados históricos de consumo e performance.
+- Visibilidade do custo real por serviço de TI (TCO — *Total Cost of Ownership*).
 
 ### 5.4 Benefícios para o Usuário Final
 
-- Portal de autoatendimento para abertura de chamados, consulta ao status e acesso à Base de Conhecimento.
-- Comunicação proativa sobre andamento de solicitações e incidentes que afetam o usuário.
-- Redução do tempo de espera por acesso a sistemas em processos de onboarding.
+- Portal único de autoatendimento para abertura de chamados, acompanhamento de status e acesso à Base de Conhecimento.
+- Comunicação proativa e automática sobre o andamento de solicitações e incidentes.
+- Redução do tempo de espera por acesso a sistemas em processos de *onboarding*.
+- Maior transparência sobre os serviços de TI disponíveis e os prazos acordados.
 
 ---
 
-## 6. Público-Alvo
+## 6. Integrações
 
-### 6.1 Usuários do Sistema
-
-| Perfil | Descrição | Módulos Principais |
-|--------|-----------|--------------------|
-| **Usuário Final** | Colaborador que consome serviços de TI | Service Desk (portal), Base de Conhecimento |
-| **Técnico de TI** | Analista responsável pelo atendimento de chamados | Service Desk, Ativos, Base de Conhecimento |
-| **Especialista de TI** | Profissional responsável por domínios específicos (Infra, Segurança, Sistemas) | Todos os módulos operacionais |
-| **Gestor de TI** | Coordenador ou gerente responsável pela operação de TI | Operacional, Financeiro, SLA, Compliance |
-| **Auditor Interno** | Responsável por avaliações de conformidade | Compliance, Identidades, Ativos |
-| **Diretor / C-Level** | Alta direção com interesse em KPIs estratégicos | Dashboard Executivo, Financeiro |
-| **Administrador do Sistema** | Responsável pela configuração e manutenção do SGTI | Todos os módulos + Administração |
-
-### 6.2 Partes Interessadas (Stakeholders)
-
-- **TI Corporativa:** principal beneficiária e operadora do sistema.
-- **RH:** parceiro na integração de processos de admissão e desligamento para gestão de identidades.
-- **Financeiro / Controladoria:** consumidor dos relatórios de CAPEX/OPEX e contratos.
-- **Jurídico / Compliance:** beneficiário dos módulos de conformidade e auditoria.
-- **Alta Direção:** receptora dos dashboards executivos e relatórios estratégicos.
-- **Fornecedores de TI:** referenciados no módulo de contratos e gestão financeira.
-
----
-
-## 7. Restrições Técnicas
-
-### 7.1 Restrições de Arquitetura
-
-- O sistema deve ser desenvolvido seguindo os princípios de **Clean Architecture** e **Domain-Driven Design (DDD)**, com separação clara entre camadas de domínio, aplicação, infraestrutura e interface.
-- O backend será construído com **NestJS**, o frontend com **NextJS** e o banco de dados principal com **PostgreSQL** gerenciado via **Supabase**, com acesso via **Prisma ORM**.
-- Toda a lógica de negócio deve residir na camada de domínio, sendo independente de frameworks e infraestrutura.
-- APIs externas (GLPI, Google Workspace) devem ser abstraídas por interfaces de porta/adaptador (padrão Ports & Adapters / Hexagonal Architecture).
-
-### 7.2 Restrições de Segurança
-
-- Toda autenticação de usuários deve ser federada pelo **Google Workspace (OAuth 2.0 / SAML)** — nenhuma senha local deve ser armazenada no SGTI.
-- O sistema deve implementar controle de acesso baseado em papéis (**RBAC**) com segregação de privilégios.
-- Dados sensíveis (PII, credenciais de integração, logs de auditoria) devem ser armazenados com criptografia em repouso.
-- Toda comunicação entre serviços e com APIs externas deve ocorrer exclusivamente via HTTPS/TLS 1.2+.
-- Logs de auditoria devem ser imutáveis — sem operação de DELETE permitida para registros de auditoria.
-
-### 7.3 Restrições Operacionais
-
-- O sistema deve ser capaz de operar com disponibilidade mínima de **99,5%** no horário comercial (07h–20h, segunda a sexta).
-- O tempo de resposta das APIs principais não deve exceder **2 segundos** em condições normais de carga.
-- O sistema deve suportar ao menos **500 usuários simultâneos** sem degradação de performance.
-- Toda alteração em produção deve ser precedida por registro no sistema de mudanças (Change Management).
-
-### 7.4 Restrições de Integração
-
-- A integração com o GLPI deve ser **bidirecional**, preservando o GLPI como sistema de registro oficial de chamados.
-- A integração com o Google Workspace deve respeitar as **políticas de privacidade e escopo de API** definidas pelo administrador do domínio.
-- Nenhuma integração deve expor credenciais ou tokens em logs, variáveis de ambiente não protegidas ou interfaces de usuário.
-
-### 7.5 Restrições Regulatórias
-
-- O sistema deve estar em conformidade com a **LGPD (Lei Geral de Proteção de Dados — Lei nº 13.709/2018)**, especialmente no tratamento de dados pessoais de colaboradores.
-- Dados de auditoria e compliance devem ser retidos por no mínimo **5 anos**, conforme política interna de retenção de dados.
-- O sistema deve suportar a exportação de evidências de conformidade em formatos auditáveis (PDF, CSV, JSON).
-
----
-
-## 8. Integrações Obrigatórias
-
-### 8.1 Google Workspace
+### 6.1 Google Workspace
 
 **Propósito:** Provedor de identidade central e fonte autoritativa de dados de colaboradores.
 
-| Funcionalidade | Direção | Módulos Envolvidos |
-|---------------|---------|-------------------|
+| Funcionalidade | Direção | Módulo SGTI |
+|----------------|---------|-------------|
 | Autenticação SSO (OAuth 2.0) | Google → SGTI | Todos |
 | Sincronização de usuários e grupos | Google → SGTI | IAM |
-| Provisionamento de contas | SGTI → Google | IAM |
-| Desativação de contas (offboarding) | SGTI → Google | IAM |
+| Provisionamento de contas (*onboarding*) | SGTI → Google | IAM |
+| Desativação de contas (*offboarding*) | SGTI → Google | IAM |
 | Consulta de unidade organizacional | Google → SGTI | IAM, Ativos |
-| Envio de notificações via Gmail | SGTI → Google | Service Desk, Compliance |
+| Envio de notificações via Gmail | SGTI → Google | Incidentes, Requisições |
 
-**APIs utilizadas:** Google Admin SDK, Google Directory API, Google OAuth 2.0, Gmail API.
+**APIs:** Google Admin SDK, Google Directory API, Google OAuth 2.0, Gmail API.
 
-**Premissas:** A organização deve possuir uma conta de serviço (Service Account) com delegação de domínio para as operações de provisionamento automatizado.
+**Premissa:** Conta de serviço (*Service Account*) com delegação de domínio provisionada pelo administrador do Google Workspace.
 
-### 8.2 GLPI
+### 6.2 GLPI
 
-**Propósito:** Sistema de registro oficial de chamados e inventário de ativos legado. O SGTI atua como camada de governança e orquestração, mantendo o GLPI como fonte de verdade para tickets e inventário sincronizado.
+**Propósito:** Sistema de registro oficial de chamados e inventário legado. O SGTI atua como camada de governança, mantendo o GLPI como fonte de verdade para tickets existentes.
 
-| Funcionalidade | Direção | Módulos Envolvidos |
-|---------------|---------|-------------------|
-| Criação de chamados | SGTI → GLPI | Service Desk |
-| Consulta de status de chamados | GLPI → SGTI | Service Desk |
-| Atualização de chamados (notas, status) | SGTI ↔ GLPI | Service Desk |
+| Funcionalidade | Direção | Módulo SGTI |
+|----------------|---------|-------------|
+| Criação de chamados | SGTI → GLPI | Incidentes, Requisições |
+| Consulta e atualização de status de chamados | SGTI ↔ GLPI | Incidentes, Requisições |
 | Sincronização de inventário de ativos | GLPI → SGTI | Gestão de Ativos |
-| Consulta de histórico de ativos | GLPI → SGTI | Gestão de Ativos |
 | Importação de categorias e tipos | GLPI → SGTI | Configuração |
+| Histórico de atendimentos por ativo/usuário | GLPI → SGTI | Gestão de Ativos, IAM |
 
-**APIs utilizadas:** GLPI REST API (session token, recursos de Ticket, Asset, User).
+**API:** GLPI REST API v10.x (autenticação por *session token*).
 
-**Premissas:** O GLPI deve estar na versão 10.x ou superior com a API REST habilitada e configurada para autenticação via token. Um usuário de integração dedicado deve ser provisionado no GLPI com permissões específicas para leitura e escrita.
+**Premissa:** Usuário de integração dedicado no GLPI com permissões de leitura e escrita via API.
 
-### 8.3 Visão Geral das Integrações
+### 6.3 E-mail (implantacao@pinpag.com.br)
+
+**Propósito:** Canal oficial de notificações transacionais e comunicações automáticas do sistema SGTI.
+
+| Funcionalidade | Direção | Módulo SGTI |
+|----------------|---------|-------------|
+| Notificação de abertura de chamado | SGTI → Usuário | Incidentes, Requisições |
+| Alertas de SLA em risco | SGTI → Técnico/Gestor | SLA |
+| Comunicados de manutenção programada | SGTI → Usuários afetados | Gestão de Ativos |
+| Alertas de aprovação pendente | SGTI → Aprovador | IAM, Compras, Projetos |
+| Notificações de compliance | SGTI → Responsáveis | Compliance |
+| Resumo diário operacional | SGTI → Gestores | Dashboards Operacionais |
+
+**Configuração:** SMTP autenticado via Google Workspace com o endereço `implantacao@pinpag.com.br` como remetente padrão do sistema.
+
+### 6.4 Supabase
+
+**Propósito:** Plataforma de banco de dados e serviços de backend que hospeda o PostgreSQL, autenticação auxiliar e *storage* de evidências e anexos.
+
+| Funcionalidade | Uso no SGTI |
+|----------------|-------------|
+| PostgreSQL gerenciado | Banco de dados principal de todos os módulos |
+| Supabase Auth | Autenticação auxiliar e gerenciamento de sessões |
+| Supabase Storage | Armazenamento de evidências de compliance, anexos de chamados e documentos |
+| Supabase Realtime | Atualização em tempo real dos dashboards operacionais |
+| Row Level Security (RLS) | Isolamento de dados por perfil e organização |
+
+**Premissa:** Projeto Supabase criado com PostgreSQL disponível e RLS habilitado para todos os recursos sensíveis.
+
+### 6.5 GitHub
+
+**Propósito:** Repositório de código-fonte, controle de versão e rastreabilidade de entregas técnicas vinculadas a projetos e mudanças de TI.
+
+| Funcionalidade | Direção | Módulo SGTI |
+|----------------|---------|-------------|
+| Rastreabilidade de *commits* por projeto | GitHub → SGTI | Projetos de TI |
+| Webhooks de *pull request* e *merge* | GitHub → SGTI | Projetos de TI, Mudanças |
+| Status de pipelines CI/CD | GitHub → SGTI | Dashboards Operacionais |
+| Registro automático de mudanças em produção | GitHub → SGTI | Gestão de Mudanças |
+
+**API:** GitHub REST API v3 / GraphQL API v4, autenticação via GitHub App ou PAT (*Personal Access Token*).
+
+### 6.6 Vercel
+
+**Propósito:** Plataforma de hospedagem e entrega contínua do frontend NextJS do SGTI.
+
+| Funcionalidade | Direção | Módulo SGTI |
+|----------------|---------|-------------|
+| *Deploy* automático via GitHub | GitHub → Vercel | Pipeline CI/CD |
+| Status de *deployments* | Vercel → SGTI | Dashboards Operacionais |
+| Variáveis de ambiente por projeto | Vercel | Configuração |
+| *Preview deployments* para ambientes de homologação | Vercel | Gestão de Projetos |
+
+**API:** Vercel REST API, autenticação via *token* de projeto.
+
+### 6.7 Mapa de Integrações
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                        SGTI                             │
-│                                                         │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────┐ │
-│  │  Service │  │   IAM    │  │  Ativos  │  │Finance │ │
-│  │   Desk   │  │          │  │  (ITAM)  │  │        │ │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────────┘ │
-│       │              │              │                    │
-└───────┼──────────────┼──────────────┼────────────────────┘
-        │              │              │
-        ▼              ▼              │
-   ┌─────────┐   ┌──────────────┐    │
-   │  GLPI   │   │    Google    │    │
-   │ REST API│   │  Workspace   │◄───┘
-   └─────────┘   └──────────────┘
+                        ┌─────────────────────────────────────────┐
+                        │                  SGTI                   │
+                        │                                         │
+         ┌──────────────┤  Incidentes │ IAM │ Ativos │ Projetos  ├──────────────┐
+         │              │  Requisições│Comp.│ Financ.│ Compras   │              │
+         │              └──────┬──────┴──┬──┴───┬────┴─────┬─────┘              │
+         │                     │         │      │          │                     │
+         ▼                     ▼         ▼      ▼          ▼                    ▼
+   ┌──────────┐         ┌──────────┐  ┌──────┐ ┌────────┐ ┌────────┐    ┌──────────┐
+   │  Google  │         │   GLPI   │  │E-mail│ │Supabase│ │ GitHub │    │  Vercel  │
+   │Workspace │         │ REST API │  │SMTP  │ │  PG    │ │  API   │    │   API    │
+   └──────────┘         └──────────┘  └──────┘ └────────┘ └────────┘    └──────────┘
+   SSO, IAM,            Chamados,     Notif.   BD, Auth,   Código,       Deploy,
+   Gmail                Inventário    Trans.   Storage     Mudanças      Frontend
 ```
 
 ---
 
-## 9. Indicadores Estratégicos
+## 7. Indicadores Estratégicos
 
-Os indicadores estratégicos do SGTI são organizados em quatro perspectivas alinhadas aos dashboards do sistema: Executiva, Operacional, Financeira e de Compliance.
-
-### 9.1 Perspectiva Executiva
+### 7.1 Perspectiva de Serviço e Atendimento
 
 | Indicador | Descrição | Meta | Frequência |
 |-----------|-----------|------|------------|
-| **SLA Global de TI** | Percentual de chamados atendidos dentro do SLA acordado | ≥ 95% | Mensal |
-| **Disponibilidade de Serviços Críticos** | Uptime dos serviços classificados como críticos no catálogo | ≥ 99,5% | Mensal |
-| **CSAT (Satisfação do Usuário)** | Nota média de satisfação pós-atendimento | ≥ 4,0 / 5,0 | Mensal |
-| **Maturidade de Compliance de TI** | Percentual de controles implementados sobre o total mapeado | ≥ 80% | Trimestral |
-| **Custo Total de TI (TCO)** | Custo total de propriedade da TI (CAPEX + OPEX) por período | Conforme orçamento | Mensal |
-
-### 9.2 Perspectiva Operacional
-
-| Indicador | Descrição | Meta | Frequência |
-|-----------|-----------|------|------------|
-| **MTTR** | Tempo médio de resolução de chamados por categoria | Conforme SLA | Semanal |
+| **SLA Global** | % de chamados resolvidos dentro do prazo acordado | ≥ 95% | Mensal |
+| **MTTR** | Tempo médio de resolução por categoria de chamado | Conforme SLA | Semanal |
 | **MTTA** | Tempo médio de primeiro atendimento | Conforme SLA | Semanal |
-| **Volume de Chamados por Canal** | Distribuição de chamados por origem (portal, e-mail, telefone) | — | Semanal |
-| **Taxa de Reabertura de Chamados** | Percentual de tickets reabertos após resolução | ≤ 5% | Mensal |
-| **Chamados Resolvidos via Base de Conhecimento** | Percentual de resoluções com vínculo a artigo de conhecimento | ≥ 30% | Mensal |
-| **Ativos com Garantia Vencida** | Quantidade de ativos sem cobertura de garantia ativa | 0 críticos | Mensal |
-| **Acessos Pendentes de Revisão** | Quantidade de acessos com revisão periódica em atraso | 0 | Semanal |
-| **Onboarding / Offboarding no Prazo** | Percentual de provisionamentos e revogações realizados no prazo | ≥ 98% | Mensal |
+| **CSAT** | Nota média de satisfação pós-atendimento | ≥ 4,0 / 5,0 | Mensal |
+| **Taxa de Reabertura** | % de chamados reabertos após resolução | ≤ 5% | Mensal |
+| **Chamados via KB** | % de resoluções com vínculo à Base de Conhecimento | ≥ 30% | Mensal |
+| **Disponibilidade de Serviços Críticos** | Uptime de serviços classificados como críticos | ≥ 99,5% | Mensal |
 
-### 9.3 Perspectiva Financeira
+### 7.2 Perspectiva de Ativos e Identidades
 
 | Indicador | Descrição | Meta | Frequência |
 |-----------|-----------|------|------------|
-| **OPEX Realizado vs. Orçado** | Desvio percentual entre despesas recorrentes realizadas e orçadas | ≤ 5% desvio | Mensal |
-| **CAPEX Realizado vs. Orçado** | Desvio percentual entre investimentos realizados e orçados | ≤ 10% desvio | Mensal |
-| **Custo por Chamado** | Custo médio operacional de TI por chamado atendido | Benchmarking | Trimestral |
-| **Contratos a Vencer em 90 dias** | Quantidade e valor de contratos próximos ao vencimento | 0 sem tratativa | Mensal |
-| **Licenças Subutilizadas** | Percentual de licenças de software com uso abaixo de 20% | ≤ 10% | Trimestral |
-| **ROI de Iniciativas de TI** | Retorno sobre investimentos em projetos e melhorias de TI | Positivo | Semestral |
+| **Precisão do Inventário** | % de ativos físicos com registro atualizado no SGTI | ≥ 98% | Trimestral |
+| **Ativos com Garantia Vencida** | Qtd. de ativos críticos sem cobertura de garantia ativa | 0 | Mensal |
+| **Licenças Subutilizadas** | % de licenças com uso abaixo de 20% | ≤ 10% | Trimestral |
+| **Onboarding no Prazo** | % de provisionamentos de acesso realizados no prazo | ≥ 98% | Mensal |
+| **Offboarding no Prazo** | % de revogações de acesso em até 24h do desligamento | 100% | Mensal |
+| **Acessos sem Revisão** | Qtd. de acessos com revisão periódica em atraso | 0 | Semanal |
 
-### 9.4 Perspectiva de Compliance
+### 7.3 Perspectiva Financeira
 
 | Indicador | Descrição | Meta | Frequência |
 |-----------|-----------|------|------------|
-| **Políticas Publicadas e Vigentes** | Percentual de políticas de TI publicadas, revisadas e vigentes | 100% | Semestral |
-| **Não-Conformidades em Aberto** | Quantidade de não-conformidades identificadas sem plano de ação | 0 | Mensal |
-| **Tempo Médio de Tratamento de NC** | Tempo médio para fechamento de uma não-conformidade | ≤ 30 dias | Mensal |
-| **Cobertura de Controles por Framework** | Percentual de controles mapeados com evidência de implementação | ≥ 85% | Trimestral |
-| **Usuários com Acesso Revisado** | Percentual de usuários com revisão de acesso concluída no ciclo | 100% | Semestral |
-| **Incidentes de Segurança Registrados** | Quantidade de incidentes de segurança registrados e tratados | Tendência 0 | Mensal |
-| **Conformidade LGPD** | Percentual de processos com tratamento de dados pessoais mapeados e documentados | 100% | Semestral |
+| **OPEX Realizado vs. Orçado** | Desvio entre despesas recorrentes realizadas e orçadas | ≤ 5% | Mensal |
+| **CAPEX Realizado vs. Orçado** | Desvio entre investimentos realizados e orçados | ≤ 10% | Mensal |
+| **Contratos a Vencer (90 dias)** | Qtd. e valor de contratos sem tratativa de renovação | 0 | Mensal |
+| **Custo por Chamado** | Custo operacional médio de TI por chamado atendido | Benchmarking | Trimestral |
+| **TCO por Serviço** | Custo total de propriedade por serviço de TI | Tendência decrescente | Semestral |
+
+### 7.4 Perspectiva de Compliance e Governança
+
+| Indicador | Descrição | Meta | Frequência |
+|-----------|-----------|------|------------|
+| **Maturidade de Compliance** | % de controles implementados sobre o total mapeado | ≥ 85% | Trimestral |
+| **NCs em Aberto** | Qtd. de não-conformidades sem plano de ação definido | 0 | Mensal |
+| **Tempo Médio de Tratamento de NC** | Tempo médio para fechamento de não-conformidade | ≤ 30 dias | Mensal |
+| **Políticas Vigentes e Revisadas** | % de políticas publicadas dentro do prazo de revisão | 100% | Semestral |
+| **Conformidade LGPD** | % de processos com dados pessoais mapeados e documentados | 100% | Semestral |
+| **Incidentes de Segurança** | Qtd. de incidentes de segurança registrados e tratados | Tendência 0 | Mensal |
+
+### 7.5 Perspectiva de Projetos e Entrega
+
+| Indicador | Descrição | Meta | Frequência |
+|-----------|-----------|------|------------|
+| **Projetos no Prazo** | % de projetos de TI com entregas dentro do cronograma | ≥ 80% | Mensal |
+| **Projetos no Orçamento** | % de projetos com custo realizado dentro do orçamento aprovado | ≥ 85% | Mensal |
+| **Lead Time de Compras** | Tempo médio entre requisição de compra e recebimento | Benchmarking | Trimestral |
+
+---
+
+## 8. Restrições Técnicas
+
+### 8.1 Restrições de Arquitetura
+
+- O sistema deve ser desenvolvido seguindo **Clean Architecture** com **DDD**, separando domínio, aplicação, infraestrutura e interface em camadas independentes.
+- O backend deve ser implementado em **NestJS** e o frontend em **NextJS**, com separação clara de responsabilidades.
+- O banco de dados principal é **PostgreSQL gerenciado via Supabase**, com acesso via **Prisma ORM**.
+- Toda lógica de negócio deve residir na camada de domínio, sendo independente de frameworks e infraestrutura.
+- Integrações externas (GLPI, Google Workspace, GitHub, Vercel) devem ser abstraídas por interfaces de *port/adapter*, nunca acopladas diretamente ao domínio.
+
+### 8.2 Restrições de Segurança
+
+- Toda autenticação deve ser federada via **Google Workspace (OAuth 2.0)** — nenhuma senha local deve ser armazenada no SGTI.
+- O sistema deve implementar **RBAC** com segregação de privilégios mínimos por módulo e operação.
+- Dados sensíveis (PII, credenciais de integração, logs de auditoria) devem ser armazenados com criptografia em repouso.
+- Toda comunicação entre serviços e APIs externas deve ocorrer exclusivamente via **HTTPS/TLS 1.2+**.
+- Registros de auditoria devem ser imutáveis — operações de DELETE são proibidas em tabelas de log de auditoria.
+- *Tokens* e credenciais de integração devem ser armazenados exclusivamente em variáveis de ambiente gerenciadas (Supabase Vault, Vercel Environment Variables) — nunca em código-fonte ou documentação.
+
+### 8.3 Restrições Operacionais
+
+- Disponibilidade mínima de **99,5%** no horário comercial (07h–20h, segunda a sexta).
+- Tempo de resposta das APIs principais não deve exceder **2 segundos** em condições normais de carga.
+- Suporte mínimo a **500 usuários simultâneos** sem degradação perceptível de performance.
+- Toda alteração em produção deve ser precedida por registro de mudança (*change record*) no SGTI.
+- O processo de *deploy* deve ser automatizado via **GitHub Actions + Vercel**, sem intervenção manual em produção.
+
+### 8.4 Restrições de Integração
+
+- A integração com o GLPI deve ser **bidirecional** e preservar o GLPI como sistema de registro oficial de tickets.
+- A integração com o Google Workspace deve respeitar os escopos de API definidos pelo administrador do domínio.
+- Nenhuma integração deve expor credenciais, tokens ou dados pessoais em logs, interfaces de usuário ou respostas de API.
+- Falhas em integrações externas não devem interromper o funcionamento do núcleo do SGTI — o sistema deve operar em modo degradado com fila de retry para operações pendentes.
+
+### 8.5 Restrições Regulatórias
+
+- O sistema deve estar em conformidade com a **LGPD (Lei nº 13.709/2018)** no tratamento de dados pessoais de colaboradores.
+- Dados de auditoria e compliance devem ser retidos por no mínimo **5 anos**.
+- O sistema deve suportar exportação de evidências de conformidade em formatos auditáveis (PDF, CSV, JSON).
+- Dados pessoais de colaboradores desligados devem ser anonimizados após o período de retenção definido.
+
+---
+
+## 9. Critérios de Sucesso
+
+Os critérios de sucesso do SGTI são organizados em três horizontes de avaliação: implantação, operação estabilizada e maturidade.
+
+### 9.1 Critérios de Implantação (até 90 dias após go-live)
+
+| Critério | Indicador de Cumprimento |
+|----------|--------------------------|
+| Todos os módulos do escopo implantados e operacionais | 100% dos módulos com status Vigente |
+| Integrações com Google Workspace e GLPI funcionando | 0 falhas críticas de sincronização por semana |
+| Equipe de TI treinada e operando no SGTI | ≥ 90% dos técnicos usando o SGTI como canal principal |
+| Migração de chamados históricos do GLPI concluída | Base histórica disponível para consulta no SGTI |
+| Catálogo de Serviços publicado com SLAs definidos | 100% dos serviços críticos catalogados com SLA |
+| Dashboards executivos e operacionais funcionando | Relatório semanal gerado automaticamente |
+
+### 9.2 Critérios de Operação Estabilizada (90 a 180 dias após go-live)
+
+| Critério | Indicador de Cumprimento |
+|----------|--------------------------|
+| SLA Global ≥ 95% mantido por 3 meses consecutivos | Relatório mensal de SLA sem violações críticas |
+| CSAT médio ≥ 4,0 por 3 meses consecutivos | Pesquisa pós-atendimento com resultado sustentado |
+| 100% dos offboardings realizados em até 24h | Nenhum caso de acesso ativo após desligamento |
+| Inventário de ativos com precisão ≥ 98% | Auditoria física vs. sistema com ≤ 2% de divergência |
+| Base de Conhecimento com ≥ 50 artigos publicados | Relatório do módulo KMDB |
+| Zero não-conformidades críticas de compliance abertas | Dashboard de Compliance sem NCs críticas abertas |
+
+### 9.3 Critérios de Maturidade (após 180 dias)
+
+| Critério | Indicador de Cumprimento |
+|----------|--------------------------|
+| Redução de ≥ 20% no MTTR em relação ao baseline pré-SGTI | Comparativo de relatórios antes e depois |
+| Redução de ≥ 15% no OPEX de TI por eliminação de contratos e licenças redundantes | Relatório financeiro comparativo |
+| Maturidade de Compliance ≥ 85% nos frameworks mapeados | Relatório de maturidade do módulo Compliance |
+| 100% dos projetos de TI gerenciados dentro do SGTI | Nenhum projeto fora da plataforma |
+| Dashboard Executivo utilizado pela alta direção como fonte primária de KPIs de TI | Confirmação em reunião de governança trimestral |
+| NPS (*Net Promoter Score*) interno do SGTI ≥ 7,0 | Pesquisa semestral com usuários do sistema |
 
 ---
 
@@ -409,12 +565,11 @@ Os indicadores estratégicos do SGTI são organizados em quatro perspectivas ali
 
 | Versão | Data | Autor | Descrição da Alteração |
 |--------|------|-------|------------------------|
-| 1.0.0 | 2026-06-09 | Arquitetura Corporativa | Criação do documento |
+| 1.0.0 | 2026-06-09 | Arquitetura Corporativa | Criação inicial do documento |
+| 2.0.0 | 2026-06-09 | Arquitetura Corporativa | Revisão completa: módulos expandidos para 14, integrações atualizadas (e-mail, GitHub, Vercel, Supabase), seção de Critérios de Sucesso adicionada |
 
 ---
 
-> **Próximos Documentos Previstos:**  
-> `01_ARCHITECTURE_OVERVIEW.md` — Visão geral da arquitetura técnica do SGTI  
-> `02_DOMAIN_MODEL.md` — Modelo de domínio (DDD) e bounded contexts  
-> `03_SERVICE_CATALOG.md` — Catálogo de serviços de TI e SLAs  
-> `04_INTEGRATIONS.md` — Especificação detalhada das integrações (Google Workspace e GLPI)
+> **Próximos documentos recomendados:**
+> [`Arquitetura/01_ARCHITECTURE_OVERVIEW.md`](./Arquitetura/01_ARCHITECTURE_OVERVIEW.md) — Visão geral da arquitetura técnica do SGTI
+> [`Arquitetura/02_DOMAIN_MODEL.md`](./Arquitetura/02_DOMAIN_MODEL.md) — Modelo de domínio, bounded contexts e linguagem ubíqua
