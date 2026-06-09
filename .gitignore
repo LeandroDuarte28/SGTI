@@ -1,0 +1,42 @@
+# Node.js
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# NestJS
+dist/
+
+# Logs
+logs/
+*.log
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Supabase
+.supabase/
+
+# Cobertura de testes
+coverage/
+
+# Build
+build/
+
+# VS Code
+.vscode/
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
