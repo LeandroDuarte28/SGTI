@@ -1,0 +1,31 @@
+name: Supabase Keep-Alive
+
+on:
+  # Run daily at 06:00 UTC (03:00 BRT) — off-peak, well within the 7-day window
+  schedule:
+    - cron: "0 6 * * *"
+
+  # Allow manual trigger if project is suspected to have paused
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    name: Ping Supabase projects
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping DEV project
+        run: |
+          STATUS=$(curl --silent --write-out "%{http_code}" --output /dev/null \
+            "${{ secrets.NEXT_PUBLIC_SUPABASE_URL_DEV }}/rest/v1/" \
+            -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}")
+          echo "DEV ping status: $STATUS"
+          [ "$STATUS" -eq 200 ] || echo "::warning::DEV Supabase project may be paused (HTTP $STATUS)"
+
+      - name: Ping STAGING project
+        run: |
+          STATUS=$(curl --silent --write-out "%{http_code}" --output /dev/null \
+            "${{ secrets.NEXT_PUBLIC_SUPABASE_URL_STAGING }}/rest/v1/" \
+            -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY_STAGING }}")
+          echo "STAGING ping status: $STATUS"
+          [ "$STATUS" -eq 200 ] || echo "::warning::STAGING Supabase project may be paused (HTTP $STATUS)"

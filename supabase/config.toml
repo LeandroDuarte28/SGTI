@@ -1,0 +1,125 @@
+# Supabase Local Development Configuration
+# Documentation: https://supabase.com/docs/guides/cli/config
+
+[api]
+# Port to use for the API URL. Default is 54321.
+port = 54321
+# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API endpoints.
+# public and storage are always included.
+schemas = ["public", "graphql_public"]
+# Extra schemas to add to the search_path of every request.
+extra_search_path = ["public", "extensions"]
+# The maximum number of rows returns from a view, table, or stored procedure.
+max_rows = 1000
+
+[db]
+# Port to use for the local database URL. Default is 54322.
+port = 54322
+# Port used by db diff command to initialize the shadow database. Default is 54320.
+shadow_port = 54320
+# The database major version to use. This has to be the same as your remote database's.
+# Run `SHOW server_version;` on the remote database to check.
+major_version = 15
+
+[db.pooler]
+enabled = false
+# Port to use for the local connection pooler. Default is 54329.
+port = 54329
+# The number of clients with open transactions that can connect to Postgres at a time.
+pool_size = 15
+# Maximum length of time (in seconds) a connection may be idle before being closed.
+connection_string = ""
+
+[realtime]
+enabled = true
+# Bind realtime via either IPv4 or IPv6. (default: IPv6)
+ip_version = "IPv6"
+# The maximum length in bytes of HTTP request headers. (default: 4096)
+max_header_length = 4096
+
+[studio]
+enabled = true
+# Port to use for Supabase Studio. Default is 54323.
+port = 54323
+# External URL of the API server that frontend connects to.
+api_url = "http://127.0.0.1"
+# OpenAI API key for AI features — not needed for SGTI.
+openai_api_key = ""
+
+[inbucket]
+# Inbucket is an email testing server — captures emails sent during local dev.
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+enabled = true
+# The maximum file size allowed (e.g. "5MB", "500KB").
+file_size_limit = "50MiB"
+
+[storage.image_transformation]
+enabled = true
+
+[auth]
+enabled = true
+# The base URL of your website — used for redirect allow-list.
+site_url = "http://localhost:3000"
+# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
+additional_redirect_urls = [
+  "http://localhost:3000/auth/callback",
+  "http://localhost:3000"
+]
+# How long tokens are valid for, in seconds. Default is 3600 (1 hour).
+jwt_expiry = 3600
+# If disabled, the refresh token will never expire.
+enable_refresh_token_rotation = true
+# Allows session refresh tokens to be reused after expiry, up to the specified interval in seconds.
+# Requires enable_refresh_token_rotation = true.
+refresh_token_reuse_interval = 10
+# Allow/disallow new user signups to your project.
+enable_signup = true
+# Allow/disallow anonymous sign-ins to your project.
+enable_anonymous_sign_ins = false
+# Allow/disallow testing manual linking of accounts.
+enable_manual_linking = false
+# Passwords shorter than this value will be rejected as weak.
+minimum_password_length = 8
+
+[auth.email]
+# Allow/Disallow new user signups via email to your project.
+enable_signup = false   # SGTI uses Google OAuth only — no email/password login.
+# If enabled, a user will be required to confirm any email change on both the old and new email addresses.
+double_confirm_changes = true
+# If enabled, users need to confirm their email address before signing in.
+enable_confirmations = false
+
+[auth.sms]
+enable_signup = false
+
+# Google OAuth provider — required for SGTI SSO
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+# Redirect URL for local dev
+redirect_uri = ""
+
+[edge_runtime]
+enabled = true
+# The policy used for JWTs signed by functions — "per_worker" requires Supabase Pro.
+policy = "oneshot"
+inspector_port = 8083
+
+[analytics]
+enabled = false
+port = 54327
+# Configure one of the supported backends: `postgres`, `bigquery`.
+backend = "postgres"
+
+# ─── Local secrets (referenced by Edge Functions via Deno.env) ───────────────
+# Actual values go in supabase/.env.local (never committed to git)
+[functions.env]
+GOOGLE_CLIENT_ID = ""
+GOOGLE_CLIENT_SECRET = ""
+SUPABASE_SERVICE_ROLE_KEY = ""
