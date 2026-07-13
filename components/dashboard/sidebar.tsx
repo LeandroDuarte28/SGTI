@@ -2,7 +2,15 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Ticket, LayoutGrid, ClipboardList, Laptop, Search } from "lucide-react";
+import {
+  LayoutDashboard,
+  Ticket,
+  LayoutGrid,
+  ClipboardList,
+  Laptop,
+  Search,
+  KeyRound,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 
@@ -16,6 +24,7 @@ const ACTIVE_NAV_ITEMS = [
   { href: "/requests", icon: ClipboardList, label: "Requisições" },
   { href: "/problems", icon: Search, label: "Problemas" },
   { href: "/assets", icon: Laptop, label: "Ativos" },
+  { href: "/identity", icon: KeyRound, label: "Identidade" },
   { href: "/catalog", icon: LayoutGrid, label: "Catálogo" },
 ] as const;
 
