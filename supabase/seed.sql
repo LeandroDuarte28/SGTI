@@ -61,3 +61,33 @@ WHERE id = 'a0000000-0000-0000-0000-000000000002';
 UPDATE shared."UserProfile"
 SET department = 'Tecnologia da Informação', job_title = 'Analista de TI Sênior'
 WHERE id = 'a0000000-0000-0000-0000-000000000003';
+
+-- ─── Catalog: SLA Definitions ───────────────────────────────────────────────
+INSERT INTO catalog."SLADefinition" (id, name, priority, response_time_minutes, resolution_time_minutes, business_hours_only)
+VALUES
+    ('b0000000-0000-0000-0000-000000000001', 'Padrão Crítico', 'CRITICAL', 15, 240, false),
+    ('b0000000-0000-0000-0000-000000000002', 'Padrão Alto', 'HIGH', 30, 480, true),
+    ('b0000000-0000-0000-0000-000000000003', 'Padrão Médio', 'MEDIUM', 240, 1440, true),
+    ('b0000000-0000-0000-0000-000000000004', 'Padrão Baixo', 'LOW', 480, 4320, true)
+ON CONFLICT (id) DO NOTHING;
+
+-- ─── Catalog: Service Categories ────────────────────────────────────────────
+INSERT INTO catalog."ServiceCategory" (id, name, description, icon, sort_order)
+VALUES
+    ('c0000000-0000-0000-0000-000000000001', 'Hardware', 'Solicitações de equipamentos e periféricos', 'laptop', 1),
+    ('c0000000-0000-0000-0000-000000000002', 'Software', 'Instalação e licenciamento de software', 'app-window', 2),
+    ('c0000000-0000-0000-0000-000000000003', 'Acesso e Contas', 'Criação e alteração de acessos a sistemas', 'key-round', 3),
+    ('c0000000-0000-0000-0000-000000000004', 'Rede e Conectividade', 'VPN, Wi-Fi e conectividade geral', 'wifi', 4)
+ON CONFLICT (id) DO NOTHING;
+
+-- ─── Catalog: Service Catalog Items ─────────────────────────────────────────
+INSERT INTO catalog."ServiceCatalogItem" (category_id, name, description, default_sla_id, estimated_delivery_days)
+VALUES
+    ('c0000000-0000-0000-0000-000000000001', 'Solicitar Notebook', 'Solicitação de notebook corporativo novo', 'b0000000-0000-0000-0000-000000000004', 5),
+    ('c0000000-0000-0000-0000-000000000001', 'Solicitar Monitor Adicional', 'Solicitação de monitor extra para posto de trabalho', 'b0000000-0000-0000-0000-000000000004', 3),
+    ('c0000000-0000-0000-0000-000000000002', 'Instalar Software', 'Instalação de software homologado pela TI', 'b0000000-0000-0000-0000-000000000003', 1),
+    ('c0000000-0000-0000-0000-000000000002', 'Licença Microsoft 365', 'Solicitação de licença Microsoft 365', 'b0000000-0000-0000-0000-000000000003', 2),
+    ('c0000000-0000-0000-0000-000000000003', 'Criar Acesso a Sistema', 'Criação de acesso a sistema interno', 'b0000000-0000-0000-0000-000000000002', 1),
+    ('c0000000-0000-0000-0000-000000000003', 'Resetar Senha', 'Redefinição de senha de acesso corporativo', 'b0000000-0000-0000-0000-000000000001', NULL),
+    ('c0000000-0000-0000-0000-000000000004', 'Configurar VPN', 'Configuração de acesso remoto via VPN', 'b0000000-0000-0000-0000-000000000003', 1),
+    ('c0000000-0000-0000-0000-000000000004', 'Problema de Wi-Fi', 'Suporte para problemas de conectividade Wi-Fi', 'b0000000-0000-0000-0000-000000000001', NULL);
