@@ -10,6 +10,7 @@ import {
   Laptop,
   Search,
   KeyRound,
+  ShieldCheck,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
@@ -25,10 +26,11 @@ const ACTIVE_NAV_ITEMS = [
   { href: "/problems", icon: Search, label: "Problemas" },
   { href: "/assets", icon: Laptop, label: "Ativos" },
   { href: "/identity", icon: KeyRound, label: "Identidade" },
+  { href: "/compliance", icon: ShieldCheck, label: "Compliance" },
   { href: "/catalog", icon: LayoutGrid, label: "Catálogo" },
 ] as const;
 
-const PLANNED_NAV_ITEMS = ["Compliance", "Base de Conhecimento"];
+const PLANNED_NAV_ITEMS = ["Base de Conhecimento"];
 
 export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
