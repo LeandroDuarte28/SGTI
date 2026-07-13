@@ -11,6 +11,7 @@ import {
   Search,
   KeyRound,
   ShieldCheck,
+  Wallet,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
@@ -27,6 +28,7 @@ const ACTIVE_NAV_ITEMS = [
   { href: "/assets", icon: Laptop, label: "Ativos" },
   { href: "/identity", icon: KeyRound, label: "Identidade" },
   { href: "/compliance", icon: ShieldCheck, label: "Compliance" },
+  { href: "/financial", icon: Wallet, label: "Financeiro" },
   { href: "/catalog", icon: LayoutGrid, label: "Catálogo" },
 ] as const;
 
