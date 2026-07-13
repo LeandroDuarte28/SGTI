@@ -3,11 +3,14 @@
   "compilerOptions": {
     // ─── Language & Target ─────────────────────────────────────────────
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "preserve",
-
     // ─── Strict Mode (All checks enabled — non-negotiable) ─────────────
     "strict": true,
     "noImplicitAny": true,
@@ -17,7 +20,6 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-
     // ─── Additional Strict Checks ──────────────────────────────────────
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -27,37 +29,60 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "useUnknownInCatchVariables": true,
-
     // ─── Module Resolution ─────────────────────────────────────────────
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowJs": false,
     "isolatedModules": true,
-
     // ─── Output ────────────────────────────────────────────────────────
     "noEmit": true,
     "incremental": true,
     "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
-
     // ─── Next.js specific ──────────────────────────────────────────────
-    "plugins": [{ "name": "next" }],
-
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     // ─── Path Aliases ──────────────────────────────────────────────────
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/app/*": ["./app/*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/hooks/*": ["./hooks/*"],
-      "@/types/*": ["./types/*"],
-      "@/services/*": ["./services/*"],
-      "@/actions/*": ["./actions/*"],
-      "@/constants/*": ["./constants/*"],
-      "@/styles/*": ["./styles/*"],
-      "@/supabase/*": ["./supabase/*"]
-    }
+      "@/*": [
+        "./*"
+      ],
+      "@/app/*": [
+        "./app/*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/types/*": [
+        "./types/*"
+      ],
+      "@/services/*": [
+        "./services/*"
+      ],
+      "@/actions/*": [
+        "./actions/*"
+      ],
+      "@/constants/*": [
+        "./constants/*"
+      ],
+      "@/styles/*": [
+        "./styles/*"
+      ],
+      "@/supabase/*": [
+        "./supabase/*"
+      ]
+    },
+    "skipLibCheck": true
   },
   "include": [
     "next-env.d.ts",

@@ -50,6 +50,11 @@ const eslintConfig = [
       // ─── Module boundary enforcement ──────────────────────────────────
       // Prevents direct cross-module imports between bounded contexts.
       // Each module must only import from its own directory or @/lib, @/types, @/components/shared.
+      //
+      // NOTE: "importNames" must be omitted (never an empty array) — ESLint's
+      // schema for "patterns" entries requires importNames to have at least
+      // one item if present at all. An empty array fails validation and
+      // triggers a confusing cascade of "should match some schema in anyOf" errors.
       "no-restricted-imports": [
         "error",
         {
@@ -58,13 +63,11 @@ const eslintConfig = [
             // (they must go through defined public APIs / service layer)
             {
               group: ["@/services/incidents/*"],
-              importNames: [],
               message:
                 "Import incidents data via @/services/incidents/index — not internal files.",
             },
             {
               group: ["@/services/compliance/*"],
-              importNames: [],
               message:
                 "Import compliance data via @/services/compliance/index — not internal files.",
             },

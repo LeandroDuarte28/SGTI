@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-
+import { jest } from "@jest/globals";
 // ─── Global test setup ────────────────────────────────────────────────────────
 
 // Mock Next.js router for components that use it

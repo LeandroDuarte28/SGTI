@@ -11,7 +11,7 @@ const config: Config = {
   testEnvironment: "jest-environment-jsdom",
 
   // ─── Setup ────────────────────────────────────────────────────────────────
-  setupFilesAfterFramework: ["<rootDir>/jest.setup.ts"],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
 
   // ─── Coverage ─────────────────────────────────────────────────────────────
   collectCoverageFrom: [
@@ -25,7 +25,7 @@ const config: Config = {
     "!**/node_modules/**",
     "!lib/supabase/database.types.ts", // Auto-generated
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 70,
       functions: 70,

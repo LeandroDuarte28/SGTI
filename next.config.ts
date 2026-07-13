@@ -104,8 +104,6 @@ const nextConfig: NextConfig = {
   // ─── Bundle Analyzer ───────────────────────────────────────────────────────
   // To analyze: ANALYZE=true npm run build
   ...(process.env.ANALYZE === "true" && {
-    // @ts-expect-error — optional peer dep, not in devDeps by default
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     ...require("@next/bundle-analyzer")({ enabled: true }),
   }),
 };

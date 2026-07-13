@@ -22,6 +22,10 @@ yarn-error.log*
 .supabase/
 supabase/.env
 supabase/.env.local
+supabase/.branches/
+supabase/.temp/
+supabase/.refact/
+supabase/snippets/
 
 # ─── Vercel ───────────────────────────────────────────────────────────────────
 .vercel/
@@ -29,6 +33,7 @@ supabase/.env.local
 # ─── TypeScript ───────────────────────────────────────────────────────────────
 *.tsbuildinfo
 .next/cache/
+next-env.d.ts
 
 # ─── Testing ──────────────────────────────────────────────────────────────────
 coverage/

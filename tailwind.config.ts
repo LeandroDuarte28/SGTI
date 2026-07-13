@@ -10,7 +10,7 @@ const config: Config = {
   ],
 
   // ─── Dark mode ────────────────────────────────────────────────────────────
-  darkMode: ["class"],
+  darkMode: "class",
 
   theme: {
     extend: {
