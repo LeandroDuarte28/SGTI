@@ -1,0 +1,23 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+
+# Supabase CLI local cache/state — not source code
+.supabase/
+supabase/.branches/
+supabase/.temp/
+supabase/.refact/
+supabase/snippets/
+
+# SQL is not supported by Prettier without an extra plugin (prettier-plugin-sql).
+# Formatting these with the wrong parser breaks the check entirely — see
+# prettier.config.js history: an override incorrectly forced the "babel"
+# (JavaScript) parser onto *.sql files, which fails on the first SQL comment.
+*.sql
+
+# Auto-generated — never hand-format
+package-lock.json
+next-env.d.ts
+lib/supabase/database.types.ts

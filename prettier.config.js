@@ -1,6 +1,6 @@
 /** @type {import('prettier').Config} */
 const prettierConfig = {
-  // ─── Core formatting ──────────────────────────────────────────────────────
+  // ─── Core formatting ───────────────────────────────────────────────────
   printWidth: 100,
   tabWidth: 2,
   useTabs: false,
@@ -14,13 +14,17 @@ const prettierConfig = {
   arrowParens: "always",
   endOfLine: "lf",
 
-  // ─── Tailwind plugin ──────────────────────────────────────────────────────
+  // ─── Tailwind plugin ───────────────────────────────────────────────────
   // Sorts Tailwind classes automatically — required by coding standards.
   plugins: ["prettier-plugin-tailwindcss"],
   tailwindConfig: "./tailwind.config.ts",
   tailwindFunctions: ["cn", "cva", "clsx", "tw"],
 
-  // ─── Overrides per file type ──────────────────────────────────────────────
+  // ─── Overrides per file type ───────────────────────────────────────────
+  // NOTE: *.sql is intentionally NOT listed here. SQL files are excluded via
+  // .prettierignore instead — Prettier has no built-in SQL parser, and a
+  // previous override here mistakenly forced the "babel" (JS) parser onto
+  // *.sql files, which broke `prettier --check` on every migration file.
   overrides: [
     {
       files: ["*.json"],
@@ -33,13 +37,6 @@ const prettierConfig = {
       options: {
         printWidth: 80,
         proseWrap: "always",
-      },
-    },
-    {
-      files: ["*.sql"],
-      options: {
-        // SQL files are not formatted by Prettier — skip.
-        parser: "babel",
       },
     },
   ],
