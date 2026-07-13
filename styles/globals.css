@@ -1,0 +1,191 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SGTI Corporate Theme — CSS Custom Properties
+   Consumed by tailwind.config.ts and shadcn/ui components.
+   Light mode is the default; dark mode is toggled via next-themes (.dark class).
+   ───────────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    /* ─── Base ──────────────────────────────────────────────────────────── */
+    --background: 0 0% 98%;
+    --foreground: 222 47% 11%;
+
+    /* ─── Card ──────────────────────────────────────────────────────────── */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    /* ─── Popover ───────────────────────────────────────────────────────── */
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* ─── Primary — Corporate Blue ──────────────────────────────────────── */
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    /* ─── Secondary ─────────────────────────────────────────────────────── */
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    /* ─── Muted ─────────────────────────────────────────────────────────── */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    /* ─── Accent ────────────────────────────────────────────────────────── */
+    --accent: 210 40% 94%;
+    --accent-foreground: 222 47% 11%;
+
+    /* ─── Destructive ───────────────────────────────────────────────────── */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* ─── Border / Input / Ring ─────────────────────────────────────────── */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+
+    /* ─── Border radius ─────────────────────────────────────────────────── */
+    --radius: 0.5rem;
+
+    /* ─── Typography ────────────────────────────────────────────────────── */
+    --font-sans: "Inter", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+    /* ─── Sidebar ───────────────────────────────────────────────────────── */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 221 83% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 47% 16%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 47% 18%;
+    --sidebar-ring: 221 83% 53%;
+    --sidebar-width: 256px;
+    --sidebar-width-icon: 48px;
+
+    /* ─── Charts ────────────────────────────────────────────────────────── */
+    --chart-1: 221 83% 53%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 37 91% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    /* ─── ITIL Priority Colors ──────────────────────────────────────────── */
+    --priority-critical: 0 84% 60%;
+    --priority-high: 25 95% 53%;
+    --priority-medium: 48 96% 53%;
+    --priority-low: 142 71% 45%;
+
+    /* ─── Ticket Status Colors ──────────────────────────────────────────── */
+    --status-open: 221 83% 53%;
+    --status-in-progress: 37 91% 55%;
+    --status-resolved: 142 71% 45%;
+    --status-closed: 215 16% 47%;
+    --status-pending: 280 65% 60%;
+
+    /* ─── SLA Indicator Colors ──────────────────────────────────────────── */
+    --sla-ok: 142 71% 45%;
+    --sla-warning: 48 96% 53%;
+    --sla-breach: 0 84% 60%;
+  }
+
+  /* ─── Dark Mode ─────────────────────────────────────────────────────────── */
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 217 91% 60%;
+
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 210 40% 92%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 47% 10%;
+    --sidebar-accent-foreground: 210 40% 92%;
+    --sidebar-border: 222 47% 12%;
+    --sidebar-ring: 217 91% 60%;
+
+    --chart-1: 217 91% 60%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 37 91% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  /* ─── Base element resets ───────────────────────────────────────────────── */
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ─── Focus visible ─────────────────────────────────────────────────────── */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* ─── Scrollbar (webkit) ────────────────────────────────────────────────── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+  }
+}
+
+/* ─── Utility classes ────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Screen-reader only — accessible hidden text */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

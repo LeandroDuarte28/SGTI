@@ -1,0 +1,15 @@
+# SGTI — Code Owners
+# All PRs require review from the Architecture team.
+# Module-specific owners are added as teams grow.
+
+# Global — all files require architecture review
+*                   @sgti-architecture
+
+# CI/CD — DevOps team
+.github/            @sgti-devops
+vercel.json         @sgti-devops
+
+# Security-sensitive
+middleware.ts       @sgti-architecture
+lib/auth/           @sgti-architecture
+supabase/migrations/ @sgti-architecture
