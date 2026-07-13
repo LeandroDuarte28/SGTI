@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Wallet,
   ShoppingCart,
+  FolderKanban,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
@@ -31,6 +32,7 @@ const ACTIVE_NAV_ITEMS = [
   { href: "/compliance", icon: ShieldCheck, label: "Compliance" },
   { href: "/financial", icon: Wallet, label: "Financeiro" },
   { href: "/procurement", icon: ShoppingCart, label: "Compras" },
+  { href: "/projects", icon: FolderKanban, label: "Projetos" },
   { href: "/catalog", icon: LayoutGrid, label: "Catálogo" },
 ] as const;
 
