@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Ticket, LayoutGrid, ClipboardList, Laptop } from "lucide-react";
+import { LayoutDashboard, Ticket, LayoutGrid, ClipboardList, Laptop, Search } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 
@@ -14,11 +14,12 @@ import { cn } from "@/lib/utils/cn";
 const ACTIVE_NAV_ITEMS = [
   { href: "/incidents", icon: Ticket, label: "Incidentes" },
   { href: "/requests", icon: ClipboardList, label: "Requisições" },
+  { href: "/problems", icon: Search, label: "Problemas" },
   { href: "/assets", icon: Laptop, label: "Ativos" },
   { href: "/catalog", icon: LayoutGrid, label: "Catálogo" },
 ] as const;
 
-const PLANNED_NAV_ITEMS = ["Problemas", "Compliance", "Base de Conhecimento"];
+const PLANNED_NAV_ITEMS = ["Compliance", "Base de Conhecimento"];
 
 export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
