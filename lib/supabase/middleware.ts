@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import type { CookieOptions } from "@supabase/ssr";
 import type { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "./database.types";
@@ -25,7 +26,7 @@ export function createMiddlewareClient(
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           // Set cookies on both request and response to propagate the session.
           cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value);

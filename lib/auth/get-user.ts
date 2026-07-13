@@ -31,14 +31,19 @@ export async function getAuthUser(
     return null;
   }
 
-  // Fetch profile + roles from shared schema
+  // Fetch profile + roles from the `shared` schema (not `public` — see
+  // supabase/migrations/20260609000000_initial_schema.sql, which creates
+  // these tables under CREATE SCHEMA shared). `.schema("shared")` is required
+  // because the Supabase client defaults to `public` when omitted.
   const { data: profile } = await supabase
+    .schema("shared")
     .from("UserProfile")
     .select("id, email, full_name, display_name, avatar_url")
     .eq("id", user.id)
     .single();
 
   const { data: roleRows } = await supabase
+    .schema("shared")
     .from("UserRole")
     .select("role")
     .eq("user_id", user.id);

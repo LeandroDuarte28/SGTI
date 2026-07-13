@@ -32,13 +32,17 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     },
   };
 
-  // ── Database check ─────────────────────────────────────────────────────────
+  // ─── Database check ────────────────────────────────────────────────────
   try {
     const dbStart = Date.now();
     const supabase = await createClient();
     // Lightweight query — just checks if the DB connection is alive.
-    const { error } = await supabase.from("_health_check").select("1").limit(1).maybeSingle();
-
+    // NOTE: .select("id") — must be a real column name. Supabase JS treats
+    // the select() argument as a column list (translated to a PostgREST
+    // query param), not a raw SQL expression, so .select("1") is NOT the
+    // same as `SELECT 1` in plain SQL — it looks for a column literally
+    // named "1", which doesn't exist, and always errors.
+    const { error } = await supabase.from("_health_check").select("id").limit(1).maybeSingle();
     health.subsystems.database = {
       status: error ? "down" : "ok",
       latencyMs: Date.now() - dbStart,
@@ -47,7 +51,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     health.subsystems.database = { status: "down", latencyMs: 0 };
   }
 
-  // ── Determine overall status ───────────────────────────────────────────────
+  // ─── Determine overall status ───────────────────────────────────────────
   const isDbDown = health.subsystems.database.status === "down";
   if (isDbDown) {
     health.status = "down";

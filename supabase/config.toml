@@ -6,7 +6,20 @@
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API endpoints.
 # public and storage are always included.
-schemas = ["public", "graphql_public"]
+schemas = [
+  "public",
+  "graphql_public",
+  "shared",
+  "ticket",
+  "catalog",
+  "asset",
+  "identity",
+  "compliance",
+  "financial",
+  "procurement",
+  "project",
+  "knowledge",
+]
 # Extra schemas to add to the search_path of every request.
 extra_search_path = ["public", "extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure.
@@ -20,15 +33,6 @@ shadow_port = 54320
 # The database major version to use. This has to be the same as your remote database's.
 # Run `SHOW server_version;` on the remote database to check.
 major_version = 15
-
-[db.pooler]
-enabled = false
-# Port to use for the local connection pooler. Default is 54329.
-port = 54329
-# The number of clients with open transactions that can connect to Postgres at a time.
-pool_size = 15
-# Maximum length of time (in seconds) a connection may be idle before being closed.
-connection_string = ""
 
 [realtime]
 enabled = true
@@ -116,10 +120,3 @@ enabled = false
 port = 54327
 # Configure one of the supported backends: `postgres`, `bigquery`.
 backend = "postgres"
-
-# ─── Local secrets (referenced by Edge Functions via Deno.env) ───────────────
-# Actual values go in supabase/.env.local (never committed to git)
-[functions.env]
-GOOGLE_CLIENT_ID = ""
-GOOGLE_CLIENT_SECRET = ""
-SUPABASE_SERVICE_ROLE_KEY = ""
