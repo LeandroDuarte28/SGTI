@@ -39,19 +39,19 @@ export const metadata: Metadata = {
 // ─── Root Layout ──────────────────────────────────────────────────────────────
 export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html suppressHydrationWarning lang="pt-BR">
       <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased`}>
         <ThemeProvider
+          disableTransitionOnChange
+          enableSystem
           attribute="class"
           defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
         >
           {children}
           <Toaster
-            position="top-right"
-            richColors
             closeButton
+            richColors
+            position="top-right"
             toastOptions={{
               duration: 5000,
             }}
