@@ -14,15 +14,12 @@ import {
   Wallet,
   ShoppingCart,
   FolderKanban,
+  BookOpen,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 
-/**
- * Modules already built (real links) vs. planned (shown disabled, so we
- * never point next/link at a route that doesn't exist yet — with
- * typedRoutes enabled, that would fail the build anyway).
- */
+/** All 10 SGTI modules now have a screen — no more "coming soon" items. */
 const ACTIVE_NAV_ITEMS = [
   { href: "/incidents", icon: Ticket, label: "Incidentes" },
   { href: "/requests", icon: ClipboardList, label: "Requisições" },
@@ -33,10 +30,9 @@ const ACTIVE_NAV_ITEMS = [
   { href: "/financial", icon: Wallet, label: "Financeiro" },
   { href: "/procurement", icon: ShoppingCart, label: "Compras" },
   { href: "/projects", icon: FolderKanban, label: "Projetos" },
+  { href: "/knowledge", icon: BookOpen, label: "Base de Conhecimento" },
   { href: "/catalog", icon: LayoutGrid, label: "Catálogo" },
 ] as const;
-
-const PLANNED_NAV_ITEMS = ["Base de Conhecimento"];
 
 export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
@@ -68,18 +64,6 @@ export function Sidebar(): React.JSX.Element {
             </Link>
           );
         })}
-
-        <div className="mt-4 space-y-1">
-          {PLANNED_NAV_ITEMS.map((label) => (
-            <div
-              className="flex cursor-not-allowed items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground/50"
-              key={label}
-            >
-              {label}
-              <span className="text-xs">Em breve</span>
-            </div>
-          ))}
-        </div>
       </nav>
     </aside>
   );
