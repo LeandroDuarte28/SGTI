@@ -43,9 +43,9 @@ export function formatRelative(date: Date | string): string {
   const diffHours = Math.round(diffMins / 60);
   const diffDays = Math.round(diffHours / 24);
 
-  if (Math.abs(diffSecs) < 60) return RELATIVE_FORMAT.format(diffSecs, "seconds");
-  if (Math.abs(diffMins) < 60) return RELATIVE_FORMAT.format(diffMins, "minutes");
-  if (Math.abs(diffHours) < 24) return RELATIVE_FORMAT.format(diffHours, "hours");
+  if (Math.abs(diffSecs) < 60) {return RELATIVE_FORMAT.format(diffSecs, "seconds");}
+  if (Math.abs(diffMins) < 60) {return RELATIVE_FORMAT.format(diffMins, "minutes");}
+  if (Math.abs(diffHours) < 24) {return RELATIVE_FORMAT.format(diffHours, "hours");}
   return RELATIVE_FORMAT.format(diffDays, "days");
 }
 
