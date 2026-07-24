@@ -91,25 +91,27 @@ export default async function IncidentsPage(): Promise<React.JSX.Element> {
         <ul className="space-y-3">
           {incidents.map((incident) => (
             <li
-              className="rounded-lg border border-border bg-card p-4 shadow-sm"
+              className="rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary/50"
               key={incident.id}
             >
-              <div className="flex items-start justify-between gap-4">
-                <h2 className="font-medium text-foreground">{incident.title}</h2>
-                <div className="flex shrink-0 gap-2">
-                  <Pill
-                    className={PRIORITY_CLASS[incident.priority] ?? ""}
-                    label={PRIORITY_LABEL[incident.priority] ?? incident.priority}
-                  />
-                  <Pill
-                    className={STATUS_CLASS[incident.status] ?? ""}
-                    label={STATUS_LABEL[incident.status] ?? incident.status}
-                  />
+              <Link href={`/incidents/${incident.id}`}>
+                <div className="flex items-start justify-between gap-4">
+                  <h2 className="font-medium text-foreground">{incident.title}</h2>
+                  <div className="flex shrink-0 gap-2">
+                    <Pill
+                      className={PRIORITY_CLASS[incident.priority] ?? ""}
+                      label={PRIORITY_LABEL[incident.priority] ?? incident.priority}
+                    />
+                    <Pill
+                      className={STATUS_CLASS[incident.status] ?? ""}
+                      label={STATUS_LABEL[incident.status] ?? incident.status}
+                    />
+                  </div>
                 </div>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Aberto em {new Date(incident.created_at).toLocaleDateString("pt-BR")}
-              </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Aberto em {new Date(incident.created_at).toLocaleDateString("pt-BR")}
+                </p>
+              </Link>
             </li>
           ))}
         </ul>
