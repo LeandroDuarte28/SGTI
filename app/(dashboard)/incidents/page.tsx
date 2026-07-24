@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -63,9 +64,11 @@ export default async function IncidentsPage(): Promise<React.JSX.Element> {
             Acompanhe e gerencie os incidentes reportados.
           </p>
         </div>
-        <Button disabled title="Tela de criação ainda não implementada">
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Incidente
+        <Button asChild>
+          <Link href="/incidents/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Incidente
+          </Link>
         </Button>
       </div>
 
