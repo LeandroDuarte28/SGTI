@@ -4,12 +4,15 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { Button } from "@/components/ui/button";
+import type { Database } from "@/lib/supabase/database.types";
 
-import { addComment, assignToMe, updateStatus } from "./actions";
+import { addComment, assignToMe, escalateIncident, resolveEscalation, updateStatus } from "./actions";
 
 export const metadata: Metadata = { title: "Detalhe do Incidente" };
 
-const IT_STAFF_ROLES = ["SUPER_ADMIN", "IT_MANAGER", "IT_ANALYST", "IT_TECHNICIAN"];
+type SystemRole = Database["shared"]["Enums"]["SystemRole"];
+
+const IT_STAFF_ROLES: SystemRole[] = ["SUPER_ADMIN", "IT_MANAGER", "IT_ANALYST", "IT_TECHNICIAN"];
 
 const PRIORITY_LABEL: Record<string, string> = {
   CRITICAL: "Crítica",
@@ -69,10 +72,31 @@ export default async function IncidentDetailPage({
     .eq("ticket_id", id)
     .order("created_at", { ascending: true });
 
+  const { data: escalations } = await supabase
+    .schema("ticket")
+    .from("EscalationRecord")
+    .select("id, escalated_to, reason, escalated_at, resolved_at")
+    .eq("incident_id", id)
+    .order("escalated_at", { ascending: false });
+
+  const { data: itStaffRoles } = isItStaff
+    ? await supabase
+        .schema("shared")
+        .from("UserRole")
+        .select("user_id")
+        .in("role", IT_STAFF_ROLES)
+    : { data: null };
+
+  const itStaffIds = [...new Set((itStaffRoles ?? []).map((r) => r.user_id))].filter(
+    (staffId) => staffId !== user.id,
+  );
+
   const authorIds = [
     incident.reporter_id,
     incident.assignee_id,
     ...(comments ?? []).map((c) => c.author_id),
+    ...(escalations ?? []).map((e) => e.escalated_to),
+    ...itStaffIds,
   ].filter((value): value is string => value !== null);
 
   const { data: profiles } = await supabase
@@ -143,6 +167,83 @@ export default async function IncidentDetailPage({
       {!isItStaff && (
         <div className="mt-4 inline-block rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
           Status: {STATUS_LABEL[incident.status] ?? incident.status}
+        </div>
+      )}
+
+      {(isItStaff || (escalations && escalations.length > 0)) && (
+        <div className="mt-6">
+          <h2 className="mb-3 font-medium text-foreground">Escalonamento</h2>
+
+          {escalations && escalations.length > 0 && (
+            <ul className="mb-4 space-y-3">
+              {escalations.map((escalation) => (
+                <li className="rounded-lg border border-border bg-card p-3" key={escalation.id}>
+                  <div className="flex items-start justify-between gap-4">
+                    <p className="text-sm text-foreground">
+                      Escalonado para {nameFor(escalation.escalated_to)}
+                    </p>
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        escalation.resolved_at
+                          ? "bg-status-resolved/10 text-status-resolved"
+                          : "bg-sla-warning/10 text-sla-warning"
+                      }`}
+                    >
+                      {escalation.resolved_at ? "Resolvido" : "Em aberto"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">{escalation.reason}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {new Date(escalation.escalated_at).toLocaleDateString("pt-BR")}
+                    {escalation.resolved_at &&
+                      ` · resolvido em ${new Date(escalation.resolved_at).toLocaleDateString("pt-BR")}`}
+                  </p>
+                  {isItStaff && !escalation.resolved_at && (
+                    <form action={resolveEscalation} className="mt-2">
+                      <input name="incident_id" type="hidden" value={incident.id} />
+                      <input name="escalation_id" type="hidden" value={escalation.id} />
+                      <Button size="sm" type="submit" variant="outline">
+                        Marcar como resolvido
+                      </Button>
+                    </form>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {isItStaff && itStaffIds.length > 0 && (
+            <form action={escalateIncident} className="space-y-2 rounded-lg border border-border bg-card p-4">
+              <input name="incident_id" type="hidden" value={incident.id} />
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <select
+                  required
+                  className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                  defaultValue=""
+                  name="escalated_to"
+                >
+                  <option disabled value="">
+                    Escalonar para...
+                  </option>
+                  {itStaffIds.map((staffId) => (
+                    <option key={staffId} value={staffId}>
+                      {nameFor(staffId)}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  required
+                  className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  name="reason"
+                  placeholder="Motivo do escalonamento"
+                  type="text"
+                />
+                <Button size="sm" type="submit">
+                  Escalonar
+                </Button>
+              </div>
+            </form>
+          )}
         </div>
       )}
 

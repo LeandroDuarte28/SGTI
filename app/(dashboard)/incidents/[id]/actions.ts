@@ -102,3 +102,65 @@ export async function assignToMe(formData: FormData): Promise<void> {
 
   revalidatePath(`/incidents/${incidentId}`);
 }
+
+/**
+ * Escalates an incident to another IT staff member. Restricted to IT staff
+ * by RLS (see "EscalationRecord: IT staff only" policy) — a non-staff user
+ * submitting this will get a Postgres RLS rejection, not a silent no-op.
+ */
+export async function escalateIncident(formData: FormData): Promise<void> {
+  const incidentId = formData.get("incident_id");
+  const escalatedTo = formData.get("escalated_to");
+  const reason = formData.get("reason");
+
+  if (typeof incidentId !== "string" || incidentId.length === 0) {
+    throw new Error("Incidente inválido.");
+  }
+  if (typeof escalatedTo !== "string" || escalatedTo.length === 0) {
+    throw new Error("Selecione para quem escalonar.");
+  }
+  if (typeof reason !== "string" || reason.trim().length === 0) {
+    throw new Error("Informe o motivo do escalonamento.");
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.schema("ticket").from("EscalationRecord").insert({
+    incident_id: incidentId,
+    escalated_to: escalatedTo,
+    reason: reason.trim(),
+  });
+
+  if (error) {
+    throw new Error(`Não foi possível escalonar o incidente: ${error.message}`);
+  }
+
+  revalidatePath(`/incidents/${incidentId}`);
+}
+
+/** Marks an escalation as resolved. Restricted to IT staff by RLS. */
+export async function resolveEscalation(formData: FormData): Promise<void> {
+  const escalationId = formData.get("escalation_id");
+  const incidentId = formData.get("incident_id");
+
+  if (typeof escalationId !== "string" || escalationId.length === 0) {
+    throw new Error("Escalonamento inválido.");
+  }
+  if (typeof incidentId !== "string" || incidentId.length === 0) {
+    throw new Error("Incidente inválido.");
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .schema("ticket")
+    .from("EscalationRecord")
+    .update({ resolved_at: new Date().toISOString() })
+    .eq("id", escalationId);
+
+  if (error) {
+    throw new Error(`Não foi possível resolver o escalonamento: ${error.message}`);
+  }
+
+  revalidatePath(`/incidents/${incidentId}`);
+}
