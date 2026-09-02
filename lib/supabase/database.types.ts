@@ -327,6 +327,66 @@ export type Database = {
   }
   compliance: {
     Tables: {
+      ActionItem: {
+        Row: {
+          completion_percentage: number
+          created_at: string
+          description: string
+          due_date: string
+          finding_id: string
+          id: string
+          linked_evidence_id: string | null
+          notes: string | null
+          responsible_id: string
+          sequence_number: number
+          status: Database["compliance"]["Enums"]["ActionItemStatus"]
+          updated_at: string
+        }
+        Insert: {
+          completion_percentage?: number
+          created_at?: string
+          description: string
+          due_date: string
+          finding_id: string
+          id?: string
+          linked_evidence_id?: string | null
+          notes?: string | null
+          responsible_id: string
+          sequence_number: number
+          status?: Database["compliance"]["Enums"]["ActionItemStatus"]
+          updated_at?: string
+        }
+        Update: {
+          completion_percentage?: number
+          created_at?: string
+          description?: string
+          due_date?: string
+          finding_id?: string
+          id?: string
+          linked_evidence_id?: string | null
+          notes?: string | null
+          responsible_id?: string
+          sequence_number?: number
+          status?: Database["compliance"]["Enums"]["ActionItemStatus"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ActionItem_finding_id_fkey"
+            columns: ["finding_id"]
+            isOneToOne: false
+            referencedRelation: "ComplianceFinding"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ActionItem_linked_evidence_id_fkey"
+            columns: ["linked_evidence_id"]
+            isOneToOne: false
+            referencedRelation: "FindingEvidence"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       AuditCycle: {
         Row: {
           completed_at: string | null
@@ -354,6 +414,258 @@ export type Database = {
           id?: string
           name?: string
           started_at?: string
+        }
+        Relationships: []
+      }
+      ComplianceAudit: {
+        Row: {
+          cancellation_reason: string | null
+          code: string
+          compliance_score_final: number | null
+          consultancy_id: string | null
+          created_at: string
+          created_by: string | null
+          end_date: string
+          final_report_path: string | null
+          id: string
+          internal_auditor_id: string | null
+          lead_auditor_name: string | null
+          name: string
+          notes: string | null
+          scope: string
+          start_date: string
+          status: Database["compliance"]["Enums"]["AuditStatus"]
+          type: Database["compliance"]["Enums"]["AuditType"]
+          updated_at: string
+        }
+        Insert: {
+          cancellation_reason?: string | null
+          code: string
+          compliance_score_final?: number | null
+          consultancy_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date: string
+          final_report_path?: string | null
+          id?: string
+          internal_auditor_id?: string | null
+          lead_auditor_name?: string | null
+          name: string
+          notes?: string | null
+          scope: string
+          start_date: string
+          status?: Database["compliance"]["Enums"]["AuditStatus"]
+          type: Database["compliance"]["Enums"]["AuditType"]
+          updated_at?: string
+        }
+        Update: {
+          cancellation_reason?: string | null
+          code?: string
+          compliance_score_final?: number | null
+          consultancy_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string
+          final_report_path?: string | null
+          id?: string
+          internal_auditor_id?: string | null
+          lead_auditor_name?: string | null
+          name?: string
+          notes?: string | null
+          scope?: string
+          start_date?: string
+          status?: Database["compliance"]["Enums"]["AuditStatus"]
+          type?: Database["compliance"]["Enums"]["AuditType"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ComplianceAudit_consultancy_id_fkey"
+            columns: ["consultancy_id"]
+            isOneToOne: false
+            referencedRelation: "Consultancy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ComplianceAuditNorm: {
+        Row: {
+          audit_id: string
+          norm_id: string
+        }
+        Insert: {
+          audit_id: string
+          norm_id: string
+        }
+        Update: {
+          audit_id?: string
+          norm_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ComplianceAuditNorm_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "ComplianceAudit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ComplianceAuditNorm_norm_id_fkey"
+            columns: ["norm_id"]
+            isOneToOne: false
+            referencedRelation: "Norm"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ComplianceFinding: {
+        Row: {
+          analyst_id: string
+          audit_id: string
+          cancellation_reason: string | null
+          code: string
+          created_at: string
+          criticality: Database["compliance"]["Enums"]["ItemCriticality"]
+          department_id: string | null
+          description: string
+          due_date: string
+          estimated_cost: number | null
+          finding_type: Database["compliance"]["Enums"]["FindingType"]
+          id: string
+          is_recurrent: boolean
+          is_urgent: boolean
+          norm_id: string
+          norm_item_id: string
+          project_id: string | null
+          reopen_reason: string | null
+          status: Database["compliance"]["Enums"]["FindingStatus"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          analyst_id: string
+          audit_id: string
+          cancellation_reason?: string | null
+          code: string
+          created_at?: string
+          criticality: Database["compliance"]["Enums"]["ItemCriticality"]
+          department_id?: string | null
+          description: string
+          due_date: string
+          estimated_cost?: number | null
+          finding_type: Database["compliance"]["Enums"]["FindingType"]
+          id?: string
+          is_recurrent?: boolean
+          is_urgent?: boolean
+          norm_id: string
+          norm_item_id: string
+          project_id?: string | null
+          reopen_reason?: string | null
+          status?: Database["compliance"]["Enums"]["FindingStatus"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          analyst_id?: string
+          audit_id?: string
+          cancellation_reason?: string | null
+          code?: string
+          created_at?: string
+          criticality?: Database["compliance"]["Enums"]["ItemCriticality"]
+          department_id?: string | null
+          description?: string
+          due_date?: string
+          estimated_cost?: number | null
+          finding_type?: Database["compliance"]["Enums"]["FindingType"]
+          id?: string
+          is_recurrent?: boolean
+          is_urgent?: boolean
+          norm_id?: string
+          norm_item_id?: string
+          project_id?: string | null
+          reopen_reason?: string | null
+          status?: Database["compliance"]["Enums"]["FindingStatus"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ComplianceFinding_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "ComplianceAudit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ComplianceFinding_norm_id_fkey"
+            columns: ["norm_id"]
+            isOneToOne: false
+            referencedRelation: "Norm"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ComplianceFinding_norm_item_id_fkey"
+            columns: ["norm_item_id"]
+            isOneToOne: false
+            referencedRelation: "NormItem"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Consultancy: {
+        Row: {
+          cnpj: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          cpf: string | null
+          created_at: string
+          id: string
+          legal_name: string
+          nda_date: string | null
+          nda_signed: boolean
+          notes: string | null
+          specialties: string[]
+          status: Database["compliance"]["Enums"]["ConsultancyStatus"]
+          trade_name: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          cnpj?: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          cpf?: string | null
+          created_at?: string
+          id?: string
+          legal_name: string
+          nda_date?: string | null
+          nda_signed?: boolean
+          notes?: string | null
+          specialties?: string[]
+          status?: Database["compliance"]["Enums"]["ConsultancyStatus"]
+          trade_name: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          cnpj?: string | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          cpf?: string | null
+          created_at?: string
+          id?: string
+          legal_name?: string
+          nda_date?: string | null
+          nda_signed?: boolean
+          notes?: string | null
+          specialties?: string[]
+          status?: Database["compliance"]["Enums"]["ConsultancyStatus"]
+          trade_name?: string
+          updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -441,6 +753,112 @@ export type Database = {
           },
         ]
       }
+      FindingEvidence: {
+        Row: {
+          created_at: string
+          description: string
+          evidence_date: string
+          evidence_type: Database["compliance"]["Enums"]["EvidenceType"]
+          finding_id: string
+          id: string
+          rejection_reason: string | null
+          review_status: Database["compliance"]["Enums"]["EvidenceReviewStatus"]
+          reviewed_by: string | null
+          sha256_hash: string
+          storage_path: string
+          title: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          evidence_date: string
+          evidence_type: Database["compliance"]["Enums"]["EvidenceType"]
+          finding_id: string
+          id?: string
+          rejection_reason?: string | null
+          review_status?: Database["compliance"]["Enums"]["EvidenceReviewStatus"]
+          reviewed_by?: string | null
+          sha256_hash: string
+          storage_path: string
+          title: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          evidence_date?: string
+          evidence_type?: Database["compliance"]["Enums"]["EvidenceType"]
+          finding_id?: string
+          id?: string
+          rejection_reason?: string | null
+          review_status?: Database["compliance"]["Enums"]["EvidenceReviewStatus"]
+          reviewed_by?: string | null
+          sha256_hash?: string
+          storage_path?: string
+          title?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "FindingEvidence_finding_id_fkey"
+            columns: ["finding_id"]
+            isOneToOne: false
+            referencedRelation: "ComplianceFinding"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      FindingRisk: {
+        Row: {
+          category: Database["compliance"]["Enums"]["RiskCategory"]
+          contingency_plan: string | null
+          created_at: string
+          description: string
+          finding_id: string
+          id: string
+          impact: Database["compliance"]["Enums"]["RiskLevel1to5"]
+          probability: Database["compliance"]["Enums"]["RiskLevel1to5"]
+          responsible_id: string
+          status: Database["compliance"]["Enums"]["RiskStatus"]
+          updated_at: string
+        }
+        Insert: {
+          category: Database["compliance"]["Enums"]["RiskCategory"]
+          contingency_plan?: string | null
+          created_at?: string
+          description: string
+          finding_id: string
+          id?: string
+          impact: Database["compliance"]["Enums"]["RiskLevel1to5"]
+          probability: Database["compliance"]["Enums"]["RiskLevel1to5"]
+          responsible_id: string
+          status?: Database["compliance"]["Enums"]["RiskStatus"]
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["compliance"]["Enums"]["RiskCategory"]
+          contingency_plan?: string | null
+          created_at?: string
+          description?: string
+          finding_id?: string
+          id?: string
+          impact?: Database["compliance"]["Enums"]["RiskLevel1to5"]
+          probability?: Database["compliance"]["Enums"]["RiskLevel1to5"]
+          responsible_id?: string
+          status?: Database["compliance"]["Enums"]["RiskStatus"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "FindingRisk_finding_id_fkey"
+            columns: ["finding_id"]
+            isOneToOne: false
+            referencedRelation: "ComplianceFinding"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       NonConformance: {
         Row: {
           audit_cycle_id: string | null
@@ -498,6 +916,107 @@ export type Database = {
           },
         ]
       }
+      Norm: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          effective_date: string | null
+          full_name: string
+          id: string
+          is_active: boolean
+          issuing_body: string
+          official_url: string | null
+          type: Database["compliance"]["Enums"]["NormType"]
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          effective_date?: string | null
+          full_name: string
+          id?: string
+          is_active?: boolean
+          issuing_body: string
+          official_url?: string | null
+          type: Database["compliance"]["Enums"]["NormType"]
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          effective_date?: string | null
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          issuing_body?: string
+          official_url?: string | null
+          type?: Database["compliance"]["Enums"]["NormType"]
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: []
+      }
+      NormItem: {
+        Row: {
+          created_at: string
+          default_criticality: Database["compliance"]["Enums"]["ItemCriticality"]
+          description: string
+          domain_section: string | null
+          exclusion_justification: string | null
+          id: string
+          implementation_status: Database["compliance"]["Enums"]["ItemImplementationStatus"]
+          is_applicable: boolean
+          item_code: string
+          item_name: string
+          norm_id: string
+          owner_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_criticality: Database["compliance"]["Enums"]["ItemCriticality"]
+          description: string
+          domain_section?: string | null
+          exclusion_justification?: string | null
+          id?: string
+          implementation_status?: Database["compliance"]["Enums"]["ItemImplementationStatus"]
+          is_applicable?: boolean
+          item_code: string
+          item_name: string
+          norm_id: string
+          owner_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_criticality?: Database["compliance"]["Enums"]["ItemCriticality"]
+          description?: string
+          domain_section?: string | null
+          exclusion_justification?: string | null
+          id?: string
+          implementation_status?: Database["compliance"]["Enums"]["ItemImplementationStatus"]
+          is_applicable?: boolean
+          item_code?: string
+          item_name?: string
+          norm_id?: string
+          owner_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "NormItem_norm_id_fkey"
+            columns: ["norm_id"]
+            isOneToOne: false
+            referencedRelation: "Norm"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Policy: {
         Row: {
           content: string | null
@@ -545,10 +1064,49 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      ActionItemStatus:
+        | "PENDING"
+        | "IN_PROGRESS"
+        | "DONE"
+        | "CANCELLED"
+        | "OVERDUE"
+      AuditStatus:
+        | "PLANNED"
+        | "IN_PROGRESS"
+        | "PENDING_RESPONSES"
+        | "IN_REVIEW"
+        | "COMPLETED"
+        | "CANCELLED"
+      AuditType: "INTERNAL" | "EXTERNAL" | "CONSULTORIA" | "REGULATORY"
+      ConsultancyStatus: "ACTIVE" | "INACTIVE"
       ControlStatus:
         | "COMPLIANT"
         | "NON_COMPLIANT"
         | "IN_REMEDIATION"
+        | "NOT_APPLICABLE"
+      EvidenceReviewStatus: "PENDING" | "APPROVED" | "REJECTED"
+      EvidenceType:
+        | "SCREENSHOT"
+        | "DOCUMENT"
+        | "LOG"
+        | "REPORT"
+        | "CERTIFICATE"
+        | "OTHER"
+      FindingStatus:
+        | "NEW"
+        | "IN_PROGRESS"
+        | "PENDING_EVIDENCE"
+        | "IN_VALIDATION"
+        | "CONCLUDED"
+        | "CANCELLED"
+        | "NOT_APPLICABLE"
+        | "REOPENED"
+      FindingType: "NON_CONFORMITY" | "OBSERVATION" | "IMPROVEMENT_OPPORTUNITY"
+      ItemCriticality: "CRITICAL" | "MAJOR" | "MINOR" | "OBSERVATION"
+      ItemImplementationStatus:
+        | "NOT_STARTED"
+        | "PARTIAL"
+        | "IMPLEMENTED"
         | "NOT_APPLICABLE"
       NonConformanceSeverity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"
       NonConformanceStatus:
@@ -556,7 +1114,22 @@ export type Database = {
         | "IN_REMEDIATION"
         | "RESOLVED"
         | "ACCEPTED_RISK"
+      NormType: "INTERNATIONAL" | "REGULATORY_BR" | "FRAMEWORK" | "INTERNAL"
       PolicyStatus: "DRAFT" | "ACTIVE" | "UNDER_REVIEW" | "RETIRED"
+      RiskCategory:
+        | "REGULATORY"
+        | "OPERATIONAL"
+        | "REPUTATIONAL"
+        | "FINANCIAL"
+        | "SECURITY"
+        | "PRIVACY"
+      RiskLevel1to5: "VERY_LOW" | "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH"
+      RiskStatus:
+        | "IDENTIFIED"
+        | "MONITORING"
+        | "MATERIALIZED"
+        | "MITIGATED"
+        | "ACCEPTED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1987,10 +2560,54 @@ export const Constants = {
   },
   compliance: {
     Enums: {
+      ActionItemStatus: [
+        "PENDING",
+        "IN_PROGRESS",
+        "DONE",
+        "CANCELLED",
+        "OVERDUE",
+      ],
+      AuditStatus: [
+        "PLANNED",
+        "IN_PROGRESS",
+        "PENDING_RESPONSES",
+        "IN_REVIEW",
+        "COMPLETED",
+        "CANCELLED",
+      ],
+      AuditType: ["INTERNAL", "EXTERNAL", "CONSULTORIA", "REGULATORY"],
+      ConsultancyStatus: ["ACTIVE", "INACTIVE"],
       ControlStatus: [
         "COMPLIANT",
         "NON_COMPLIANT",
         "IN_REMEDIATION",
+        "NOT_APPLICABLE",
+      ],
+      EvidenceReviewStatus: ["PENDING", "APPROVED", "REJECTED"],
+      EvidenceType: [
+        "SCREENSHOT",
+        "DOCUMENT",
+        "LOG",
+        "REPORT",
+        "CERTIFICATE",
+        "OTHER",
+      ],
+      FindingStatus: [
+        "NEW",
+        "IN_PROGRESS",
+        "PENDING_EVIDENCE",
+        "IN_VALIDATION",
+        "CONCLUDED",
+        "CANCELLED",
+        "NOT_APPLICABLE",
+        "REOPENED",
+      ],
+      FindingType: ["NON_CONFORMITY", "OBSERVATION", "IMPROVEMENT_OPPORTUNITY"],
+      ItemCriticality: ["CRITICAL", "MAJOR", "MINOR", "OBSERVATION"],
+      ItemImplementationStatus: [
+        "NOT_STARTED",
+        "PARTIAL",
+        "IMPLEMENTED",
         "NOT_APPLICABLE",
       ],
       NonConformanceSeverity: ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
@@ -2000,7 +2617,24 @@ export const Constants = {
         "RESOLVED",
         "ACCEPTED_RISK",
       ],
+      NormType: ["INTERNATIONAL", "REGULATORY_BR", "FRAMEWORK", "INTERNAL"],
       PolicyStatus: ["DRAFT", "ACTIVE", "UNDER_REVIEW", "RETIRED"],
+      RiskCategory: [
+        "REGULATORY",
+        "OPERATIONAL",
+        "REPUTATIONAL",
+        "FINANCIAL",
+        "SECURITY",
+        "PRIVACY",
+      ],
+      RiskLevel1to5: ["VERY_LOW", "LOW", "MEDIUM", "HIGH", "VERY_HIGH"],
+      RiskStatus: [
+        "IDENTIFIED",
+        "MONITORING",
+        "MATERIALIZED",
+        "MITIGATED",
+        "ACCEPTED",
+      ],
     },
   },
   financial: {
