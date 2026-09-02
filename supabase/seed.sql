@@ -91,3 +91,34 @@ VALUES
     ('c0000000-0000-0000-0000-000000000003', 'Resetar Senha', 'Redefinição de senha de acesso corporativo', 'b0000000-0000-0000-0000-000000000001', NULL),
     ('c0000000-0000-0000-0000-000000000004', 'Configurar VPN', 'Configuração de acesso remoto via VPN', 'b0000000-0000-0000-0000-000000000003', 1),
     ('c0000000-0000-0000-0000-000000000004', 'Problema de Wi-Fi', 'Suporte para problemas de conectividade Wi-Fi', 'b0000000-0000-0000-0000-000000000001', NULL);
+
+-- ─── Knowledge: Sample Articles ──────────────────────────────────────────────
+INSERT INTO knowledge."Article" (title, slug, content, category_id, status, author_id, view_count)
+VALUES
+    (
+        'Como resetar minha senha corporativa',
+        'como-resetar-senha-corporativa',
+        'Para resetar sua senha, acesse o portal de identidade corporativa e clique em "Esqueci minha senha". Você receberá um e-mail com um link de redefinição válido por 24 horas. Caso não receba o e-mail em 10 minutos, verifique a caixa de spam ou abra um chamado em Identidade e Acesso.',
+        'c0000000-0000-0000-0000-000000000003',
+        'PUBLISHED',
+        'a0000000-0000-0000-0000-000000000001',
+        0
+    ),
+    (
+        'Como configurar a VPN corporativa',
+        'como-configurar-vpn-corporativa',
+        'Baixe o cliente VPN homologado pela TI, instale e utilize suas credenciais corporativas para autenticar. Em caso de falha de conexão, verifique se o firewall local não está bloqueando a porta 1194/UDP. Para solicitar acesso à VPN pela primeira vez, abra uma requisição no Catálogo de Serviços.',
+        'c0000000-0000-0000-0000-000000000004',
+        'PUBLISHED',
+        'a0000000-0000-0000-0000-000000000002',
+        0
+    ),
+    (
+        'Política de uso de notebooks corporativos',
+        'politica-uso-notebooks-corporativos',
+        'Notebooks corporativos são de uso exclusivo para atividades de trabalho. É proibida a instalação de softwares não homologados pela TI. Em caso de perda ou roubo, comunique imediatamente a equipe de TI através de um chamado de Incidente com prioridade Alta.',
+        'c0000000-0000-0000-0000-000000000001',
+        'PUBLISHED',
+        'a0000000-0000-0000-0000-000000000003',
+        0
+    );
