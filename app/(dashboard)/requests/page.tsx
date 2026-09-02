@@ -1,26 +1,47 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/auth/get-user";
+import { hasRole, IT_STAFF_ROLES } from "@/lib/constants/roles";
 import { Button } from "@/components/ui/button";
+
+import { approveRequest, rejectRequest } from "./actions";
 
 export const metadata: Metadata = { title: "Requisições de Serviço" };
 
-const STATUS_LABEL: Record<string, string> = {
-  OPEN: "Aberta",
-  IN_PROGRESS: "Em Andamento",
-  PENDING: "Pendente",
-  RESOLVED: "Concluída",
-  CLOSED: "Fechada",
-};
+/** Labels the request lifecycle, distinguishing a rejected request (CLOSED, never approved) from one closed after being fulfilled. */
+function statusLabel(status: string, approvedAt: string | null): string {
+  if (status === "OPEN") {
+    return "Aguardando aprovação";
+  }
+  if (status === "CLOSED" && !approvedAt) {
+    return "Rejeitada";
+  }
+  return (
+    { IN_PROGRESS: "Em Andamento", PENDING: "Pendente", RESOLVED: "Concluída", CLOSED: "Fechada" }[
+      status
+    ] ?? status
+  );
+}
 
-const STATUS_CLASS: Record<string, string> = {
-  OPEN: "bg-status-open/10 text-status-open",
-  IN_PROGRESS: "bg-status-in-progress/10 text-status-in-progress",
-  PENDING: "bg-status-pending/10 text-status-pending",
-  RESOLVED: "bg-status-resolved/10 text-status-resolved",
-  CLOSED: "bg-status-closed/10 text-status-closed",
-};
+function statusClass(status: string, approvedAt: string | null): string {
+  if (status === "OPEN") {
+    return "bg-status-open/10 text-status-open";
+  }
+  if (status === "CLOSED" && !approvedAt) {
+    return "bg-destructive/10 text-destructive";
+  }
+  return (
+    {
+      IN_PROGRESS: "bg-status-in-progress/10 text-status-in-progress",
+      PENDING: "bg-status-pending/10 text-status-pending",
+      RESOLVED: "bg-status-resolved/10 text-status-resolved",
+      CLOSED: "bg-status-closed/10 text-status-closed",
+    }[status] ?? ""
+  );
+}
 
 function Pill({ className, label }: { className: string; label: string }): React.JSX.Element {
   return (
@@ -29,6 +50,9 @@ function Pill({ className, label }: { className: string; label: string }): React
 }
 
 export default async function RequestsPage(): Promise<React.JSX.Element> {
+  const user = await getAuthUser();
+  const isItStaff = hasRole(user.roles, IT_STAFF_ROLES);
+
   const supabase = await createClient();
 
   // RLS: the requester sees only their own requests; IT staff sees all
@@ -37,7 +61,7 @@ export default async function RequestsPage(): Promise<React.JSX.Element> {
     supabase
       .schema("ticket")
       .from("ServiceRequest")
-      .select("id, catalog_item_id, status, created_at")
+      .select("id, catalog_item_id, status, approved_at, created_at")
       .order("created_at", { ascending: false }),
     supabase.schema("catalog").from("ServiceCatalogItem").select("id, name"),
   ]);
@@ -55,9 +79,11 @@ export default async function RequestsPage(): Promise<React.JSX.Element> {
             Acompanhe suas solicitações feitas a partir do Catálogo.
           </p>
         </div>
-        <Button disabled title="Solicite a partir do Catálogo de Serviços">
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Requisição
+        <Button asChild>
+          <Link href="/requests/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Requisição
+          </Link>
         </Button>
       </div>
 
@@ -93,13 +119,30 @@ export default async function RequestsPage(): Promise<React.JSX.Element> {
                     {item?.name ?? "Item de catálogo não encontrado"}
                   </h2>
                   <Pill
-                    className={STATUS_CLASS[request.status] ?? ""}
-                    label={STATUS_LABEL[request.status] ?? request.status}
+                    className={statusClass(request.status, request.approved_at)}
+                    label={statusLabel(request.status, request.approved_at)}
                   />
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Solicitado em {new Date(request.created_at).toLocaleDateString("pt-BR")}
                 </p>
+
+                {isItStaff && request.status === "OPEN" && (
+                  <div className="mt-3 flex gap-2">
+                    <form action={approveRequest}>
+                      <input name="request_id" type="hidden" value={request.id} />
+                      <Button size="sm" type="submit">
+                        Aprovar
+                      </Button>
+                    </form>
+                    <form action={rejectRequest}>
+                      <input name="request_id" type="hidden" value={request.id} />
+                      <Button size="sm" type="submit" variant="outline">
+                        Rejeitar
+                      </Button>
+                    </form>
+                  </div>
+                )}
               </li>
             );
           })}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Catálogo de Serviços" };
 
@@ -110,6 +112,9 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
                               </span>
                             )}
                           </div>
+                          <Button asChild className="mt-3" size="sm">
+                            <Link href={`/requests/new?item=${item.id}`}>Solicitar</Link>
+                          </Button>
                         </div>
                       );
                     })}
