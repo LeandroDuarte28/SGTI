@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Problemas" };
 
@@ -40,11 +43,19 @@ export default async function ProblemsPage(): Promise<React.JSX.Element> {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Problemas</h1>
-        <p className="text-sm text-muted-foreground">
-          Causas raiz investigadas pela equipe de TI, agrupando incidentes relacionados.
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Problemas</h1>
+          <p className="text-sm text-muted-foreground">
+            Causas raiz investigadas pela equipe de TI, agrupando incidentes relacionados.
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/problems/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Problema
+          </Link>
+        </Button>
       </div>
 
       {error && (
@@ -65,31 +76,33 @@ export default async function ProblemsPage(): Promise<React.JSX.Element> {
       {!error && problems && problems.length > 0 && (
         <ul className="space-y-3">
           {problems.map((problem) => (
-            <li
-              className="rounded-lg border border-border bg-card p-4 shadow-sm"
-              key={problem.id}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <h2 className="font-medium text-foreground">{problem.title}</h2>
-                <div className="flex shrink-0 gap-2">
-                  {problem.is_known_error && (
-                    <span className="rounded-full bg-priority-medium/10 px-2.5 py-0.5 text-xs font-medium text-priority-medium">
-                      Erro Conhecido
-                    </span>
-                  )}
-                  <Pill
-                    className={STATUS_CLASS[problem.status] ?? ""}
-                    label={STATUS_LABEL[problem.status] ?? problem.status}
-                  />
+            <li key={problem.id}>
+              <Link
+                className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+                href={`/problems/${problem.id}`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <h2 className="font-medium text-foreground">{problem.title}</h2>
+                  <div className="flex shrink-0 gap-2">
+                    {problem.is_known_error && (
+                      <span className="rounded-full bg-priority-medium/10 px-2.5 py-0.5 text-xs font-medium text-priority-medium">
+                        Erro Conhecido
+                      </span>
+                    )}
+                    <Pill
+                      className={STATUS_CLASS[problem.status] ?? ""}
+                      label={STATUS_LABEL[problem.status] ?? problem.status}
+                    />
+                  </div>
                 </div>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {problem.related_incident_count}{" "}
-                {problem.related_incident_count === 1
-                  ? "incidente relacionado"
-                  : "incidentes relacionados"}{" "}
-                · Aberto em {new Date(problem.created_at).toLocaleDateString("pt-BR")}
-              </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {problem.related_incident_count}{" "}
+                  {problem.related_incident_count === 1
+                    ? "incidente relacionado"
+                    : "incidentes relacionados"}{" "}
+                  · Aberto em {new Date(problem.created_at).toLocaleDateString("pt-BR")}
+                </p>
+              </Link>
             </li>
           ))}
         </ul>
