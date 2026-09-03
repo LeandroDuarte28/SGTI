@@ -1650,12 +1650,16 @@ export type Database = {
       Project: {
         Row: {
           budget_id: string | null
+          capex_approved: number | null
+          capex_realized: number
           created_at: string
           description: string | null
           end_date: string | null
           github_repo: string | null
           id: string
           name: string
+          opex_approved: number | null
+          opex_realized: number
           owner_id: string | null
           start_date: string | null
           status: Database["project"]["Enums"]["ProjectStatus"]
@@ -1663,12 +1667,16 @@ export type Database = {
         }
         Insert: {
           budget_id?: string | null
+          capex_approved?: number | null
+          capex_realized?: number
           created_at?: string
           description?: string | null
           end_date?: string | null
           github_repo?: string | null
           id?: string
           name: string
+          opex_approved?: number | null
+          opex_realized?: number
           owner_id?: string | null
           start_date?: string | null
           status?: Database["project"]["Enums"]["ProjectStatus"]
@@ -1676,18 +1684,75 @@ export type Database = {
         }
         Update: {
           budget_id?: string | null
+          capex_approved?: number | null
+          capex_realized?: number
           created_at?: string
           description?: string | null
           end_date?: string | null
           github_repo?: string | null
           id?: string
           name?: string
+          opex_approved?: number | null
+          opex_realized?: number
           owner_id?: string | null
           start_date?: string | null
           status?: Database["project"]["Enums"]["ProjectStatus"]
           updated_at?: string
         }
         Relationships: []
+      }
+      ProjectBenefit: {
+        Row: {
+          benefit_type: Database["project"]["Enums"]["BenefitType"]
+          created_at: string
+          description: string
+          expected_value: number | null
+          id: string
+          measured_at: string | null
+          measured_by: string | null
+          project_id: string
+          realization_deadline: string
+          realized_value: number | null
+          status: Database["project"]["Enums"]["BenefitStatus"]
+          updated_at: string
+        }
+        Insert: {
+          benefit_type: Database["project"]["Enums"]["BenefitType"]
+          created_at?: string
+          description: string
+          expected_value?: number | null
+          id?: string
+          measured_at?: string | null
+          measured_by?: string | null
+          project_id: string
+          realization_deadline: string
+          realized_value?: number | null
+          status?: Database["project"]["Enums"]["BenefitStatus"]
+          updated_at?: string
+        }
+        Update: {
+          benefit_type?: Database["project"]["Enums"]["BenefitType"]
+          created_at?: string
+          description?: string
+          expected_value?: number | null
+          id?: string
+          measured_at?: string | null
+          measured_by?: string | null
+          project_id?: string
+          realization_deadline?: string
+          realized_value?: number | null
+          status?: Database["project"]["Enums"]["BenefitStatus"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ProjectBenefit_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "Project"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Risk: {
         Row: {
@@ -1738,6 +1803,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      BenefitStatus:
+        | "PLANNED"
+        | "PENDING_MEASUREMENT"
+        | "REALIZED"
+        | "NOT_REALIZED"
+        | "PARTIALLY_REALIZED"
+      BenefitType:
+        | "FINANCIAL"
+        | "EFFICIENCY"
+        | "RISK_REDUCTION"
+        | "COMPLIANCE"
+        | "QUALITY"
+        | "INNOVATION"
       GithubRefType: "ISSUE" | "PULL_REQUEST" | "COMMIT"
       ProjectStatus:
         | "PLANNING"
@@ -2503,6 +2581,21 @@ export const Constants = {
   },
   project: {
     Enums: {
+      BenefitStatus: [
+        "PLANNED",
+        "PENDING_MEASUREMENT",
+        "REALIZED",
+        "NOT_REALIZED",
+        "PARTIALLY_REALIZED",
+      ],
+      BenefitType: [
+        "FINANCIAL",
+        "EFFICIENCY",
+        "RISK_REDUCTION",
+        "COMPLIANCE",
+        "QUALITY",
+        "INNOVATION",
+      ],
       GithubRefType: ["ISSUE", "PULL_REQUEST", "COMMIT"],
       ProjectStatus: [
         "PLANNING",

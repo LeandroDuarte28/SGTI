@@ -160,6 +160,126 @@ function isValidRefType(value: string): value is GithubRefType {
   return (VALID_REF_TYPES as readonly string[]).includes(value);
 }
 
+/** Updates the project's approved/realized CAPEX and OPEX. Restricted to managers by RLS. */
+export async function updateProjectFinancials(formData: FormData): Promise<void> {
+  const projectId = formData.get("project_id");
+  const capexApproved = formData.get("capex_approved");
+  const opexApproved = formData.get("opex_approved");
+  const capexRealized = formData.get("capex_realized");
+  const opexRealized = formData.get("opex_realized");
+
+  if (typeof projectId !== "string" || projectId.length === 0) {
+    throw new Error("Projeto inválido.");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .schema("project")
+    .from("Project")
+    .update({
+      capex_approved: typeof capexApproved === "string" && capexApproved !== "" ? Number(capexApproved) : null,
+      opex_approved: typeof opexApproved === "string" && opexApproved !== "" ? Number(opexApproved) : null,
+      capex_realized: typeof capexRealized === "string" && capexRealized !== "" ? Number(capexRealized) : 0,
+      opex_realized: typeof opexRealized === "string" && opexRealized !== "" ? Number(opexRealized) : 0,
+    })
+    .eq("id", projectId);
+
+  if (error) {
+    throw new Error(`Não foi possível atualizar o financeiro do projeto: ${error.message}`);
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+}
+
+const VALID_BENEFIT_TYPES = ["FINANCIAL", "EFFICIENCY", "RISK_REDUCTION", "COMPLIANCE", "QUALITY", "INNOVATION"] as const;
+type BenefitType = (typeof VALID_BENEFIT_TYPES)[number];
+function isValidBenefitType(value: string): value is BenefitType {
+  return (VALID_BENEFIT_TYPES as readonly string[]).includes(value);
+}
+
+/** Registers an expected project benefit. Restricted to IT staff by RLS. */
+export async function addProjectBenefit(formData: FormData): Promise<void> {
+  const projectId = formData.get("project_id");
+  const description = formData.get("description");
+  const benefitType = formData.get("benefit_type");
+  const expectedValue = formData.get("expected_value");
+  const realizationDeadline = formData.get("realization_deadline");
+
+  if (typeof projectId !== "string" || projectId.length === 0) {
+    throw new Error("Projeto inválido.");
+  }
+  if (typeof description !== "string" || description.trim().length === 0) {
+    throw new Error("A descrição do benefício é obrigatória.");
+  }
+  if (typeof benefitType !== "string" || !isValidBenefitType(benefitType)) {
+    throw new Error("Selecione o tipo de benefício.");
+  }
+  if (typeof realizationDeadline !== "string" || realizationDeadline.length === 0) {
+    throw new Error("O prazo para realização é obrigatório.");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.schema("project").from("ProjectBenefit").insert({
+    project_id: projectId,
+    description: description.trim(),
+    benefit_type: benefitType,
+    expected_value: typeof expectedValue === "string" && expectedValue !== "" ? Number(expectedValue) : null,
+    realization_deadline: realizationDeadline,
+  });
+
+  if (error) {
+    throw new Error(`Não foi possível registrar o benefício: ${error.message}`);
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+}
+
+const VALID_BENEFIT_STATUSES = ["PLANNED", "PENDING_MEASUREMENT", "REALIZED", "NOT_REALIZED", "PARTIALLY_REALIZED"] as const;
+type BenefitStatus = (typeof VALID_BENEFIT_STATUSES)[number];
+function isValidBenefitStatus(value: string): value is BenefitStatus {
+  return (VALID_BENEFIT_STATUSES as readonly string[]).includes(value);
+}
+
+/** Records the measured outcome of a project benefit. Restricted to IT staff by RLS. */
+export async function measureProjectBenefit(formData: FormData): Promise<void> {
+  const benefitId = formData.get("benefit_id");
+  const projectId = formData.get("project_id");
+  const realizedValue = formData.get("realized_value");
+  const status = formData.get("status");
+
+  if (typeof benefitId !== "string" || benefitId.length === 0) {
+    throw new Error("Benefício inválido.");
+  }
+  if (typeof projectId !== "string" || projectId.length === 0) {
+    throw new Error("Projeto inválido.");
+  }
+  if (typeof status !== "string" || !isValidBenefitStatus(status)) {
+    throw new Error("Selecione um status válido.");
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { error } = await supabase
+    .schema("project")
+    .from("ProjectBenefit")
+    .update({
+      realized_value: typeof realizedValue === "string" && realizedValue !== "" ? Number(realizedValue) : null,
+      status,
+      measured_at: new Date().toISOString(),
+      measured_by: user?.id ?? null,
+    })
+    .eq("id", benefitId);
+
+  if (error) {
+    throw new Error(`Não foi possível registrar a medição: ${error.message}`);
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+}
+
 /** Links a GitHub issue/PR/commit to the project. */
 export async function addGithubReference(formData: FormData): Promise<void> {
   const projectId = formData.get("project_id");

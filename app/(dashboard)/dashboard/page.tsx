@@ -105,6 +105,8 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
     expensesThisMonthResult,
     activeProjectsResult,
     overdueProjectsResult,
+    projectsFinancialsResult,
+    realizedBenefitsResult,
   ] = await Promise.all([
     supabase.schema("ticket").from("Incident").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
     supabase.schema("ticket").from("ServiceRequest").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
@@ -121,6 +123,8 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
     supabase.schema("financial").from("Expense").select("amount").gte("expense_date", monthStart.slice(0, 10)),
     supabase.schema("project").from("Project").select("id").in("status", ["PLANNING", "IN_PROGRESS"]),
     supabase.schema("project").from("Project").select("id").lt("end_date", today).not("status", "in", "(COMPLETED,CANCELLED)"),
+    supabase.schema("project").from("Project").select("capex_realized, opex_realized").in("status", ["PLANNING", "IN_PROGRESS"]),
+    supabase.schema("project").from("ProjectBenefit").select("realized_value").not("realized_value", "is", null),
   ]);
 
   const slaIncidents = slaIncidentsResult.data ?? [];
@@ -143,6 +147,16 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
   const expensesThisMonth = (expensesThisMonthResult.data ?? []).reduce((sum, e) => sum + Number(e.amount), 0);
 
   const complianceScore = complianceAuditResult.data?.compliance_score_final;
+
+  const projectInvestment = (projectsFinancialsResult.data ?? []).reduce(
+    (sum, p) => sum + Number(p.capex_realized) + Number(p.opex_realized),
+    0,
+  );
+  const realizedBenefitsTotal = (realizedBenefitsResult.data ?? []).reduce(
+    (sum, b) => sum + Number(b.realized_value),
+    0,
+  );
+  const projectRoi = projectInvestment > 0 ? (realizedBenefitsTotal / projectInvestment) * 100 : NaN;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -224,6 +238,12 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
           label="Projetos com Prazo Vencido"
           tone={(overdueProjectsResult.data?.length ?? 0) > 0 ? "bad" : "neutral"}
           value={String(overdueProjectsResult.data?.length ?? 0)}
+        />
+        <StatCard href="/projects" label="Investimento em Projetos Ativos" value={formatCurrency(projectInvestment)} />
+        <StatCard
+          label="ROI Realizado"
+          tone={!Number.isNaN(projectRoi) && projectRoi >= 100 ? "good" : "neutral"}
+          value={Number.isNaN(projectRoi) ? "—" : formatPercent(projectRoi)}
         />
       </Section>
     </div>

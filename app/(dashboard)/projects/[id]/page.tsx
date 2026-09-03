@@ -7,7 +7,17 @@ import { ADMIN_ROLES, hasRole, IT_STAFF_ROLES } from "@/lib/constants/roles";
 import { formatDateOnly } from "@/lib/utils/format-date";
 import { Button } from "@/components/ui/button";
 
-import { addGithubReference, addMilestone, addRisk, completeMilestone, resolveRisk, updateProjectStatus } from "./actions";
+import {
+  addGithubReference,
+  addMilestone,
+  addProjectBenefit,
+  addRisk,
+  completeMilestone,
+  measureProjectBenefit,
+  resolveRisk,
+  updateProjectFinancials,
+  updateProjectStatus,
+} from "./actions";
 
 export const metadata: Metadata = { title: "Detalhe do Projeto" };
 
@@ -29,6 +39,36 @@ const RISK_LEVEL_CLASS: Record<string, string> = {
 
 const REF_TYPE_OPTIONS = ["ISSUE", "PULL_REQUEST", "COMMIT"];
 
+const BENEFIT_TYPE_LABEL: Record<string, string> = {
+  FINANCIAL: "Financeiro",
+  EFFICIENCY: "Eficiência",
+  RISK_REDUCTION: "Redução de Risco",
+  COMPLIANCE: "Compliance",
+  QUALITY: "Qualidade",
+  INNOVATION: "Inovação",
+};
+const BENEFIT_TYPE_OPTIONS = Object.keys(BENEFIT_TYPE_LABEL);
+
+const BENEFIT_STATUS_LABEL: Record<string, string> = {
+  PLANNED: "Planejado",
+  PENDING_MEASUREMENT: "Aguardando Medição",
+  REALIZED: "Realizado",
+  NOT_REALIZED: "Não Realizado",
+  PARTIALLY_REALIZED: "Parcialmente Realizado",
+};
+const BENEFIT_STATUS_OPTIONS = Object.keys(BENEFIT_STATUS_LABEL);
+const BENEFIT_STATUS_CLASS: Record<string, string> = {
+  PLANNED: "bg-muted text-muted-foreground",
+  PENDING_MEASUREMENT: "bg-status-pending/10 text-status-pending",
+  REALIZED: "bg-status-resolved/10 text-status-resolved",
+  NOT_REALIZED: "bg-destructive/10 text-destructive",
+  PARTIALLY_REALIZED: "bg-priority-medium/10 text-priority-medium",
+};
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+}
+
 export default async function ProjectDetailPage({
   params,
 }: {
@@ -44,7 +84,9 @@ export default async function ProjectDetailPage({
   const { data: project, error } = await supabase
     .schema("project")
     .from("Project")
-    .select("id, name, description, status, owner_id, budget_id, start_date, end_date, github_repo")
+    .select(
+      "id, name, description, status, owner_id, budget_id, start_date, end_date, github_repo, capex_approved, opex_approved, capex_realized, opex_realized",
+    )
     .eq("id", id)
     .single();
 
@@ -65,16 +107,31 @@ export default async function ProjectDetailPage({
 
   const canManageStatus = isManager || project.owner_id === user.id;
 
-  const [milestonesResult, risksResult, refsResult, ownerResult] = await Promise.all([
+  const [milestonesResult, risksResult, refsResult, ownerResult, benefitsResult] = await Promise.all([
     supabase.schema("project").from("Milestone").select("id, title, due_date, completed_at").eq("project_id", id).order("due_date"),
     supabase.schema("project").from("Risk").select("id, description, probability, impact, mitigation, is_resolved").eq("project_id", id),
     supabase.schema("project").from("GithubReference").select("id, ref_type, url, title").eq("project_id", id),
     supabase.schema("shared").from("UserProfile").select("full_name").eq("id", project.owner_id ?? "").maybeSingle(),
+    supabase
+      .schema("project")
+      .from("ProjectBenefit")
+      .select("id, description, benefit_type, expected_value, realization_deadline, realized_value, status")
+      .eq("project_id", id)
+      .order("created_at"),
   ]);
 
   const milestones = milestonesResult.data ?? [];
   const risks = risksResult.data ?? [];
   const githubRefs = refsResult.data ?? [];
+  const benefits = benefitsResult.data ?? [];
+
+  const capexApproved = Number(project.capex_approved ?? 0);
+  const opexApproved = Number(project.opex_approved ?? 0);
+  const capexRealized = Number(project.capex_realized);
+  const opexRealized = Number(project.opex_realized);
+  const totalApproved = capexApproved + opexApproved;
+  const totalRealized = capexRealized + opexRealized;
+  const percentUsed = totalApproved > 0 ? (totalRealized / totalApproved) * 100 : null;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -117,6 +174,103 @@ export default async function ProjectDetailPage({
             Atualizar status
           </Button>
         </form>
+      )}
+
+      {isManager && (
+        <div className="mt-6">
+          <h2 className="mb-3 font-medium text-foreground">Financeiro do Projeto</h2>
+          <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-xs text-muted-foreground">Aprovado (Total)</p>
+              <p className="text-sm font-medium text-foreground">{formatCurrency(totalApproved)}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-xs text-muted-foreground">Realizado (Total)</p>
+              <p className="text-sm font-medium text-foreground">{formatCurrency(totalRealized)}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-xs text-muted-foreground">% Utilizado</p>
+              <p
+                className={`text-sm font-medium ${
+                  percentUsed !== null && percentUsed > 100 ? "text-destructive" : "text-foreground"
+                }`}
+              >
+                {percentUsed !== null ? `${percentUsed.toFixed(1)}%` : "—"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-xs text-muted-foreground">Saldo Disponível</p>
+              <p className="text-sm font-medium text-foreground">{formatCurrency(totalApproved - totalRealized)}</p>
+            </div>
+          </div>
+          <form
+            action={updateProjectFinancials}
+            className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-card p-4 sm:grid-cols-4"
+          >
+            <input name="project_id" type="hidden" value={project.id} />
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground" htmlFor="capex_approved">
+                CAPEX Aprovado
+              </label>
+              <input
+                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                defaultValue={project.capex_approved ?? ""}
+                id="capex_approved"
+                min="0"
+                name="capex_approved"
+                step="0.01"
+                type="number"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground" htmlFor="opex_approved">
+                OPEX Aprovado
+              </label>
+              <input
+                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                defaultValue={project.opex_approved ?? ""}
+                id="opex_approved"
+                min="0"
+                name="opex_approved"
+                step="0.01"
+                type="number"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground" htmlFor="capex_realized">
+                CAPEX Realizado
+              </label>
+              <input
+                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                defaultValue={project.capex_realized}
+                id="capex_realized"
+                min="0"
+                name="capex_realized"
+                step="0.01"
+                type="number"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground" htmlFor="opex_realized">
+                OPEX Realizado
+              </label>
+              <input
+                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                defaultValue={project.opex_realized}
+                id="opex_realized"
+                min="0"
+                name="opex_realized"
+                step="0.01"
+                type="number"
+              />
+            </div>
+            <div className="col-span-2 flex items-end sm:col-span-4">
+              <Button size="sm" type="submit">
+                Salvar Financeiro
+              </Button>
+            </div>
+          </form>
+        </div>
       )}
 
       <div className="mt-6">
@@ -286,6 +440,107 @@ export default async function ProjectDetailPage({
           </form>
         )}
       </div>
+
+      {isItStaff && (
+        <div className="mt-6">
+          <h2 className="mb-3 font-medium text-foreground">Benefícios</h2>
+          {benefits.length > 0 && (
+            <ul className="mb-4 space-y-2">
+              {benefits.map((benefit) => (
+                <li className="rounded-lg border border-border bg-card p-3" key={benefit.id}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm text-foreground">{benefit.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {BENEFIT_TYPE_LABEL[benefit.benefit_type] ?? benefit.benefit_type} · Prazo:{" "}
+                        {formatDateOnly(benefit.realization_deadline)}
+                        {benefit.expected_value !== null && ` · Esperado: ${formatCurrency(Number(benefit.expected_value))}`}
+                        {benefit.realized_value !== null && ` · Realizado: ${formatCurrency(Number(benefit.realized_value))}`}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                        BENEFIT_STATUS_CLASS[benefit.status] ?? ""
+                      }`}
+                    >
+                      {BENEFIT_STATUS_LABEL[benefit.status] ?? benefit.status}
+                    </span>
+                  </div>
+                  <form action={measureProjectBenefit} className="mt-2 flex flex-wrap items-center gap-2">
+                    <input name="benefit_id" type="hidden" value={benefit.id} />
+                    <input name="project_id" type="hidden" value={project.id} />
+                    <input
+                      className="w-32 rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground"
+                      defaultValue={benefit.realized_value ?? ""}
+                      min="0"
+                      name="realized_value"
+                      placeholder="Valor realizado"
+                      step="0.01"
+                      type="number"
+                    />
+                    <select
+                      className="rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground"
+                      defaultValue={benefit.status}
+                      key={benefit.status}
+                      name="status"
+                    >
+                      {BENEFIT_STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {BENEFIT_STATUS_LABEL[status]}
+                        </option>
+                      ))}
+                    </select>
+                    <Button size="sm" type="submit" variant="outline">
+                      Registrar Medição
+                    </Button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+          <form action={addProjectBenefit} className="space-y-2 rounded-lg border border-border bg-card p-4">
+            <input name="project_id" type="hidden" value={project.id} />
+            <input
+              required
+              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              name="description"
+              placeholder="Descrição do benefício esperado"
+              type="text"
+            />
+            <div className="grid grid-cols-3 gap-2">
+              <select required className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground" defaultValue="" name="benefit_type">
+                <option disabled value="">
+                  Tipo
+                </option>
+                {BENEFIT_TYPE_OPTIONS.map((type) => (
+                  <option key={type} value={type}>
+                    {BENEFIT_TYPE_LABEL[type]}
+                  </option>
+                ))}
+              </select>
+              <input
+                className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+                min="0"
+                name="expected_value"
+                placeholder="Valor esperado (R$, opcional)"
+                step="0.01"
+                type="number"
+              />
+              <input
+                required
+                className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                name="realization_deadline"
+                type="date"
+              />
+            </div>
+            <div className="flex justify-end">
+              <Button size="sm" type="submit">
+                Registrar Benefício
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
