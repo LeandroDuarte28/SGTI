@@ -3,7 +3,11 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/auth/get-user";
+import { ADMIN_ROLES, hasRole } from "@/lib/constants/roles";
 import { Button } from "@/components/ui/button";
+
+import { runSlaMonitor } from "./actions";
 
 export const metadata: Metadata = { title: "Incidentes" };
 
@@ -44,6 +48,9 @@ function Pill({ className, label }: { className: string; label: string }): React
 }
 
 export default async function IncidentsPage(): Promise<React.JSX.Element> {
+  const user = await getAuthUser();
+  const isManager = hasRole(user.roles, ADMIN_ROLES);
+
   const supabase = await createClient();
 
   // RLS already scopes this correctly: END_USER sees only what they
@@ -64,12 +71,21 @@ export default async function IncidentsPage(): Promise<React.JSX.Element> {
             Acompanhe e gerencie os incidentes reportados.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/incidents/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Incidente
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {isManager && (
+            <form action={runSlaMonitor}>
+              <Button size="sm" type="submit" variant="outline">
+                Executar verificação de SLA
+              </Button>
+            </form>
+          )}
+          <Button asChild>
+            <Link href="/incidents/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Incidente
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {error && (

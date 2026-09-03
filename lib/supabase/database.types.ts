@@ -311,6 +311,42 @@ export type Database = {
         }
         Relationships: []
       }
+      SLAHistory: {
+        Row: {
+          created_at: string
+          deadline_minutes: number
+          elapsed_minutes: number
+          event: string
+          event_at: string
+          id: string
+          incident_id: string
+          priority: Database["catalog"]["Enums"]["TicketPriority"]
+          technician_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          deadline_minutes: number
+          elapsed_minutes: number
+          event: string
+          event_at?: string
+          id?: string
+          incident_id: string
+          priority: Database["catalog"]["Enums"]["TicketPriority"]
+          technician_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          deadline_minutes?: number
+          elapsed_minutes?: number
+          event?: string
+          event_at?: string
+          id?: string
+          incident_id?: string
+          priority?: Database["catalog"]["Enums"]["TicketPriority"]
+          technician_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2228,6 +2264,8 @@ export type Database = {
           priority: Database["catalog"]["Enums"]["TicketPriority"]
           reporter_id: string
           resolved_at: string | null
+          sla_at_risk_notified_at: string | null
+          sla_breached_at: string | null
           sla_id: string | null
           status: Database["ticket"]["Enums"]["TicketStatus"]
           title: string
@@ -2243,6 +2281,8 @@ export type Database = {
           priority: Database["catalog"]["Enums"]["TicketPriority"]
           reporter_id: string
           resolved_at?: string | null
+          sla_at_risk_notified_at?: string | null
+          sla_breached_at?: string | null
           sla_id?: string | null
           status?: Database["ticket"]["Enums"]["TicketStatus"]
           title: string
@@ -2258,6 +2298,8 @@ export type Database = {
           priority?: Database["catalog"]["Enums"]["TicketPriority"]
           reporter_id?: string
           resolved_at?: string | null
+          sla_at_risk_notified_at?: string | null
+          sla_breached_at?: string | null
           sla_id?: string | null
           status?: Database["ticket"]["Enums"]["TicketStatus"]
           title?: string

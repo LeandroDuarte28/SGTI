@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { Button } from "@/components/ui/button";
 import type { Database } from "@/lib/supabase/database.types";
+import { evaluateResolutionSla } from "@/lib/utils/sla";
 
 import { addComment, assignToMe, escalateIncident, resolveEscalation, updateStatus } from "./actions";
 
@@ -31,6 +32,18 @@ const STATUS_LABEL: Record<string, string> = {
 
 const STATUS_OPTIONS = ["OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"];
 
+const SLA_BADGE_LABEL: Record<string, string> = {
+  ok: "SLA em Dia",
+  at_risk: "SLA em Risco",
+  breached: "SLA Violado",
+};
+
+const SLA_BADGE_CLASS: Record<string, string> = {
+  ok: "bg-sla-ok/10 text-sla-ok",
+  at_risk: "bg-sla-warning/10 text-sla-warning",
+  breached: "bg-sla-breach/10 text-sla-breach",
+};
+
 export default async function IncidentDetailPage({
   params,
 }: {
@@ -45,7 +58,9 @@ export default async function IncidentDetailPage({
   const { data: incident, error } = await supabase
     .schema("ticket")
     .from("Incident")
-    .select("id, title, description, status, priority, reporter_id, assignee_id, created_at")
+    .select(
+      "id, title, description, status, priority, reporter_id, assignee_id, created_at, sla_id, sla_breached_at",
+    )
     .eq("id", id)
     .single();
 
@@ -63,6 +78,25 @@ export default async function IncidentDetailPage({
       </div>
     );
   }
+
+  const { data: slaDefinition } = incident.sla_id
+    ? await supabase
+        .schema("catalog")
+        .from("SLADefinition")
+        .select("name, resolution_time_minutes, business_hours_only")
+        .eq("id", incident.sla_id)
+        .maybeSingle()
+    : { data: null };
+
+  const slaEvaluation =
+    slaDefinition && !["RESOLVED", "CLOSED"].includes(incident.status)
+      ? evaluateResolutionSla({
+          createdAt: new Date(incident.created_at),
+          resolutionTimeMinutes: slaDefinition.resolution_time_minutes,
+          businessHoursOnly: slaDefinition.business_hours_only,
+        })
+      : null;
+  const slaStatus = incident.sla_breached_at ? "breached" : slaEvaluation?.status;
 
   const { data: comments } = await supabase
     .schema("ticket")
@@ -121,15 +155,23 @@ export default async function IncidentDetailPage({
       <div className="mt-4 rounded-lg border border-border bg-card p-6">
         <div className="flex items-start justify-between gap-4">
           <h1 className="text-xl font-semibold text-foreground">{incident.title}</h1>
-          <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            {PRIORITY_LABEL[incident.priority] ?? incident.priority}
-          </span>
+          <div className="flex shrink-0 gap-2">
+            {slaStatus && (
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${SLA_BADGE_CLASS[slaStatus]}`}>
+                {SLA_BADGE_LABEL[slaStatus]}
+              </span>
+            )}
+            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              {PRIORITY_LABEL[incident.priority] ?? incident.priority}
+            </span>
+          </div>
         </div>
         <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{incident.description}</p>
         <p className="mt-4 text-xs text-muted-foreground">
           Reportado por {nameFor(incident.reporter_id)} em{" "}
           {new Date(incident.created_at).toLocaleDateString("pt-BR")} · Responsável:{" "}
           {nameFor(incident.assignee_id)}
+          {slaDefinition && ` · SLA: ${slaDefinition.name}`}
         </p>
       </div>
 
