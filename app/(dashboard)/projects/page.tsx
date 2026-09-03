@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { formatDateOnly } from "@/lib/utils/format-date";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Projetos" };
 
@@ -46,9 +50,17 @@ export default async function ProjectsPage(): Promise<React.JSX.Element> {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Projetos</h1>
-        <p className="text-sm text-muted-foreground">Projetos de TI em andamento e planejados.</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Projetos</h1>
+          <p className="text-sm text-muted-foreground">Projetos de TI em andamento e planejados.</p>
+        </div>
+        <Button asChild size="sm">
+          <Link href="/projects/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Projeto
+          </Link>
+        </Button>
       </div>
 
       {error && (
@@ -68,26 +80,27 @@ export default async function ProjectsPage(): Promise<React.JSX.Element> {
           {projects.map((project) => {
             const owner = profiles.find((profile) => profile.id === project.owner_id);
             return (
-              <li
-                className="rounded-lg border border-border bg-card p-4 shadow-sm"
-                key={project.id}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <h2 className="font-medium text-foreground">{project.name}</h2>
-                  <Pill
-                    className={STATUS_CLASS[project.status] ?? ""}
-                    label={STATUS_LABEL[project.status] ?? project.status}
-                  />
-                </div>
-                {project.description && (
-                  <p className="mt-1 text-sm text-muted-foreground">{project.description}</p>
-                )}
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {owner && `Responsável: ${owner.full_name}`}
-                  {project.start_date &&
-                    ` · Início: ${new Date(project.start_date).toLocaleDateString("pt-BR")}`}
-                  {project.github_repo && ` · ${project.github_repo}`}
-                </p>
+              <li key={project.id}>
+                <Link
+                  className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+                  href={`/projects/${project.id}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <h2 className="font-medium text-foreground">{project.name}</h2>
+                    <Pill
+                      className={STATUS_CLASS[project.status] ?? ""}
+                      label={STATUS_LABEL[project.status] ?? project.status}
+                    />
+                  </div>
+                  {project.description && (
+                    <p className="mt-1 text-sm text-muted-foreground">{project.description}</p>
+                  )}
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {owner && `Responsável: ${owner.full_name}`}
+                    {project.start_date && ` · Início: ${formatDateOnly(project.start_date)}`}
+                    {project.github_repo && ` · ${project.github_repo}`}
+                  </p>
+                </Link>
               </li>
             );
           })}
