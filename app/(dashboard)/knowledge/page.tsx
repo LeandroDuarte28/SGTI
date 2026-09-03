@@ -38,12 +38,17 @@ export default async function KnowledgePage(): Promise<React.JSX.Element> {
           </p>
         </div>
         {isItStaff && (
-          <Button asChild size="sm">
-            <Link href="/knowledge/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Artigo
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild size="sm" variant="outline">
+              <a href="/api/reports/knowledge">Exportar CSV</a>
+            </Button>
+            <Button asChild size="sm">
+              <Link href="/knowledge/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Artigo
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
 

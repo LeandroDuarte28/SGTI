@@ -50,12 +50,17 @@ export default async function ProblemsPage(): Promise<React.JSX.Element> {
             Causas raiz investigadas pela equipe de TI, agrupando incidentes relacionados.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/problems/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Problema
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild size="sm" variant="outline">
+            <a href="/api/reports/problems">Exportar CSV</a>
+          </Button>
+          <Button asChild>
+            <Link href="/problems/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Problema
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {error && (

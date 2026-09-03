@@ -70,6 +70,9 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
         </div>
         <div className="flex gap-2">
           <Button asChild size="sm" variant="outline">
+            <a href="/api/reports/financial">Exportar CSV</a>
+          </Button>
+          <Button asChild size="sm" variant="outline">
             <Link href="/financial/budgets/new">
               <Plus className="mr-2 h-4 w-4" />
               Orçamento

@@ -63,6 +63,9 @@ export default async function ProcurementPage(): Promise<React.JSX.Element> {
         </div>
         <div className="flex gap-2">
           <Button asChild size="sm" variant="outline">
+            <a href="/api/reports/procurement">Exportar CSV</a>
+          </Button>
+          <Button asChild size="sm" variant="outline">
             <Link href="/procurement/suppliers/new">
               <Plus className="mr-2 h-4 w-4" />
               Fornecedor

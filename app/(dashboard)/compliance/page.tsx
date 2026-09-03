@@ -83,11 +83,19 @@ export default async function CompliancePage(): Promise<React.JSX.Element> {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Compliance</h1>
-        <p className="text-sm text-muted-foreground">
-          Apontamentos de auditoria em aberto e ciclos de auditoria recentes.
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Compliance</h1>
+          <p className="text-sm text-muted-foreground">
+            Apontamentos de auditoria em aberto e ciclos de auditoria recentes.
+          </p>
+        </div>
+        <a
+          className="shrink-0 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
+          href="/api/reports/compliance"
+        >
+          Exportar CSV
+        </a>
       </div>
 
       <div className="mb-8 grid gap-3 sm:grid-cols-3">

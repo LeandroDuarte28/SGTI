@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Ativos de TI" };
 
@@ -87,11 +88,16 @@ export default async function AssetsPage({
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Ativos de TI</h1>
-        <p className="text-sm text-muted-foreground">
-          Inventário de hardware, licenças e equipamentos.
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Ativos de TI</h1>
+          <p className="text-sm text-muted-foreground">
+            Inventário de hardware, licenças e equipamentos.
+          </p>
+        </div>
+        <Button asChild size="sm" variant="outline">
+          <a href="/api/reports/assets">Exportar CSV</a>
+        </Button>
       </div>
 
       <form className="mb-4 flex flex-wrap gap-3" method="get">

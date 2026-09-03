@@ -79,6 +79,9 @@ export default async function IncidentsPage(): Promise<React.JSX.Element> {
               </Button>
             </form>
           )}
+          <Button asChild size="sm" variant="outline">
+            <a href="/api/reports/incidents">Exportar CSV</a>
+          </Button>
           <Button asChild>
             <Link href="/incidents/new">
               <Plus className="mr-2 h-4 w-4" />
