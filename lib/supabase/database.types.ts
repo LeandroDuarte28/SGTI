@@ -853,7 +853,7 @@ export type Database = {
           {
             foreignKeyName: "FindingRisk_finding_id_fkey"
             columns: ["finding_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "ComplianceFinding"
             referencedColumns: ["id"]
           },
