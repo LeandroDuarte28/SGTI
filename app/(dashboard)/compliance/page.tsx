@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Compliance" };
+
+const HUB_LINKS = [
+  { href: "/compliance/audits", label: "Auditorias", desc: "Ciclos de auditoria e apontamentos" },
+  { href: "/compliance/norms", label: "Normas", desc: "Normas, frameworks e itens normativos" },
+  { href: "/compliance/consultancies", label: "Consultorias", desc: "Empresas de auditoria externa" },
+] as const;
 
 const CONTROL_STATUS_LABEL: Record<string, string> = {
   COMPLIANT: "Conforme",
@@ -68,6 +75,19 @@ export default async function CompliancePage(): Promise<React.JSX.Element> {
         <p className="text-sm text-muted-foreground">
           Controles de conformidade e não conformidades em aberto.
         </p>
+      </div>
+
+      <div className="mb-8 grid gap-3 sm:grid-cols-3">
+        {HUB_LINKS.map((link) => (
+          <Link
+            className="rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+            href={link.href}
+            key={link.href}
+          >
+            <p className="font-medium text-foreground">{link.label}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{link.desc}</p>
+          </Link>
+        ))}
       </div>
 
       {error && (

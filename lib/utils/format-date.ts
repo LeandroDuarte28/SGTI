@@ -28,6 +28,19 @@ export function formatDate(date: Date | string): string {
   return DATE_FORMAT.format(new Date(date));
 }
 
+/**
+ * Formats a plain SQL `DATE` column (e.g. "2026-09-01", no time/timezone) as
+ * DD/MM/YYYY. Unlike `formatDate`, this never converts through a timezone —
+ * a calendar date like a due date or purchase date means the same day
+ * everywhere, and running it through `new Date(str)` (parsed as UTC
+ * midnight) then a Brazil-local formatter shifts it a day back for anyone
+ * west of UTC. Reformats the string directly instead.
+ */
+export function formatDateOnly(date: string): string {
+  const [year, month, day] = date.slice(0, 10).split("-");
+  return `${day}/${month}/${year}`;
+}
+
 /** Formats a date as DD/MM/YYYY HH:MM */
 export function formatDateTime(date: Date | string): string {
   return DATETIME_FORMAT.format(new Date(date));
