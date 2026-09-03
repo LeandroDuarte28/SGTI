@@ -5,77 +5,24 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { ADMIN_ROLES, hasRole } from "@/lib/constants/roles";
+import { formatCurrency, formatHours, formatPercent, getSlaComplianceTone, Section, StatCard } from "@/components/dashboard/kpi";
 
 export const metadata: Metadata = { title: "Dashboard Executivo" };
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-}
-
-function formatHours(hours: number): string {
-  if (!Number.isFinite(hours)) {
-    return "—";
-  }
-  return `${hours.toFixed(1)}h`;
-}
-
-function getSlaComplianceTone(percent: number): "neutral" | "good" | "bad" {
-  if (Number.isNaN(percent)) {
-    return "neutral";
-  }
-  return percent >= 90 ? "good" : "bad";
-}
-
-function formatPercent(value: number): string {
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
-  return `${value.toFixed(1)}%`;
-}
-
-function StatCard({
-  label,
-  value,
-  href,
-  tone = "neutral",
-}: {
-  label: string;
-  value: string;
-  href?: string;
-  tone?: "neutral" | "good" | "bad";
-}): React.JSX.Element {
-  const TONE_CLASS: Record<typeof tone, string> = {
-    bad: "text-destructive",
-    good: "text-status-resolved",
-    neutral: "text-foreground",
-  };
-  const toneClass = TONE_CLASS[tone];
-
-  const content = (
-    <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</p>
-    </div>
-  );
-
-  if (!href) {
-    return content;
-  }
-  return (
-    <Link className="block transition-opacity hover:opacity-80" href={href}>
-      {content}
-    </Link>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }): React.JSX.Element {
-  return (
-    <section className="mb-8">
-      <h2 className="mb-3 font-medium text-foreground">{title}</h2>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{children}</div>
-    </section>
-  );
-}
+const OTHER_DASHBOARDS = [
+  { href: "/dashboard/operational", label: "Operacional" },
+  { href: "/dashboard/incidents", label: "Incidentes" },
+  { href: "/dashboard/requests", label: "Requisições" },
+  { href: "/dashboard/problems", label: "Problemas" },
+  { href: "/dashboard/assets", label: "Ativos" },
+  { href: "/dashboard/identity", label: "Identidade" },
+  { href: "/dashboard/compliance", label: "Compliance" },
+  { href: "/dashboard/financial", label: "Financeiro" },
+  { href: "/dashboard/procurement", label: "Compras" },
+  { href: "/dashboard/projects", label: "Projetos" },
+  { href: "/dashboard/knowledge", label: "Base de Conhecimento" },
+  { href: "/dashboard/sla", label: "SLA" },
+] as const;
 
 export default async function ExecutiveDashboardPage(): Promise<React.JSX.Element> {
   const user = await getAuthUser();
@@ -246,6 +193,21 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
           value={Number.isNaN(projectRoi) ? "—" : formatPercent(projectRoi)}
         />
       </Section>
+
+      <section>
+        <h2 className="mb-3 font-medium text-foreground">Outros Painéis</h2>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          {OTHER_DASHBOARDS.map((item) => (
+            <Link
+              className="rounded-lg border border-border bg-card p-3 text-center text-sm text-foreground shadow-sm transition-colors hover:bg-muted/50"
+              href={item.href}
+              key={item.href}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
