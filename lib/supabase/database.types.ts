@@ -423,36 +423,6 @@ export type Database = {
           },
         ]
       }
-      AuditCycle: {
-        Row: {
-          completed_at: string | null
-          created_by: string | null
-          due_at: string | null
-          framework: string | null
-          id: string
-          name: string
-          started_at: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_by?: string | null
-          due_at?: string | null
-          framework?: string | null
-          id?: string
-          name: string
-          started_at?: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_by?: string | null
-          due_at?: string | null
-          framework?: string | null
-          id?: string
-          name?: string
-          started_at?: string
-        }
-        Relationships: []
-      }
       ComplianceAudit: {
         Row: {
           cancellation_reason: string | null
@@ -705,90 +675,6 @@ export type Database = {
         }
         Relationships: []
       }
-      Control: {
-        Row: {
-          category: string | null
-          code: string
-          created_at: string
-          description: string | null
-          framework: string | null
-          id: string
-          owner_id: string | null
-          status: Database["compliance"]["Enums"]["ControlStatus"]
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          category?: string | null
-          code: string
-          created_at?: string
-          description?: string | null
-          framework?: string | null
-          id?: string
-          owner_id?: string | null
-          status?: Database["compliance"]["Enums"]["ControlStatus"]
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string | null
-          code?: string
-          created_at?: string
-          description?: string | null
-          framework?: string | null
-          id?: string
-          owner_id?: string | null
-          status?: Database["compliance"]["Enums"]["ControlStatus"]
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      Evidence: {
-        Row: {
-          control_id: string | null
-          description: string | null
-          id: string
-          non_conformance_id: string | null
-          storage_path: string
-          uploaded_at: string
-          uploaded_by: string | null
-        }
-        Insert: {
-          control_id?: string | null
-          description?: string | null
-          id?: string
-          non_conformance_id?: string | null
-          storage_path: string
-          uploaded_at?: string
-          uploaded_by?: string | null
-        }
-        Update: {
-          control_id?: string | null
-          description?: string | null
-          id?: string
-          non_conformance_id?: string | null
-          storage_path?: string
-          uploaded_at?: string
-          uploaded_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Evidence_control_id_fkey"
-            columns: ["control_id"]
-            isOneToOne: false
-            referencedRelation: "Control"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Evidence_non_conformance_id_fkey"
-            columns: ["non_conformance_id"]
-            isOneToOne: false
-            referencedRelation: "NonConformance"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       FindingEvidence: {
         Row: {
           created_at: string
@@ -895,63 +781,6 @@ export type Database = {
           },
         ]
       }
-      NonConformance: {
-        Row: {
-          audit_cycle_id: string | null
-          control_id: string | null
-          created_at: string
-          description: string
-          id: string
-          identified_by: string | null
-          owner_id: string | null
-          resolved_at: string | null
-          severity: Database["compliance"]["Enums"]["NonConformanceSeverity"]
-          status: Database["compliance"]["Enums"]["NonConformanceStatus"]
-          updated_at: string
-        }
-        Insert: {
-          audit_cycle_id?: string | null
-          control_id?: string | null
-          created_at?: string
-          description: string
-          id?: string
-          identified_by?: string | null
-          owner_id?: string | null
-          resolved_at?: string | null
-          severity: Database["compliance"]["Enums"]["NonConformanceSeverity"]
-          status?: Database["compliance"]["Enums"]["NonConformanceStatus"]
-          updated_at?: string
-        }
-        Update: {
-          audit_cycle_id?: string | null
-          control_id?: string | null
-          created_at?: string
-          description?: string
-          id?: string
-          identified_by?: string | null
-          owner_id?: string | null
-          resolved_at?: string | null
-          severity?: Database["compliance"]["Enums"]["NonConformanceSeverity"]
-          status?: Database["compliance"]["Enums"]["NonConformanceStatus"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "NonConformance_audit_cycle_id_fkey"
-            columns: ["audit_cycle_id"]
-            isOneToOne: false
-            referencedRelation: "AuditCycle"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "NonConformance_control_id_fkey"
-            columns: ["control_id"]
-            isOneToOne: false
-            referencedRelation: "Control"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       Norm: {
         Row: {
           code: string
@@ -1052,45 +881,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      Policy: {
-        Row: {
-          content: string | null
-          created_at: string
-          effective_date: string | null
-          id: string
-          owner_id: string | null
-          review_date: string | null
-          status: Database["compliance"]["Enums"]["PolicyStatus"]
-          title: string
-          updated_at: string
-          version: string
-        }
-        Insert: {
-          content?: string | null
-          created_at?: string
-          effective_date?: string | null
-          id?: string
-          owner_id?: string | null
-          review_date?: string | null
-          status?: Database["compliance"]["Enums"]["PolicyStatus"]
-          title: string
-          updated_at?: string
-          version?: string
-        }
-        Update: {
-          content?: string | null
-          created_at?: string
-          effective_date?: string | null
-          id?: string
-          owner_id?: string | null
-          review_date?: string | null
-          status?: Database["compliance"]["Enums"]["PolicyStatus"]
-          title?: string
-          updated_at?: string
-          version?: string
-        }
-        Relationships: []
       }
     }
     Views: {

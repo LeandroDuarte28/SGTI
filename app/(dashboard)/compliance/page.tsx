@@ -11,32 +11,44 @@ const HUB_LINKS = [
   { href: "/compliance/consultancies", label: "Consultorias", desc: "Empresas de auditoria externa" },
 ] as const;
 
-const CONTROL_STATUS_LABEL: Record<string, string> = {
-  COMPLIANT: "Conforme",
-  NON_COMPLIANT: "Não Conforme",
-  IN_REMEDIATION: "Em Remediação",
-  NOT_APPLICABLE: "Não Aplicável",
+const FINDING_STATUS_LABEL: Record<string, string> = {
+  NEW: "Aberto",
+  IN_PROGRESS: "Em Tratativa",
+  PENDING_EVIDENCE: "Aguardando Evidência",
+  IN_VALIDATION: "Em Validação",
+  REOPENED: "Reaberto",
 };
 
-const CONTROL_STATUS_CLASS: Record<string, string> = {
-  COMPLIANT: "bg-status-resolved/10 text-status-resolved",
-  NON_COMPLIANT: "bg-destructive/10 text-destructive",
-  IN_REMEDIATION: "bg-priority-medium/10 text-priority-medium",
-  NOT_APPLICABLE: "bg-muted text-muted-foreground",
-};
-
-const SEVERITY_LABEL: Record<string, string> = {
+const CRITICALITY_LABEL: Record<string, string> = {
   CRITICAL: "Crítica",
-  HIGH: "Alta",
-  MEDIUM: "Média",
-  LOW: "Baixa",
+  MAJOR: "Alta",
+  MINOR: "Média",
+  OBSERVATION: "Observação",
 };
 
-const SEVERITY_CLASS: Record<string, string> = {
+const CRITICALITY_CLASS: Record<string, string> = {
   CRITICAL: "bg-priority-critical/10 text-priority-critical",
-  HIGH: "bg-priority-high/10 text-priority-high",
-  MEDIUM: "bg-priority-medium/10 text-priority-medium",
-  LOW: "bg-priority-low/10 text-priority-low",
+  MAJOR: "bg-priority-high/10 text-priority-high",
+  MINOR: "bg-priority-medium/10 text-priority-medium",
+  OBSERVATION: "bg-muted text-muted-foreground",
+};
+
+const AUDIT_STATUS_LABEL: Record<string, string> = {
+  PLANNED: "Planejada",
+  IN_PROGRESS: "Em Andamento",
+  PENDING_RESPONSES: "Aguardando Respostas",
+  IN_REVIEW: "Em Revisão",
+  COMPLETED: "Concluída",
+  CANCELLED: "Cancelada",
+};
+
+const AUDIT_STATUS_CLASS: Record<string, string> = {
+  PLANNED: "bg-status-open/10 text-status-open",
+  IN_PROGRESS: "bg-status-in-progress/10 text-status-in-progress",
+  PENDING_RESPONSES: "bg-status-pending/10 text-status-pending",
+  IN_REVIEW: "bg-priority-medium/10 text-priority-medium",
+  COMPLETED: "bg-status-resolved/10 text-status-resolved",
+  CANCELLED: "bg-status-closed/10 text-status-closed",
 };
 
 function Pill({ className, label }: { className: string; label: string }): React.JSX.Element {
@@ -49,31 +61,32 @@ export default async function CompliancePage(): Promise<React.JSX.Element> {
   const supabase = await createClient();
 
   // RLS: SUPER_ADMIN, IT_MANAGER and AUDITOR can read; everyone else sees
-  // an empty list (see supabase/migrations/20260712000500_compliance_schema.sql).
-  const [controlsResult, nonConformancesResult] = await Promise.all([
+  // an empty list (see supabase/migrations/20260727000000_compliance_findings_schema.sql).
+  const [findingsResult, auditsResult] = await Promise.all([
     supabase
       .schema("compliance")
-      .from("Control")
-      .select("id, code, title, framework, status")
-      .order("code"),
+      .from("ComplianceFinding")
+      .select("id, code, title, criticality, status, due_date")
+      .not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)")
+      .order("due_date"),
     supabase
       .schema("compliance")
-      .from("NonConformance")
-      .select("id, description, severity, status, created_at")
-      .neq("status", "RESOLVED")
-      .order("created_at", { ascending: false }),
+      .from("ComplianceAudit")
+      .select("id, code, name, status, compliance_score_final")
+      .order("created_at", { ascending: false })
+      .limit(5),
   ]);
 
-  const error = controlsResult.error ?? nonConformancesResult.error;
-  const controls = controlsResult.data ?? [];
-  const nonConformances = nonConformancesResult.data ?? [];
+  const error = findingsResult.error ?? auditsResult.error;
+  const findings = findingsResult.data ?? [];
+  const audits = auditsResult.data ?? [];
 
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-foreground">Compliance</h1>
         <p className="text-sm text-muted-foreground">
-          Controles de conformidade e não conformidades em aberto.
+          Apontamentos de auditoria em aberto e ciclos de auditoria recentes.
         </p>
       </div>
 
@@ -96,58 +109,66 @@ export default async function CompliancePage(): Promise<React.JSX.Element> {
         </div>
       )}
 
-      {!error && controls.length === 0 && nonConformances.length === 0 && (
+      {!error && findings.length === 0 && audits.length === 0 && (
         <div className="rounded-lg border border-dashed border-border p-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Nenhum controle cadastrado ainda, ou você não tem permissão para ver este módulo
-            (restrito a Auditores e Gestores de TI).
+            Nenhum apontamento ou auditoria cadastrada ainda, ou você não tem permissão para ver
+            este módulo (restrito a Auditores e Gestores de TI).
           </p>
         </div>
       )}
 
-      {!error && nonConformances.length > 0 && (
+      {!error && findings.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 font-medium text-foreground">Não Conformidades em Aberto</h2>
+          <h2 className="mb-3 font-medium text-foreground">Apontamentos em Aberto</h2>
           <ul className="space-y-3">
-            {nonConformances.map((nc) => (
-              <li className="rounded-lg border border-border bg-card p-4 shadow-sm" key={nc.id}>
-                <div className="flex items-start justify-between gap-4">
-                  <p className="text-sm text-foreground">{nc.description}</p>
-                  <Pill
-                    className={SEVERITY_CLASS[nc.severity] ?? ""}
-                    label={SEVERITY_LABEL[nc.severity] ?? nc.severity}
-                  />
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Identificada em {new Date(nc.created_at).toLocaleDateString("pt-BR")}
-                </p>
+            {findings.map((finding) => (
+              <li className="rounded-lg border border-border bg-card p-4 shadow-sm" key={finding.id}>
+                <Link className="block" href={`/compliance/findings/${finding.id}`}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{finding.title}</p>
+                      <p className="text-xs text-muted-foreground">{finding.code}</p>
+                    </div>
+                    <Pill
+                      className={CRITICALITY_CLASS[finding.criticality] ?? ""}
+                      label={CRITICALITY_LABEL[finding.criticality] ?? finding.criticality}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {FINDING_STATUS_LABEL[finding.status] ?? finding.status} · Prazo:{" "}
+                    {new Date(finding.due_date).toLocaleDateString("pt-BR")}
+                  </p>
+                </Link>
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      {!error && controls.length > 0 && (
+      {!error && audits.length > 0 && (
         <section>
-          <h2 className="mb-3 font-medium text-foreground">Controles</h2>
+          <h2 className="mb-3 font-medium text-foreground">Auditorias Recentes</h2>
           <ul className="space-y-2">
-            {controls.map((control) => (
-              <li
-                className="flex items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm"
-                key={control.id}
-              >
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {control.code} — {control.title}
-                  </p>
-                  {control.framework && (
-                    <p className="text-xs text-muted-foreground">{control.framework}</p>
-                  )}
-                </div>
-                <Pill
-                  className={CONTROL_STATUS_CLASS[control.status] ?? ""}
-                  label={CONTROL_STATUS_LABEL[control.status] ?? control.status}
-                />
+            {audits.map((audit) => (
+              <li key={audit.id}>
+                <Link
+                  className="flex items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm transition-colors hover:bg-muted/50"
+                  href={`/compliance/audits/${audit.id}`}
+                >
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{audit.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {audit.code}
+                      {audit.compliance_score_final !== null &&
+                        ` · Score: ${Number(audit.compliance_score_final).toFixed(1)}%`}
+                    </p>
+                  </div>
+                  <Pill
+                    className={AUDIT_STATUS_CLASS[audit.status] ?? ""}
+                    label={AUDIT_STATUS_LABEL[audit.status] ?? audit.status}
+                  />
+                </Link>
               </li>
             ))}
           </ul>
