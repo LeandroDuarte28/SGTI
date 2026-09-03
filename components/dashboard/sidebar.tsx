@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils/cn";
 
 /** All 10 SGTI modules now have a screen — no more "coming soon" items. */
 const ACTIVE_NAV_ITEMS = [
+  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/incidents", icon: Ticket, label: "Incidentes" },
   { href: "/requests", icon: ClipboardList, label: "Requisições" },
   { href: "/problems", icon: Search, label: "Problemas" },
