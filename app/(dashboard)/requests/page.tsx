@@ -79,12 +79,19 @@ export default async function RequestsPage(): Promise<React.JSX.Element> {
             Acompanhe suas solicitações feitas a partir do Catálogo.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/requests/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Nova Requisição
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {isItStaff && (
+            <Button asChild size="sm" variant="outline">
+              <a href="/api/reports/requests">Exportar CSV</a>
+            </Button>
+          )}
+          <Button asChild>
+            <Link href="/requests/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Requisição
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {error && (

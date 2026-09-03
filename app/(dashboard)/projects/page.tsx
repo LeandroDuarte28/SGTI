@@ -55,12 +55,17 @@ export default async function ProjectsPage(): Promise<React.JSX.Element> {
           <h1 className="text-2xl font-semibold text-foreground">Projetos</h1>
           <p className="text-sm text-muted-foreground">Projetos de TI em andamento e planejados.</p>
         </div>
-        <Button asChild size="sm">
-          <Link href="/projects/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Projeto
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild size="sm" variant="outline">
+            <a href="/api/reports/projects">Exportar CSV</a>
+          </Button>
+          <Button asChild size="sm">
+            <Link href="/projects/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Projeto
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {error && (
