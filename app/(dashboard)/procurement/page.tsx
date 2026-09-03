@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/utils/format-date";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Compras" };
 
@@ -52,9 +56,25 @@ export default async function ProcurementPage(): Promise<React.JSX.Element> {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Compras</h1>
-        <p className="text-sm text-muted-foreground">Pedidos de compra e fornecedores.</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Compras</h1>
+          <p className="text-sm text-muted-foreground">Pedidos de compra e fornecedores.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link href="/procurement/suppliers/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Fornecedor
+            </Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link href="/procurement/orders/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Pedido
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -74,24 +94,29 @@ export default async function ProcurementPage(): Promise<React.JSX.Element> {
           {orders.map((order) => {
             const supplier = suppliers.find((row) => row.id === order.supplier_id);
             return (
-              <li className="rounded-lg border border-border bg-card p-4 shadow-sm" key={order.id}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="font-medium text-foreground">
-                      {supplier?.name ?? "Fornecedor não encontrado"}
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      {formatCurrency(order.total_amount)}
-                    </p>
+              <li key={order.id}>
+                <Link
+                  className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+                  href={`/procurement/orders/${order.id}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="font-medium text-foreground">
+                        {supplier?.name ?? "Fornecedor não encontrado"}
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        {formatCurrency(order.total_amount)}
+                      </p>
+                    </div>
+                    <Pill
+                      className={STATUS_CLASS[order.status] ?? ""}
+                      label={STATUS_LABEL[order.status] ?? order.status}
+                    />
                   </div>
-                  <Pill
-                    className={STATUS_CLASS[order.status] ?? ""}
-                    label={STATUS_LABEL[order.status] ?? order.status}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Criado em {new Date(order.created_at).toLocaleDateString("pt-BR")}
-                </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Criado em {formatDate(order.created_at)}
+                  </p>
+                </Link>
               </li>
             );
           })}

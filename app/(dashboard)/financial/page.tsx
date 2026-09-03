@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
+import { formatDateOnly } from "@/lib/utils/format-date";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = { title: "Financeiro" };
 
@@ -33,7 +37,7 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
 
   // RLS: SUPER_ADMIN and IT_MANAGER only (see
   // supabase/migrations/20260712000600_financial_schema.sql).
-  const [budgetsResult, contractsResult] = await Promise.all([
+  const [budgetsResult, contractsResult, expensesResult] = await Promise.all([
     supabase
       .schema("financial")
       .from("Budget")
@@ -44,17 +48,46 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
       .from("Contract")
       .select("id, vendor_name, title, category, value, end_date, status")
       .order("end_date"),
+    supabase
+      .schema("financial")
+      .from("Expense")
+      .select("id, description, amount, expense_date")
+      .order("expense_date", { ascending: false })
+      .limit(10),
   ]);
 
-  const error = budgetsResult.error ?? contractsResult.error;
+  const error = budgetsResult.error ?? contractsResult.error ?? expensesResult.error;
   const budgets = budgetsResult.data ?? [];
   const contracts = contractsResult.data ?? [];
+  const expenses = expensesResult.data ?? [];
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Financeiro</h1>
-        <p className="text-sm text-muted-foreground">Orçamentos de TI e contratos com fornecedores.</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Financeiro</h1>
+          <p className="text-sm text-muted-foreground">Orçamentos de TI e contratos com fornecedores.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link href="/financial/budgets/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Orçamento
+            </Link>
+          </Button>
+          <Button asChild size="sm" variant="outline">
+            <Link href="/financial/contracts/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Contrato
+            </Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link href="/financial/expenses/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Despesa
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -115,14 +148,33 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
                   <p className="text-sm font-medium text-foreground">{contract.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {contract.vendor_name} · {formatCurrency(contract.value)}
-                    {contract.end_date &&
-                      ` · até ${new Date(contract.end_date).toLocaleDateString("pt-BR")}`}
+                    {contract.end_date && ` · até ${formatDateOnly(contract.end_date)}`}
                   </p>
                 </div>
                 <Pill
                   className={CONTRACT_STATUS_CLASS[contract.status] ?? ""}
                   label={CONTRACT_STATUS_LABEL[contract.status] ?? contract.status}
                 />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {!error && expenses.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-medium text-foreground">Despesas Recentes</h2>
+          <ul className="space-y-2">
+            {expenses.map((expense) => (
+              <li
+                className="flex items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm"
+                key={expense.id}
+              >
+                <p className="text-sm text-foreground">{expense.description}</p>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-foreground">{formatCurrency(expense.amount)}</p>
+                  <p className="text-xs text-muted-foreground">{formatDateOnly(expense.expense_date)}</p>
+                </div>
               </li>
             ))}
           </ul>
