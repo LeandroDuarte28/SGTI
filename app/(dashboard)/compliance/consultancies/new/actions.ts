@@ -35,19 +35,22 @@ export async function createConsultancy(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.schema("compliance").from("Consultancy").insert({
-    trade_name: tradeName.trim(),
-    legal_name: legalName.trim(),
-    cnpj: cnpj.trim(),
-    contact_name: contactName.trim(),
-    contact_email: contactEmail.trim(),
-    specialties:
-      typeof specialties === "string" && specialties.trim().length > 0
-        ? specialties.split(",").map((s) => s.trim())
-        : [],
-    nda_signed: ndaSigned,
-    nda_date: ndaSigned ? new Date().toISOString().slice(0, 10) : null,
-  });
+  const { error } = await supabase
+    .schema("compliance")
+    .from("Consultancy")
+    .insert({
+      trade_name: tradeName.trim(),
+      legal_name: legalName.trim(),
+      cnpj: cnpj.trim(),
+      contact_name: contactName.trim(),
+      contact_email: contactEmail.trim(),
+      specialties:
+        typeof specialties === "string" && specialties.trim().length > 0
+          ? specialties.split(",").map((s) => s.trim())
+          : [],
+      nda_signed: ndaSigned,
+      nda_date: ndaSigned ? new Date().toISOString().slice(0, 10) : null,
+    });
 
   if (error) {
     throw new Error(`Não foi possível cadastrar a consultoria: ${error.message}`);

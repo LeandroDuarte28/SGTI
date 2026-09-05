@@ -40,7 +40,9 @@ export default async function NormsPage(): Promise<React.JSX.Element> {
     supabase
       .schema("compliance")
       .from("NormItem")
-      .select("id, norm_id, item_code, item_name, default_criticality, is_applicable, implementation_status")
+      .select(
+        "id, norm_id, item_code, item_name, default_criticality, is_applicable, implementation_status",
+      )
       .order("item_code"),
   ]);
 
@@ -52,11 +54,11 @@ export default async function NormsPage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <Link className="text-sm text-muted-foreground hover:underline" href="/compliance">
+          <Link className="text-muted-foreground text-sm hover:underline" href="/compliance">
             ← Voltar para Compliance
           </Link>
-          <h1 className="mt-2 text-2xl font-semibold text-foreground">Normas</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-foreground mt-2 text-2xl font-semibold">Normas</h1>
+          <p className="text-muted-foreground text-sm">
             Normas, frameworks e políticas usados como referência nas auditorias.
           </p>
         </div>
@@ -69,7 +71,7 @@ export default async function NormsPage(): Promise<React.JSX.Element> {
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar as normas: {error.message}
         </div>
       )}
@@ -79,13 +81,16 @@ export default async function NormsPage(): Promise<React.JSX.Element> {
           {norms.map((norm) => {
             const normItems = items.filter((item) => item.norm_id === norm.id);
             return (
-              <li className="rounded-lg border border-border bg-card p-4 shadow-sm" key={norm.id}>
+              <li className="border-border bg-card rounded-lg border p-4 shadow-sm" key={norm.id}>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="font-medium text-foreground">
-                      {norm.full_name} {norm.version && <span className="text-muted-foreground">({norm.version})</span>}
+                    <h2 className="text-foreground font-medium">
+                      {norm.full_name}{" "}
+                      {norm.version && (
+                        <span className="text-muted-foreground">({norm.version})</span>
+                      )}
                     </h2>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {norm.code} · {norm.issuing_body} · {TYPE_LABEL[norm.type] ?? norm.type}
                     </p>
                   </div>
@@ -101,12 +106,12 @@ export default async function NormsPage(): Promise<React.JSX.Element> {
                 </div>
 
                 {normItems.length > 0 && (
-                  <ul className="mt-3 space-y-1.5 border-t border-border pt-3">
+                  <ul className="border-border mt-3 space-y-1.5 border-t pt-3">
                     {normItems.map((item) => (
                       <li className="flex items-center justify-between gap-3 text-xs" key={item.id}>
                         <span className="text-foreground">
-                          <span className="font-mono text-muted-foreground">{item.item_code}</span> —{" "}
-                          {item.item_name}
+                          <span className="text-muted-foreground font-mono">{item.item_code}</span>{" "}
+                          — {item.item_name}
                         </span>
                         <span
                           className={`shrink-0 rounded-full px-2 py-0.5 font-medium ${

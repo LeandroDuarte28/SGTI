@@ -10,9 +10,9 @@ export default function GlobalError({
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4">
       <h2 className="text-xl font-semibold">Algo deu errado.</h2>
-      <p className="text-sm text-muted-foreground">{error.message}</p>
+      <p className="text-muted-foreground text-sm">{error.message}</p>
       <button
-        className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground"
+        className="bg-primary text-primary-foreground rounded px-4 py-2 text-sm"
         onClick={() => reset()}
       >
         Tentar novamente

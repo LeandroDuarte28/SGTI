@@ -6,7 +6,9 @@ import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 type QueryResult<T> = { data: T | null; error: { message: string } | null };
 
 const mockGetUser =
-  jest.fn<() => Promise<{ data: { user: { id: string; email?: string } | null }; error: unknown }>>();
+  jest.fn<
+    () => Promise<{ data: { user: { id: string; email?: string } | null }; error: unknown }>
+  >();
 
 let profileResult: QueryResult<{
   full_name: string;

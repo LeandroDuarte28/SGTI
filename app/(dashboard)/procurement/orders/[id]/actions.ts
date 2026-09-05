@@ -54,7 +54,9 @@ export async function updatePurchaseOrderStatus(formData: FormData): Promise<voi
     .single();
 
   if (fetchError || !order) {
-    throw new Error(`Não foi possível encontrar o pedido: ${fetchError?.message ?? "não encontrado"}`);
+    throw new Error(
+      `Não foi possível encontrar o pedido: ${fetchError?.message ?? "não encontrado"}`,
+    );
   }
 
   const currentStatus = order.status as OrderStatus;
@@ -78,12 +80,17 @@ export async function updatePurchaseOrderStatus(formData: FormData): Promise<voi
   }
 
   if (status === "RECEIVED") {
-    const { error: receivingError } = await supabase.schema("procurement").from("ReceivingRecord").insert({
-      purchase_order_id: orderId,
-      received_by: user.id,
-    });
+    const { error: receivingError } = await supabase
+      .schema("procurement")
+      .from("ReceivingRecord")
+      .insert({
+        purchase_order_id: orderId,
+        received_by: user.id,
+      });
     if (receivingError) {
-      throw new Error(`Pedido marcado como recebido, mas falhou o registro de recebimento: ${receivingError.message}`);
+      throw new Error(
+        `Pedido marcado como recebido, mas falhou o registro de recebimento: ${receivingError.message}`,
+      );
     }
   }
 

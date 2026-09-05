@@ -19,32 +19,69 @@ export default async function AssetsDashboardPage(): Promise<React.JSX.Element> 
   const today = new Date().toISOString().slice(0, 10);
   const in90Days = new Date(Date.now() + 90 * 86_400_000).toISOString().slice(0, 10);
 
-  const [inUseResult, inStockResult, unassignedResult, warrantyExpiringResult, warrantyExpiredResult, fleetValueResult, licensesResult] =
-    await Promise.all([
-      supabase.schema("asset").from("Asset").select("id").eq("status", "IN_USE"),
-      supabase.schema("asset").from("Asset").select("id").eq("status", "IN_STOCK"),
-      supabase.schema("asset").from("Asset").select("id").eq("status", "IN_USE").is("assigned_to", null),
-      supabase.schema("asset").from("Asset").select("id").gte("warranty_expires", today).lte("warranty_expires", in90Days),
-      supabase.schema("asset").from("Asset").select("id").lt("warranty_expires", today).neq("status", "RETIRED"),
-      supabase.schema("asset").from("Asset").select("purchase_value").not("status", "in", "(RETIRED,LOST)"),
-      supabase.schema("asset").from("SoftwareLicense").select("seats_total, seats_used"),
-    ]);
+  const [
+    inUseResult,
+    inStockResult,
+    unassignedResult,
+    warrantyExpiringResult,
+    warrantyExpiredResult,
+    fleetValueResult,
+    licensesResult,
+  ] = await Promise.all([
+    supabase.schema("asset").from("Asset").select("id").eq("status", "IN_USE"),
+    supabase.schema("asset").from("Asset").select("id").eq("status", "IN_STOCK"),
+    supabase
+      .schema("asset")
+      .from("Asset")
+      .select("id")
+      .eq("status", "IN_USE")
+      .is("assigned_to", null),
+    supabase
+      .schema("asset")
+      .from("Asset")
+      .select("id")
+      .gte("warranty_expires", today)
+      .lte("warranty_expires", in90Days),
+    supabase
+      .schema("asset")
+      .from("Asset")
+      .select("id")
+      .lt("warranty_expires", today)
+      .neq("status", "RETIRED"),
+    supabase
+      .schema("asset")
+      .from("Asset")
+      .select("purchase_value")
+      .not("status", "in", "(RETIRED,LOST)"),
+    supabase.schema("asset").from("SoftwareLicense").select("seats_total, seats_used"),
+  ]);
 
-  const fleetValue = (fleetValueResult.data ?? []).reduce((sum, a) => sum + Number(a.purchase_value ?? 0), 0);
+  const fleetValue = (fleetValueResult.data ?? []).reduce(
+    (sum, a) => sum + Number(a.purchase_value ?? 0),
+    0,
+  );
   const licenses = licensesResult.data ?? [];
-  const underutilizedLicenses = licenses.filter((l) => l.seats_total > 0 && l.seats_used / l.seats_total < 0.2).length;
-  const overutilizedLicenses = licenses.filter((l) => l.seats_total > 0 && l.seats_used / l.seats_total > 0.9).length;
+  const underutilizedLicenses = licenses.filter(
+    (l) => l.seats_total > 0 && l.seats_used / l.seats_total < 0.2,
+  ).length;
+  const overutilizedLicenses = licenses.filter(
+    (l) => l.seats_total > 0 && l.seats_used / l.seats_total > 0.9,
+  ).length;
 
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard de Ativos</h1>
-        <p className="text-sm text-muted-foreground">Inventário de TI, garantias e licenças.</p>
+        <h1 className="text-foreground text-2xl font-semibold">Dashboard de Ativos</h1>
+        <p className="text-muted-foreground text-sm">Inventário de TI, garantias e licenças.</p>
       </div>
 
       <Section title="Inventário">
         <StatCard href="/assets" label="Em Uso" value={String(inUseResult.data?.length ?? 0)} />
-        <StatCard href="/assets" label="Em Estoque" value={String(inStockResult.data?.length ?? 0)} />
+        <StatCard
+          href="/assets"
+          label="Em Estoque"
+          value={String(inStockResult.data?.length ?? 0)}
+        />
         <StatCard
           href="/assets"
           label="Sem Responsável"

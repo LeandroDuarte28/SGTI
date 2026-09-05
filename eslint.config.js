@@ -12,10 +12,7 @@ const compat = new FlatCompat({
 /** @type {import('eslint').Linter.Config[]} */
 const eslintConfig = [
   // ─── Base configs ───────────────────────────────────────────────────────
-  ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript",
-  ),
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
 
   // ─── Custom rules ────────────────────────────────────────────────────────
   {
@@ -43,8 +40,8 @@ const eslintConfig = [
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "prefer-const": "error",
       "no-var": "error",
-      "eqeqeq": ["error", "always"],
-      "curly": ["error", "all"],
+      eqeqeq: ["error", "always"],
+      curly: ["error", "all"],
       "no-nested-ternary": "error",
 
       // ─── Module boundary enforcement ──────────────────────────────────
@@ -63,8 +60,7 @@ const eslintConfig = [
             // (they must go through defined public APIs / service layer)
             {
               group: ["@/services/incidents/*"],
-              message:
-                "Import incidents data via @/services/incidents/index — not internal files.",
+              message: "Import incidents data via @/services/incidents/index — not internal files.",
             },
             {
               group: ["@/services/compliance/*"],
@@ -79,7 +75,13 @@ const eslintConfig = [
 
   // ─── Test files — relaxed rules ─────────────────────────────────────────
   {
-    files: ["**/__tests__/**/*.ts", "**/__tests__/**/*.tsx", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts"],
+    files: [
+      "**/__tests__/**/*.ts",
+      "**/__tests__/**/*.tsx",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+    ],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
     },
@@ -100,7 +102,7 @@ const eslintConfig = [
       "out/**",
       "node_modules/**",
       "lib/supabase/database.types.ts", // Auto-generated — never lint
-      "supabase/functions/**",          // Deno runtime — separate lint config
+      "supabase/functions/**", // Deno runtime — separate lint config
     ],
   },
 ];

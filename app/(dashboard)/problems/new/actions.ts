@@ -38,7 +38,8 @@ export async function createProblem(formData: FormData): Promise<void> {
     .insert({
       title: title.trim(),
       description: description.trim(),
-      root_cause: typeof rootCause === "string" && rootCause.trim().length > 0 ? rootCause.trim() : null,
+      root_cause:
+        typeof rootCause === "string" && rootCause.trim().length > 0 ? rootCause.trim() : null,
       is_known_error: isKnownError,
       owner_id: user.id,
     })

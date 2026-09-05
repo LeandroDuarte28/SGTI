@@ -47,7 +47,14 @@ const CRITICALITY_CLASS: Record<string, string> = {
   OBSERVATION: "bg-muted text-muted-foreground",
 };
 
-const STATUS_OPTIONS = ["PLANNED", "IN_PROGRESS", "PENDING_RESPONSES", "IN_REVIEW", "COMPLETED", "CANCELLED"];
+const STATUS_OPTIONS = [
+  "PLANNED",
+  "IN_PROGRESS",
+  "PENDING_RESPONSES",
+  "IN_REVIEW",
+  "COMPLETED",
+  "CANCELLED",
+];
 
 export default async function AuditDetailPage({
   params,
@@ -72,11 +79,11 @@ export default async function AuditDetailPage({
   if (error || !audit) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/compliance/audits">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/compliance/audits">
           ← Voltar para Auditorias
         </Link>
-        <div className="mt-4 rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-4 rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Auditoria não encontrada, ou você não tem permissão para vê-la.
           </p>
         </div>
@@ -106,49 +113,49 @@ export default async function AuditDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link className="text-sm text-muted-foreground hover:underline" href="/compliance/audits">
+      <Link className="text-muted-foreground text-sm hover:underline" href="/compliance/audits">
         ← Voltar para Auditorias
       </Link>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
+      <div className="border-border bg-card mt-4 rounded-lg border p-6">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-semibold text-foreground">{audit.name}</h1>
-          <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+          <h1 className="text-foreground text-xl font-semibold">{audit.name}</h1>
+          <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium">
             {AUDIT_STATUS_LABEL[audit.status] ?? audit.status}
           </span>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-xs">
           {audit.code} · {TYPE_LABEL[audit.type] ?? audit.type}
           {audit.lead_auditor_name && ` · Auditor líder: ${audit.lead_auditor_name}`}
         </p>
-        <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{audit.scope}</p>
-        <p className="mt-3 text-xs text-muted-foreground">
+        <p className="text-foreground mt-3 text-sm whitespace-pre-wrap">{audit.scope}</p>
+        <p className="text-muted-foreground mt-3 text-xs">
           {formatDateOnly(audit.start_date)} – {formatDateOnly(audit.end_date)}
         </p>
         {norms.length > 0 && (
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-xs">
             Normas avaliadas: {norms.map((n) => n.full_name).join(", ")}
           </p>
         )}
         {audit.compliance_score_final !== null && (
-          <p className="mt-2 text-sm font-medium text-foreground">
+          <p className="text-foreground mt-2 text-sm font-medium">
             Compliance Score: {Number(audit.compliance_score_final).toFixed(1)}%
           </p>
         )}
         {audit.cancellation_reason && (
-          <p className="mt-2 text-xs text-destructive">Cancelada: {audit.cancellation_reason}</p>
+          <p className="text-destructive mt-2 text-xs">Cancelada: {audit.cancellation_reason}</p>
         )}
       </div>
 
       {isManager && !["COMPLETED", "CANCELLED"].includes(audit.status) && (
         <form
           action={updateAuditStatus}
-          className="mt-4 space-y-2 rounded-lg border border-border bg-card p-4"
+          className="border-border bg-card mt-4 space-y-2 rounded-lg border p-4"
         >
           <input name="audit_id" type="hidden" value={audit.id} />
           <div className="flex items-center gap-2">
             <select
-              className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
               defaultValue={audit.status}
               key={audit.status}
               name="status"
@@ -168,7 +175,7 @@ export default async function AuditDetailPage({
               Motivo (obrigatório apenas ao cancelar)
             </Label>
             <input
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-1.5 text-sm focus-visible:ring-2 focus-visible:outline-none"
               id="cancellation_reason"
               name="cancellation_reason"
               placeholder="Motivo do cancelamento"
@@ -180,7 +187,7 @@ export default async function AuditDetailPage({
 
       <div className="mt-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-medium text-foreground">Apontamentos ({findings.length})</h2>
+          <h2 className="text-foreground font-medium">Apontamentos ({findings.length})</h2>
           {isManager && canAddFindings && (
             <Button asChild size="sm">
               <Link href={`/compliance/findings/new?audit=${audit.id}`}>
@@ -192,8 +199,10 @@ export default async function AuditDetailPage({
         </div>
 
         {findings.length === 0 && (
-          <div className="rounded-lg border border-dashed border-border p-8 text-center">
-            <p className="text-sm text-muted-foreground">Nenhum apontamento registrado nesta auditoria.</p>
+          <div className="border-border rounded-lg border border-dashed p-8 text-center">
+            <p className="text-muted-foreground text-sm">
+              Nenhum apontamento registrado nesta auditoria.
+            </p>
           </div>
         )}
 
@@ -202,12 +211,12 @@ export default async function AuditDetailPage({
             {findings.map((finding) => (
               <li key={finding.id}>
                 <Link
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm transition-colors hover:bg-muted/50"
+                  className="border-border bg-card hover:bg-muted/50 flex items-center justify-between gap-3 rounded-lg border p-3 shadow-sm transition-colors"
                   href={`/compliance/findings/${finding.id}`}
                 >
                   <div>
-                    <p className="text-sm font-medium text-foreground">{finding.title}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-foreground text-sm font-medium">{finding.title}</p>
+                    <p className="text-muted-foreground text-xs">
                       {finding.code} · Prazo: {formatDateOnly(finding.due_date)}
                     </p>
                   </div>
@@ -219,7 +228,7 @@ export default async function AuditDetailPage({
                     >
                       {finding.criticality}
                     </span>
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs font-medium">
                       {FINDING_STATUS_LABEL[finding.status] ?? finding.status}
                     </span>
                   </div>

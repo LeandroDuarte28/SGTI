@@ -30,10 +30,24 @@ export function businessMinutesBetween(start: Date, end: Date): number {
 
   while (cursor.getTime() < endBrazil.getTime()) {
     const dayStart = new Date(
-      Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate(), BUSINESS_START_HOUR, 0, 0),
+      Date.UTC(
+        cursor.getUTCFullYear(),
+        cursor.getUTCMonth(),
+        cursor.getUTCDate(),
+        BUSINESS_START_HOUR,
+        0,
+        0,
+      ),
     );
     const dayEnd = new Date(
-      Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate(), BUSINESS_END_HOUR, 0, 0),
+      Date.UTC(
+        cursor.getUTCFullYear(),
+        cursor.getUTCMonth(),
+        cursor.getUTCDate(),
+        BUSINESS_END_HOUR,
+        0,
+        0,
+      ),
     );
     const nextMidnight = new Date(
       Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate() + 1, 0, 0, 0),

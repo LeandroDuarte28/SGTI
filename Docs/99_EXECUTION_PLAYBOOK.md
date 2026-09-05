@@ -1,20 +1,24 @@
 # SGTI — Sistema de Gestão de Tecnologia da Informação
+
 ## Execution Playbook — Guia Operacional do Claude Code
 
-> **Classificação:** Interno — Restrito
-> **Versão:** 1.0.0
-> **Status:** Vigente
-> **Última Atualização:** 2026-06-09
-> **Responsável:** Arquitetura Corporativa de TI
-> **Documentos Relacionados:** [01_CLAUDE.md](./01_CLAUDE.md) · [80_IMPLEMENTATION_ORDER.md](./80_IMPLEMENTATION_ORDER.md) · [12_ARCHITECTURE.md](./12_ARCHITECTURE.md)
+> **Classificação:** Interno — Restrito **Versão:** 1.0.0 **Status:** Vigente
+> **Última Atualização:** 2026-06-09 **Responsável:** Arquitetura Corporativa de
+> TI **Documentos Relacionados:** [01_CLAUDE.md](./01_CLAUDE.md) ·
+> [80_IMPLEMENTATION_ORDER.md](./80_IMPLEMENTATION_ORDER.md) ·
+> [12_ARCHITECTURE.md](./12_ARCHITECTURE.md)
 
 ---
 
 ## Sobre este Documento
 
-Este playbook define como a equipe do SGTI usa o **Claude Code** de forma eficiente, consistente e segura. Cada seção responde a uma pergunta operacional específica e inclui exemplos práticos de prompts otimizados para minimizar consumo de contexto sem sacrificar qualidade.
+Este playbook define como a equipe do SGTI usa o **Claude Code** de forma
+eficiente, consistente e segura. Cada seção responde a uma pergunta operacional
+específica e inclui exemplos práticos de prompts otimizados para minimizar
+consumo de contexto sem sacrificar qualidade.
 
-> **Princípio central:** Claude Code implementa o que está documentado. Decisões de negócio e arquitetura vivem nos documentos de `Docs/` — não nos prompts.
+> **Princípio central:** Claude Code implementa o que está documentado. Decisões
+> de negócio e arquitetura vivem nos documentos de `Docs/` — não nos prompts.
 
 ---
 
@@ -49,11 +53,13 @@ Um prompt eficiente para o Claude Code tem quatro componentes obrigatórios:
 ```
 
 **Exemplo ruim — vago, sem contexto, sem escopo:**
+
 ```
 Crie o módulo de incidentes com CRUD completo usando NestJS.
 ```
 
 **Exemplo bom — específico, com contexto e escopo:**
+
 ```
 Leia Docs/12_ARCHITECTURE.md seção 6.1 e Docs/01_CLAUDE.md seções 5 e 6.
 
@@ -172,14 +178,15 @@ Para cada endpoint:
 
 ### 1.3 Tamanho Ideal de Prompt por Complexidade
 
-| Complexidade | Artefatos por Prompt | Linhas de Prompt |
-|-------------|---------------------|-----------------|
-| Simples | 1 (ex: 1 Value Object) | 10–20 |
-| Média | 2–3 (ex: entidade + VO + exceção) | 20–40 |
-| Alta | 1 Use Case completo | 30–50 |
-| Máxima | 1 módulo completo (domínio apenas) | 50–80 |
+| Complexidade | Artefatos por Prompt               | Linhas de Prompt |
+| ------------ | ---------------------------------- | ---------------- |
+| Simples      | 1 (ex: 1 Value Object)             | 10–20            |
+| Média        | 2–3 (ex: entidade + VO + exceção)  | 20–40            |
+| Alta         | 1 Use Case completo                | 30–50            |
+| Máxima       | 1 módulo completo (domínio apenas) | 50–80            |
 
-> **Regra:** se o prompt tem mais de 80 linhas, está grande demais. Quebre em partes menores.
+> **Regra:** se o prompt tem mais de 80 linhas, está grande demais. Quebre em
+> partes menores.
 
 ---
 
@@ -203,23 +210,26 @@ Nunca cole o conteúdo de documentos no prompt. Referencie por caminho e seção
 
 **Regra 2 — Um artefato por sessão**
 
-Cada sessão do Claude Code implementa um único artefato ou um conjunto coeso de artefatos pequenos (ex: entidade + seus VOs + suas exceções). Nunca um módulo inteiro em um prompt.
+Cada sessão do Claude Code implementa um único artefato ou um conjunto coeso de
+artefatos pequenos (ex: entidade + seus VOs + suas exceções). Nunca um módulo
+inteiro em um prompt.
 
 **Regra 3 — Contexto mínimo necessário**
 
 Inclua no prompt apenas os documentos diretamente relevantes:
 
-| Tarefa | Documentos a referenciar |
-|--------|--------------------------|
+| Tarefa              | Documentos a referenciar                                      |
+| ------------------- | ------------------------------------------------------------- |
 | Entidade de domínio | `12_ARCHITECTURE.md` seção do módulo + `01_CLAUDE.md` seção 5 |
-| Use Case | `12_ARCHITECTURE.md` seção 3.4 + seção do módulo |
-| Repositório | `01_CLAUDE.md` seção 4.3 + schema Prisma |
-| Controller | `01_CLAUDE.md` seção 4.4 |
-| Testes | `01_CLAUDE.md` seção 9 |
+| Use Case            | `12_ARCHITECTURE.md` seção 3.4 + seção do módulo              |
+| Repositório         | `01_CLAUDE.md` seção 4.3 + schema Prisma                      |
+| Controller          | `01_CLAUDE.md` seção 4.4                                      |
+| Testes              | `01_CLAUDE.md` seção 9                                        |
 
 **Regra 4 — Evite explicações redundantes**
 
-Claude Code já leu `CLAUDE.md` no início de cada sessão. Não repita regras que já estão lá:
+Claude Code já leu `CLAUDE.md` no início de cada sessão. Não repita regras que
+já estão lá:
 
 ```
 ❌ RUIM — repete o que está no CLAUDE.md:
@@ -241,7 +251,8 @@ Ao final de cada artefato entregue, confirme antes de continuar:
 
 **Regra 6 — Prefira arquivos pequenos e coesos**
 
-Arquivos grandes consomem mais contexto para edição. Prefira arquivos de 50–150 linhas. Um arquivo por artefato de domínio.
+Arquivos grandes consomem mais contexto para edição. Prefira arquivos de 50–150
+linhas. Um arquivo por artefato de domínio.
 
 ---
 
@@ -270,6 +281,7 @@ Arquivos grandes consomem mais contexto para edição. Prefira arquivos de 50–
 ```
 
 **Quando abrir nova sessão:**
+
 - Ao mudar de camada (domínio → aplicação → infraestrutura).
 - Ao mudar de módulo.
 - Quando a sessão atual tiver mais de 20 trocas de mensagem.
@@ -287,7 +299,7 @@ Sessão 1: Domínio
 
 Sessão 2: Aplicação
   → "Continue o módulo Incident. O domínio está em
-     apps/api/src/modules/incident/domain/. 
+     apps/api/src/modules/incident/domain/.
      Implemente OpenIncidentUseCase conforme..."
 
 Sessão 3: Infraestrutura
@@ -371,7 +383,8 @@ começando pelos mais simples (sem dependências entre si).
 
 ### 3.3 Controle de Estado Entre Sessões
 
-Ao retomar trabalho em um módulo após encerrar a sessão, use este prompt de retomada:
+Ao retomar trabalho em um módulo após encerrar a sessão, use este prompt de
+retomada:
 
 ```
 Estou retomando a implementação do módulo [NOME].
@@ -627,13 +640,13 @@ Formato de saída:
 
 ### 7.1 Tipos de Revisão
 
-| Tipo | Quando Usar | Foco |
-|------|------------|------|
-| **Revisão de domínio** | Após entidades e VOs | Regras de negócio, invariantes, eventos |
-| **Revisão de arquitetura** | Após Use Cases | Dependências, fluxo, SOLID |
-| **Revisão de segurança** | Após controllers e auth | Guards, RBAC, dados expostos |
-| **Revisão de performance** | Após repositórios | Queries, N+1, índices |
-| **Revisão de completude** | Antes de PR | Testes, tipos, documentação |
+| Tipo                       | Quando Usar             | Foco                                    |
+| -------------------------- | ----------------------- | --------------------------------------- |
+| **Revisão de domínio**     | Após entidades e VOs    | Regras de negócio, invariantes, eventos |
+| **Revisão de arquitetura** | Após Use Cases          | Dependências, fluxo, SOLID              |
+| **Revisão de segurança**   | Após controllers e auth | Guards, RBAC, dados expostos            |
+| **Revisão de performance** | Após repositórios       | Queries, N+1, índices                   |
+| **Revisão de completude**  | Antes de PR             | Testes, tipos, documentação             |
 
 ### 7.2 Prompt de Revisão de Domínio
 
@@ -705,8 +718,10 @@ com lista de itens para correção antes do merge.
 
 - **Gere testes junto com o código**, não depois.
 - **Testes de domínio primeiro** — são os mais valiosos e os mais rápidos.
-- **Teste comportamentos, não implementações** — `incident.resolve()` → status RESOLVED, não `incident._status = 'RESOLVED'`.
-- **Nomeie com clareza total**: `deve lançar IncidentAlreadyResolvedException quando tentando resolver incidente já resolvido`.
+- **Teste comportamentos, não implementações** — `incident.resolve()` → status
+  RESOLVED, não `incident._status = 'RESOLVED'`.
+- **Nomeie com clareza total**:
+  `deve lançar IncidentAlreadyResolvedException quando tentando resolver incidente já resolvido`.
 
 ### 8.2 Prompt para Testes de Entidade de Domínio
 
@@ -1358,7 +1373,7 @@ Arquivos a criar:
 
 1. Migration para tabela de projeção:
    packages/database/migrations/YYYYMMDD_create_dashboard_incident_metrics.sql
-   
+
    Tabela: dashboard.incident_metrics
    Colunas:
      period_date DATE (data do período — granularidade diária)
@@ -1374,19 +1389,19 @@ Arquivos a criar:
 
 2. Event Handler para atualizar a projeção:
    apps/api/src/modules/dashboard/application/handlers/incident-metrics.handler.ts
-   
+
    Consome: IncidentOpened, IncidentResolved, IncidentClosed
-   
+
    Para cada evento:
      UPSERT em incident_metrics WHERE period_date = DATE(event.occurredOn)
      Incrementar contadores correspondentes
      Recalcular avg_resolution_hours
-   
+
    Handler deve ser idempotente usando eventId como chave.
 
 3. Query de leitura:
    apps/api/src/modules/dashboard/application/use-cases/get-incident-metrics.use-case.ts
-   
+
    Input: { period: 'day' | 'week' | 'month', startDate: Date, endDate: Date }
    Output: Array<IncidentMetricsPeriod> com totais e calculados (MTTR, SLA%)
 ```
@@ -1445,35 +1460,35 @@ Cache de 5 minutos (NestJS CacheInterceptor).
 
 ### 11.1 No Prompt
 
-| Anti-Padrão | Por que é ruim | Alternativa |
-|-------------|---------------|-------------|
-| Colar conteúdo de documentos no prompt | Desperdiça tokens, cria redundância | Referenciar por caminho e seção |
-| Pedir múltiplos módulos em um prompt | Contexto insuficiente, qualidade cai | Um módulo por prompt |
-| Prompts sem escopo de arquivo | Claude Code cria arquivos nos lugares errados | Sempre especificar caminhos exatos |
-| Pedir "refatore tudo" sem critério | Mudanças sem direção, alto risco de regressão | Critérios específicos de refatoração |
-| Repetir regras do CLAUDE.md | Duplicação desnecessária | Referenciar "conforme CLAUDE.md" |
+| Anti-Padrão                            | Por que é ruim                                | Alternativa                          |
+| -------------------------------------- | --------------------------------------------- | ------------------------------------ |
+| Colar conteúdo de documentos no prompt | Desperdiça tokens, cria redundância           | Referenciar por caminho e seção      |
+| Pedir múltiplos módulos em um prompt   | Contexto insuficiente, qualidade cai          | Um módulo por prompt                 |
+| Prompts sem escopo de arquivo          | Claude Code cria arquivos nos lugares errados | Sempre especificar caminhos exatos   |
+| Pedir "refatore tudo" sem critério     | Mudanças sem direção, alto risco de regressão | Critérios específicos de refatoração |
+| Repetir regras do CLAUDE.md            | Duplicação desnecessária                      | Referenciar "conforme CLAUDE.md"     |
 
 ### 11.2 No Código Gerado
 
-| Anti-Padrão | Sinal de Alerta | Ação |
-|-------------|----------------|------|
-| `any` no TypeScript | `as any`, `: any`, `Record<string, any>` | Solicitar tipo explícito |
-| Import cruzado entre módulos | `from '../../outro-modulo/...'` | Solicitar refatoração para evento |
-| Lógica de negócio no controller | `if`, `calculate`, `validate` no controller | Mover para Use Case ou Domain Service |
-| Prisma no domínio | `@prisma/client` em domain/ | Extrair para repositório |
-| Setter público em entidade | `set status(...)` | Substituir por método de comportamento |
-| `console.log` em produção | `console.log`, `console.error` | Substituir pelo Logger estruturado |
-| try-catch vazio | `catch (e) {}` | Tratar ou relançar como exceção de domínio |
+| Anti-Padrão                     | Sinal de Alerta                             | Ação                                       |
+| ------------------------------- | ------------------------------------------- | ------------------------------------------ |
+| `any` no TypeScript             | `as any`, `: any`, `Record<string, any>`    | Solicitar tipo explícito                   |
+| Import cruzado entre módulos    | `from '../../outro-modulo/...'`             | Solicitar refatoração para evento          |
+| Lógica de negócio no controller | `if`, `calculate`, `validate` no controller | Mover para Use Case ou Domain Service      |
+| Prisma no domínio               | `@prisma/client` em domain/                 | Extrair para repositório                   |
+| Setter público em entidade      | `set status(...)`                           | Substituir por método de comportamento     |
+| `console.log` em produção       | `console.log`, `console.error`              | Substituir pelo Logger estruturado         |
+| try-catch vazio                 | `catch (e) {}`                              | Tratar ou relançar como exceção de domínio |
 
 ### 11.3 Na Arquitetura
 
-| Anti-Padrão | Consequência | Prevenção |
-|-------------|-------------|-----------|
-| Shared database entre módulos (JOINs cross-schema) | Quebra fronteiras DDD, dificulta extração | Um schema por módulo, zero JOINs externos |
-| God Use Case (>100 linhas) | Responsabilidade única violada | Extrair em Use Cases menores |
-| Repository genérico com `findAll({ where })` exposto | Lógica de query vaza para aplicação | Métodos com nomes de domínio |
-| DTO = Entidade de domínio | Exposição de internos do domínio | Mapper explícito sempre |
-| Event Handler com lógica de negócio | Cross-cutting concerns incorretos | Handler apenas orquestra; domínio decide |
+| Anti-Padrão                                          | Consequência                              | Prevenção                                 |
+| ---------------------------------------------------- | ----------------------------------------- | ----------------------------------------- |
+| Shared database entre módulos (JOINs cross-schema)   | Quebra fronteiras DDD, dificulta extração | Um schema por módulo, zero JOINs externos |
+| God Use Case (>100 linhas)                           | Responsabilidade única violada            | Extrair em Use Cases menores              |
+| Repository genérico com `findAll({ where })` exposto | Lógica de query vaza para aplicação       | Métodos com nomes de domínio              |
+| DTO = Entidade de domínio                            | Exposição de internos do domínio          | Mapper explícito sempre                   |
+| Event Handler com lógica de negócio                  | Cross-cutting concerns incorretos         | Handler apenas orquestra; domínio decide  |
 
 ---
 
@@ -1523,6 +1538,7 @@ Docs/80_IMPLEMENTATION_ORDER.md: Fase [N] - [etapa]
 ```
 
 Exemplos:
+
 ```
 feat(incident): add Incident aggregate with status transitions
 feat(incident): implement OpenIncidentUseCase with sla calculation
@@ -1535,14 +1551,16 @@ test(incident): add unit tests for Incident domain entity
 
 ## Controle de Versões do Documento
 
-| Versão | Data | Autor | Descrição da Alteração |
-|--------|------|-------|------------------------|
-| 1.0.0 | 2026-06-09 | Arquitetura Corporativa | Criação do documento |
+| Versão | Data       | Autor                   | Descrição da Alteração |
+| ------ | ---------- | ----------------------- | ---------------------- |
+| 1.0.0  | 2026-06-09 | Arquitetura Corporativa | Criação do documento   |
 
 ---
 
-> **Documentos relacionados:**
-> [`01_CLAUDE.md`](./01_CLAUDE.md) — Regras permanentes de implementação
-> [`80_IMPLEMENTATION_ORDER.md`](./80_IMPLEMENTATION_ORDER.md) — Ordem oficial de implementação
-> [`12_ARCHITECTURE.md`](./12_ARCHITECTURE.md) — Arquitetura corporativa completa
-> [`82_ARCHITECT_DECISIONS.md`](./82_ARCHITECT_DECISIONS.md) — Decisões arquiteturais (ADRs)
+> **Documentos relacionados:** [`01_CLAUDE.md`](./01_CLAUDE.md) — Regras
+> permanentes de implementação
+> [`80_IMPLEMENTATION_ORDER.md`](./80_IMPLEMENTATION_ORDER.md) — Ordem oficial
+> de implementação [`12_ARCHITECTURE.md`](./12_ARCHITECTURE.md) — Arquitetura
+> corporativa completa
+> [`82_ARCHITECT_DECISIONS.md`](./82_ARCHITECT_DECISIONS.md) — Decisões
+> arquiteturais (ADRs)

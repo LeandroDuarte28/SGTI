@@ -56,12 +56,9 @@ Deno.serve(async (request: Request): Promise<Response> => {
 
     // Return 200 anyway to prevent Pub/Sub from retrying indefinitely
     // Log the error and handle via dead-letter queue
-    return new Response(
-      JSON.stringify({ status: "error", details: message }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
+    return new Response(JSON.stringify({ status: "error", details: message }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

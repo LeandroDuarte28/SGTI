@@ -63,7 +63,9 @@ export async function updateFindingStatus(formData: FormData): Promise<void> {
     .single();
 
   if (fetchError || !finding) {
-    throw new Error(`Não foi possível encontrar o apontamento: ${fetchError?.message ?? "não encontrado"}`);
+    throw new Error(
+      `Não foi possível encontrar o apontamento: ${fetchError?.message ?? "não encontrado"}`,
+    );
   }
 
   const currentStatus = finding.status as FindingStatus;
@@ -72,8 +74,14 @@ export async function updateFindingStatus(formData: FormData): Promise<void> {
   }
 
   // CMP-056: CRITICAL findings require a manager (not just the analyst) to conclude.
-  if (status === "CONCLUDED" && finding.criticality === "CRITICAL" && !hasRole(user.roles, ADMIN_ROLES)) {
-    throw new Error("Apontamentos CRITICAL exigem aprovação de um Gestor de TI para serem concluídos.");
+  if (
+    status === "CONCLUDED" &&
+    finding.criticality === "CRITICAL" &&
+    !hasRole(user.roles, ADMIN_ROLES)
+  ) {
+    throw new Error(
+      "Apontamentos CRITICAL exigem aprovação de um Gestor de TI para serem concluídos.",
+    );
   }
 
   // CMP-005: concluding requires at least one APPROVED evidence.
@@ -124,16 +132,29 @@ export async function updateFindingStatus(formData: FormData): Promise<void> {
 
 const ACCEPTED_TYPES: Record<string, { extensions: string[]; maxBytes: number }> = {
   "application/pdf": { extensions: [".pdf"], maxBytes: 50 * 1024 * 1024 },
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { extensions: [".docx"], maxBytes: 50 * 1024 * 1024 },
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+    extensions: [".docx"],
+    maxBytes: 50 * 1024 * 1024,
+  },
   "application/msword": { extensions: [".doc"], maxBytes: 50 * 1024 * 1024 },
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { extensions: [".xlsx"], maxBytes: 50 * 1024 * 1024 },
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+    extensions: [".xlsx"],
+    maxBytes: 50 * 1024 * 1024,
+  },
   "application/vnd.ms-excel": { extensions: [".xls"], maxBytes: 50 * 1024 * 1024 },
   "image/png": { extensions: [".png"], maxBytes: 20 * 1024 * 1024 },
   "image/jpeg": { extensions: [".jpg", ".jpeg"], maxBytes: 20 * 1024 * 1024 },
   "text/csv": { extensions: [".csv"], maxBytes: 20 * 1024 * 1024 },
 };
 
-const VALID_EVIDENCE_TYPES = ["SCREENSHOT", "DOCUMENT", "LOG", "REPORT", "CERTIFICATE", "OTHER"] as const;
+const VALID_EVIDENCE_TYPES = [
+  "SCREENSHOT",
+  "DOCUMENT",
+  "LOG",
+  "REPORT",
+  "CERTIFICATE",
+  "OTHER",
+] as const;
 type EvidenceType = (typeof VALID_EVIDENCE_TYPES)[number];
 function isValidEvidenceType(value: string): value is EvidenceType {
   return (VALID_EVIDENCE_TYPES as readonly string[]).includes(value);
@@ -145,7 +166,13 @@ function isValidReviewDecision(value: string): value is ReviewDecision {
   return (VALID_REVIEW_DECISIONS as readonly string[]).includes(value);
 }
 
-const VALID_ACTION_ITEM_STATUSES = ["PENDING", "IN_PROGRESS", "DONE", "CANCELLED", "OVERDUE"] as const;
+const VALID_ACTION_ITEM_STATUSES = [
+  "PENDING",
+  "IN_PROGRESS",
+  "DONE",
+  "CANCELLED",
+  "OVERDUE",
+] as const;
 type ActionItemStatus = (typeof VALID_ACTION_ITEM_STATUSES)[number];
 function isValidActionItemStatus(value: string): value is ActionItemStatus {
   return (VALID_ACTION_ITEM_STATUSES as readonly string[]).includes(value);
@@ -209,7 +236,9 @@ export async function uploadEvidence(formData: FormData): Promise<void> {
     throw new Error(`Tipo de arquivo não permitido: ${file.type || "desconhecido"}.`);
   }
   if (file.size > accepted.maxBytes) {
-    throw new Error(`Arquivo acima do limite de ${accepted.maxBytes / (1024 * 1024)} MB para este tipo.`);
+    throw new Error(
+      `Arquivo acima do limite de ${accepted.maxBytes / (1024 * 1024)} MB para este tipo.`,
+    );
   }
 
   const user = await getAuthUser();
@@ -270,7 +299,10 @@ export async function reviewEvidence(formData: FormData): Promise<void> {
     throw new Error("Decisão inválida.");
   }
   const reviewDecision = decision;
-  if (reviewDecision === "REJECTED" && (typeof rejectionReason !== "string" || rejectionReason.trim().length < 30)) {
+  if (
+    reviewDecision === "REJECTED" &&
+    (typeof rejectionReason !== "string" || rejectionReason.trim().length < 30)
+  ) {
     throw new Error("Informe o motivo da rejeição com pelo menos 30 caracteres.");
   }
 
@@ -326,13 +358,16 @@ export async function addActionItem(formData: FormData): Promise<void> {
     .select("id", { count: "exact", head: true })
     .eq("finding_id", findingId);
 
-  const { error } = await supabase.schema("compliance").from("ActionItem").insert({
-    finding_id: findingId,
-    sequence_number: (count ?? 0) + 1,
-    description: description.trim(),
-    responsible_id: responsibleId,
-    due_date: dueDate,
-  });
+  const { error } = await supabase
+    .schema("compliance")
+    .from("ActionItem")
+    .insert({
+      finding_id: findingId,
+      sequence_number: (count ?? 0) + 1,
+      description: description.trim(),
+      responsible_id: responsibleId,
+      due_date: dueDate,
+    });
 
   if (error) {
     throw new Error(`Não foi possível adicionar o item do plano de ação: ${error.message}`);
@@ -411,21 +446,24 @@ export async function saveFindingRisk(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.schema("compliance").from("FindingRisk").upsert(
-    {
-      finding_id: findingId,
-      description: description.trim(),
-      probability,
-      impact,
-      category,
-      contingency_plan:
-        typeof contingencyPlan === "string" && contingencyPlan.trim().length > 0
-          ? contingencyPlan.trim()
-          : null,
-      responsible_id: responsibleId,
-    },
-    { onConflict: "finding_id" },
-  );
+  const { error } = await supabase
+    .schema("compliance")
+    .from("FindingRisk")
+    .upsert(
+      {
+        finding_id: findingId,
+        description: description.trim(),
+        probability,
+        impact,
+        category,
+        contingency_plan:
+          typeof contingencyPlan === "string" && contingencyPlan.trim().length > 0
+            ? contingencyPlan.trim()
+            : null,
+        responsible_id: responsibleId,
+      },
+      { onConflict: "finding_id" },
+    );
 
   if (error) {
     throw new Error(`Não foi possível salvar o risco: ${error.message}`);

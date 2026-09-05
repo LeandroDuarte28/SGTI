@@ -65,8 +65,10 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Financeiro</h1>
-          <p className="text-sm text-muted-foreground">Orçamentos de TI e contratos com fornecedores.</p>
+          <h1 className="text-foreground text-2xl font-semibold">Financeiro</h1>
+          <p className="text-muted-foreground text-sm">
+            Orçamentos de TI e contratos com fornecedores.
+          </p>
         </div>
         <div className="flex gap-2">
           <Button asChild size="sm" variant="outline">
@@ -94,23 +96,23 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar os dados financeiros: {error.message}
         </div>
       )}
 
       {!error && budgets.length === 0 && contracts.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Nenhum dado financeiro cadastrado ainda, ou você não tem permissão para ver este
-            módulo (restrito a Gestores de TI).
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
+            Nenhum dado financeiro cadastrado ainda, ou você não tem permissão para ver este módulo
+            (restrito a Gestores de TI).
           </p>
         </div>
       )}
 
       {!error && budgets.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 font-medium text-foreground">Orçamentos</h2>
+          <h2 className="text-foreground mb-3 font-medium">Orçamentos</h2>
           <ul className="space-y-2">
             {budgets.map((budget) => {
               const percentUsed =
@@ -119,17 +121,18 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
                   : 0;
               return (
                 <li
-                  className="rounded-lg border border-border bg-card p-4 shadow-sm"
+                  className="border-border bg-card rounded-lg border p-4 shadow-sm"
                   key={budget.id}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-foreground">
+                    <p className="text-foreground text-sm font-medium">
                       {budget.name} ({budget.fiscal_year}) · {budget.category}
                     </p>
-                    <p className="text-xs text-muted-foreground">{percentUsed}% utilizado</p>
+                    <p className="text-muted-foreground text-xs">{percentUsed}% utilizado</p>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {formatCurrency(budget.spent_amount)} de {formatCurrency(budget.allocated_amount)}
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    {formatCurrency(budget.spent_amount)} de{" "}
+                    {formatCurrency(budget.allocated_amount)}
                   </p>
                 </li>
               );
@@ -140,16 +143,16 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
 
       {!error && contracts.length > 0 && (
         <section>
-          <h2 className="mb-3 font-medium text-foreground">Contratos</h2>
+          <h2 className="text-foreground mb-3 font-medium">Contratos</h2>
           <ul className="space-y-2">
             {contracts.map((contract) => (
               <li
-                className="flex items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm"
+                className="border-border bg-card flex items-center justify-between rounded-lg border p-3 shadow-sm"
                 key={contract.id}
               >
                 <div>
-                  <p className="text-sm font-medium text-foreground">{contract.title}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-foreground text-sm font-medium">{contract.title}</p>
+                  <p className="text-muted-foreground text-xs">
                     {contract.vendor_name} · {formatCurrency(contract.value)}
                     {contract.end_date && ` · até ${formatDateOnly(contract.end_date)}`}
                   </p>
@@ -166,17 +169,21 @@ export default async function FinancialPage(): Promise<React.JSX.Element> {
 
       {!error && expenses.length > 0 && (
         <section className="mt-8">
-          <h2 className="mb-3 font-medium text-foreground">Despesas Recentes</h2>
+          <h2 className="text-foreground mb-3 font-medium">Despesas Recentes</h2>
           <ul className="space-y-2">
             {expenses.map((expense) => (
               <li
-                className="flex items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm"
+                className="border-border bg-card flex items-center justify-between rounded-lg border p-3 shadow-sm"
                 key={expense.id}
               >
-                <p className="text-sm text-foreground">{expense.description}</p>
+                <p className="text-foreground text-sm">{expense.description}</p>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-foreground">{formatCurrency(expense.amount)}</p>
-                  <p className="text-xs text-muted-foreground">{formatDateOnly(expense.expense_date)}</p>
+                  <p className="text-foreground text-sm font-medium">
+                    {formatCurrency(expense.amount)}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {formatDateOnly(expense.expense_date)}
+                  </p>
                 </div>
               </li>
             ))}

@@ -44,7 +44,10 @@ export async function createAudit(formData: FormData): Promise<void> {
   if (normIds.length === 0) {
     throw new Error("Selecione ao menos uma norma a ser avaliada.");
   }
-  if ((type === "EXTERNAL" || type === "CONSULTORIA") && (typeof consultancyId !== "string" || consultancyId === "")) {
+  if (
+    (type === "EXTERNAL" || type === "CONSULTORIA") &&
+    (typeof consultancyId !== "string" || consultancyId === "")
+  ) {
     throw new Error("Auditorias externas ou de consultoria exigem uma consultoria vinculada.");
   }
 
@@ -64,7 +67,8 @@ export async function createAudit(formData: FormData): Promise<void> {
       code: "", // overwritten by trg_compliance_audit_code (AUD-YYYY-NNNN)
       name: name.trim(),
       type,
-      consultancy_id: typeof consultancyId === "string" && consultancyId !== "" ? consultancyId : null,
+      consultancy_id:
+        typeof consultancyId === "string" && consultancyId !== "" ? consultancyId : null,
       scope: scope.trim(),
       start_date: startDate,
       end_date: endDate,
@@ -87,7 +91,9 @@ export async function createAudit(formData: FormData): Promise<void> {
     .insert(normIds.map((normId) => ({ audit_id: audit.id, norm_id: normId })));
 
   if (linkError) {
-    throw new Error(`Auditoria criada, mas não foi possível vincular as normas: ${linkError.message}`);
+    throw new Error(
+      `Auditoria criada, mas não foi possível vincular as normas: ${linkError.message}`,
+    );
   }
 
   redirect(`/compliance/audits/${audit.id}`);

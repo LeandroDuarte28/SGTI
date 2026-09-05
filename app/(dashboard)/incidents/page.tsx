@@ -66,8 +66,8 @@ export default async function IncidentsPage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Incidentes</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-foreground text-2xl font-semibold">Incidentes</h1>
+          <p className="text-muted-foreground text-sm">
             Acompanhe e gerencie os incidentes reportados.
           </p>
         </div>
@@ -92,14 +92,14 @@ export default async function IncidentsPage(): Promise<React.JSX.Element> {
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar os incidentes: {error.message}
         </div>
       )}
 
       {!error && incidents && incidents.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Nenhum incidente encontrado. Quando a tela de criação estiver pronta, os incidentes
             reportados aparecerão aqui.
           </p>
@@ -110,12 +110,12 @@ export default async function IncidentsPage(): Promise<React.JSX.Element> {
         <ul className="space-y-3">
           {incidents.map((incident) => (
             <li
-              className="rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary/50"
+              className="border-border bg-card hover:border-primary/50 rounded-lg border p-4 shadow-sm transition-colors"
               key={incident.id}
             >
               <Link href={`/incidents/${incident.id}`}>
                 <div className="flex items-start justify-between gap-4">
-                  <h2 className="font-medium text-foreground">{incident.title}</h2>
+                  <h2 className="text-foreground font-medium">{incident.title}</h2>
                   <div className="flex shrink-0 gap-2">
                     <Pill
                       className={PRIORITY_CLASS[incident.priority] ?? ""}
@@ -127,7 +127,7 @@ export default async function IncidentsPage(): Promise<React.JSX.Element> {
                     />
                   </div>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-1 text-xs">
                   Aberto em {new Date(incident.created_at).toLocaleDateString("pt-BR")}
                 </p>
               </Link>

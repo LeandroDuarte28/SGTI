@@ -58,8 +58,8 @@ export default async function ProcurementPage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Compras</h1>
-          <p className="text-sm text-muted-foreground">Pedidos de compra e fornecedores.</p>
+          <h1 className="text-foreground text-2xl font-semibold">Compras</h1>
+          <p className="text-muted-foreground text-sm">Pedidos de compra e fornecedores.</p>
         </div>
         <div className="flex gap-2">
           <Button asChild size="sm" variant="outline">
@@ -81,14 +81,14 @@ export default async function ProcurementPage(): Promise<React.JSX.Element> {
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar os pedidos de compra: {error.message}
         </div>
       )}
 
       {!error && orders.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">Nenhum pedido de compra encontrado.</p>
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">Nenhum pedido de compra encontrado.</p>
         </div>
       )}
 
@@ -99,15 +99,15 @@ export default async function ProcurementPage(): Promise<React.JSX.Element> {
             return (
               <li key={order.id}>
                 <Link
-                  className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+                  className="border-border bg-card hover:bg-muted/50 block rounded-lg border p-4 shadow-sm transition-colors"
                   href={`/procurement/orders/${order.id}`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="font-medium text-foreground">
+                      <h2 className="text-foreground font-medium">
                         {supplier?.name ?? "Fornecedor não encontrado"}
                       </h2>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         {formatCurrency(order.total_amount)}
                       </p>
                     </div>
@@ -116,7 +116,7 @@ export default async function ProcurementPage(): Promise<React.JSX.Element> {
                       label={STATUS_LABEL[order.status] ?? order.status}
                     />
                   </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-2 text-xs">
                     Criado em {formatDate(order.created_at)}
                   </p>
                 </Link>

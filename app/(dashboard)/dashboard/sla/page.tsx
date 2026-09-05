@@ -4,7 +4,13 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { hasRole, IT_STAFF_ROLES } from "@/lib/constants/roles";
-import { formatHours, formatPercent, getSlaComplianceTone, Section, StatCard } from "@/components/dashboard/kpi";
+import {
+  formatHours,
+  formatPercent,
+  getSlaComplianceTone,
+  Section,
+  StatCard,
+} from "@/components/dashboard/kpi";
 
 export const metadata: Metadata = { title: "Dashboard de SLA" };
 
@@ -31,16 +37,27 @@ export default async function SlaDashboardPage(): Promise<React.JSX.Element> {
       .select("priority, sla_breached_at, resolved_at, created_at")
       .not("sla_id", "is", null)
       .not("resolved_at", "is", null),
-    supabase.schema("ticket").from("Incident").select("id").not("sla_breached_at", "is", null).not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .not("sla_breached_at", "is", null)
+      .not("status", "in", "(RESOLVED,CLOSED)"),
   ]);
 
   const slaRows = slaRowsResult.data ?? [];
   const breachedCount = slaRows.filter((r) => r.sla_breached_at !== null).length;
-  const overallCompliance = slaRows.length > 0 ? ((slaRows.length - breachedCount) / slaRows.length) * 100 : NaN;
+  const overallCompliance =
+    slaRows.length > 0 ? ((slaRows.length - breachedCount) / slaRows.length) * 100 : NaN;
   const mttrHours =
     slaRows.length > 0
-      ? slaRows.reduce((sum, r) => sum + (new Date(r.resolved_at as string).getTime() - new Date(r.created_at).getTime()) / 3_600_000, 0) /
-        slaRows.length
+      ? slaRows.reduce(
+          (sum, r) =>
+            sum +
+            (new Date(r.resolved_at as string).getTime() - new Date(r.created_at).getTime()) /
+              3_600_000,
+          0,
+        ) / slaRows.length
       : NaN;
 
   const byPriority = PRIORITY_ORDER.map((priority) => {
@@ -53,14 +70,18 @@ export default async function SlaDashboardPage(): Promise<React.JSX.Element> {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard de SLA</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-foreground text-2xl font-semibold">Dashboard de SLA</h1>
+        <p className="text-muted-foreground text-sm">
           Desempenho de SLA por prioridade, considerando incidentes resolvidos com SLA definido.
         </p>
       </div>
 
       <Section title="Visão Geral">
-        <StatCard label="SLA Geral Cumprido" tone={getSlaComplianceTone(overallCompliance)} value={formatPercent(overallCompliance)} />
+        <StatCard
+          label="SLA Geral Cumprido"
+          tone={getSlaComplianceTone(overallCompliance)}
+          value={formatPercent(overallCompliance)}
+        />
         <StatCard
           href="/incidents"
           label="Chamados com SLA Violado (Abertos)"

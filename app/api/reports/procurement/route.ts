@@ -20,10 +20,15 @@ export async function GET(): Promise<Response> {
     .order("created_at", { ascending: false });
 
   if (error || !orders) {
-    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, { status: 500 });
+    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, {
+      status: 500,
+    });
   }
 
-  const names = await fetchUserNames(supabase, orders.map((o) => o.requested_by));
+  const names = await fetchUserNames(
+    supabase,
+    orders.map((o) => o.requested_by),
+  );
   const { data: suppliers } = await supabase
     .schema("procurement")
     .from("Supplier")
@@ -52,7 +57,12 @@ export async function GET(): Promise<Response> {
   await supabase
     .schema("shared")
     .from("AuditLog")
-    .insert({ user_id: user.id, action: "REPORT_EXPORTED", entity_type: "PurchaseOrder", new_values: { format: "csv", rows: rows.length } });
+    .insert({
+      user_id: user.id,
+      action: "REPORT_EXPORTED",
+      entity_type: "PurchaseOrder",
+      new_values: { format: "csv", rows: rows.length },
+    });
 
   return csvResponse("pedidos-compra.csv", csv);
 }

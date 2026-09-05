@@ -1,26 +1,31 @@
 # SGTI — Sistema de Gestão de Tecnologia da Informação
+
 ## Especificação Funcional das APIs REST
 
-> **Classificação:** Interno — Restrito
-> **Versão:** 1.0.0
-> **Status:** Aprovado para Desenvolvimento
-> **Última Atualização:** 2026-06-09
-> **Responsável:** Arquitetura Corporativa de TI
-> **Documentos Relacionados:** [12_ARCHITECTURE.md](./12_ARCHITECTURE.md) · [20_DATABASE.md](./20_DATABASE.md) · [14_SECURITY_REQUIREMENTS.md](./14_SECURITY_REQUIREMENTS.md)
+> **Classificação:** Interno — Restrito **Versão:** 1.0.0 **Status:** Aprovado
+> para Desenvolvimento **Última Atualização:** 2026-06-09 **Responsável:**
+> Arquitetura Corporativa de TI **Documentos Relacionados:**
+> [12_ARCHITECTURE.md](./12_ARCHITECTURE.md) ·
+> [20_DATABASE.md](./20_DATABASE.md) ·
+> [14_SECURITY_REQUIREMENTS.md](./14_SECURITY_REQUIREMENTS.md)
 
 ---
 
 ## Sobre este Documento
 
-Este documento especifica funcionalmente todas as APIs REST do SGTI. Cada endpoint é descrito com objetivo, método HTTP, rota, permissões, parâmetros, payloads e erros possíveis.
+Este documento especifica funcionalmente todas as APIs REST do SGTI. Cada
+endpoint é descrito com objetivo, método HTTP, rota, permissões, parâmetros,
+payloads e erros possíveis.
 
-**Escopo:** documentação funcional. Nenhum código, Swagger JSON ou OpenAPI YAML é gerado.
+**Escopo:** documentação funcional. Nenhum código, Swagger JSON ou OpenAPI YAML
+é gerado.
 
 ---
 
 ## Sumário
 
 **Padrões Globais**
+
 1. [Versionamento e Base URL](#1-versionamento-e-base-url)
 2. [Autenticação e Segurança](#2-autenticação-e-segurança)
 3. [Padrão de Respostas](#3-padrão-de-respostas)
@@ -29,30 +34,19 @@ Este documento especifica funcionalmente todas as APIs REST do SGTI. Cada endpoi
 6. [Rate Limiting](#6-rate-limiting)
 7. [Auditoria de API](#7-auditoria-de-api)
 
-**Módulos**
-8. [Authentication](#8-authentication)
-9. [Users](#9-users)
-10. [Roles e Permissions](#10-roles-e-permissions)
-11. [Service Catalog](#11-service-catalog)
-12. [SLA](#12-sla)
-13. [Tickets](#13-tickets)
-14. [Incidents](#14-incidents)
-15. [Requests](#15-requests)
-16. [Problems](#16-problems)
-17. [Assets](#17-assets)
-18. [GLPI Integration](#18-glpi-integration)
-19. [Identity Management](#19-identity-management)
-20. [Google Workspace](#20-google-workspace)
-21. [Compliance](#21-compliance)
-22. [Financial](#22-financial)
-23. [Procurement](#23-procurement)
-24. [Projects](#24-projects)
-25. [Knowledge Base](#25-knowledge-base)
-26. [Notifications](#26-notifications)
-27. [Email Integration](#27-email-integration)
-28. [Dashboard](#28-dashboard)
-29. [Reports](#29-reports)
-30. [Audit](#30-audit)
+**Módulos** 8. [Authentication](#8-authentication) 9. [Users](#9-users) 10.
+[Roles e Permissions](#10-roles-e-permissions) 11.
+[Service Catalog](#11-service-catalog) 12. [SLA](#12-sla) 13.
+[Tickets](#13-tickets) 14. [Incidents](#14-incidents) 15.
+[Requests](#15-requests) 16. [Problems](#16-problems) 17.
+[Assets](#17-assets) 18. [GLPI Integration](#18-glpi-integration) 19.
+[Identity Management](#19-identity-management) 20.
+[Google Workspace](#20-google-workspace) 21. [Compliance](#21-compliance) 22.
+[Financial](#22-financial) 23. [Procurement](#23-procurement) 24.
+[Projects](#24-projects) 25. [Knowledge Base](#25-knowledge-base) 26.
+[Notifications](#26-notifications) 27.
+[Email Integration](#27-email-integration) 28. [Dashboard](#28-dashboard) 29.
+[Reports](#29-reports) 30. [Audit](#30-audit)
 
 ---
 
@@ -60,19 +54,21 @@ Este documento especifica funcionalmente todas as APIs REST do SGTI. Cada endpoi
 
 ### 1.1 Base URL
 
-| Ambiente | Base URL |
-|----------|----------|
-| Produção | `https://api.sgti.[dominio]/api/v1` |
-| Staging | `https://api.staging.sgti.[dominio]/api/v1` |
-| Desenvolvimento | `http://localhost:3001/api/v1` |
+| Ambiente        | Base URL                                    |
+| --------------- | ------------------------------------------- |
+| Produção        | `https://api.sgti.[dominio]/api/v1`         |
+| Staging         | `https://api.staging.sgti.[dominio]/api/v1` |
+| Desenvolvimento | `http://localhost:3001/api/v1`              |
 
 ### 1.2 Versionamento
 
 O SGTI usa versionamento por prefixo de URL. A versão atual é `v1`.
 
 - Novos endpoints são adicionados na versão corrente sem breaking change.
-- Breaking changes criam nova versão (`v2`) enquanto `v1` permanece ativa por 90 dias com header `Deprecation`.
-- O header `Deprecation` sinaliza endpoints obsoletos: `Deprecation: true; sunset="2026-09-09"`.
+- Breaking changes criam nova versão (`v2`) enquanto `v1` permanece ativa por 90
+  dias com header `Deprecation`.
+- O header `Deprecation` sinaliza endpoints obsoletos:
+  `Deprecation: true; sunset="2026-09-09"`.
 
 ### 1.3 Endpoints Públicos (sem autenticação)
 
@@ -97,9 +93,12 @@ Todos os demais endpoints exigem autenticação.
 
 ### 2.1 Bearer Token via Cookie
 
-Autenticação via cookie `HttpOnly` — o token não é enviado no header `Authorization`.
+Autenticação via cookie `HttpOnly` — o token não é enviado no header
+`Authorization`.
 
-O backend lê o JWT diretamente do cookie `access_token` em todas as requisições protegidas. Clientes que não suportam cookies (ex: integrações máquina a máquina) usam API Keys.
+O backend lê o JWT diretamente do cookie `access_token` em todas as requisições
+protegidas. Clientes que não suportam cookies (ex: integrações máquina a
+máquina) usam API Keys.
 
 ### 2.2 API Key para Integrações M2M
 
@@ -107,15 +106,16 @@ O backend lê o JWT diretamente do cookie `access_token` em todas as requisiçõ
 Header: X-Api-Key: sgti_live_xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-API Keys são gerenciadas via `GET/POST /api/v1/admin/api-keys` por `SUPER_ADMIN`.
+API Keys são gerenciadas via `GET/POST /api/v1/admin/api-keys` por
+`SUPER_ADMIN`.
 
 ### 2.3 Headers Obrigatórios em Todas as Requisições
 
-| Header | Valor | Obrigatório |
-|--------|-------|:-----------:|
-| `Content-Type` | `application/json` | Sim (exceto uploads) |
-| `Accept` | `application/json` | Recomendado |
-| `X-Request-ID` | UUID v4 (gerado pelo cliente) | Recomendado |
+| Header         | Valor                         |     Obrigatório      |
+| -------------- | ----------------------------- | :------------------: |
+| `Content-Type` | `application/json`            | Sim (exceto uploads) |
+| `Accept`       | `application/json`            |     Recomendado      |
+| `X-Request-ID` | UUID v4 (gerado pelo cliente) |     Recomendado      |
 
 O `X-Request-ID` é incluído na resposta e em todos os logs para rastreabilidade.
 
@@ -142,9 +142,7 @@ O `X-Request-ID` é incluído na resposta e em todos os logs para rastreabilidad
 
 ```json
 {
-  "data": [
-    { "id": "uuid", "field": "value" }
-  ],
+  "data": [{ "id": "uuid", "field": "value" }],
   "meta": {
     "requestId": "uuid",
     "timestamp": "2026-06-09T14:00:00.000Z",
@@ -171,7 +169,8 @@ O `X-Request-ID` é incluído na resposta e em todos os logs para rastreabilidad
 
 ### 3.4 Resposta de Ação sem Conteúdo — HTTP 204
 
-Usado para `DELETE` lógico e ações que não retornam payload (ex: marcar notificação como lida).
+Usado para `DELETE` lógico e ações que não retornam payload (ex: marcar
+notificação como lida).
 
 ```
 HTTP 204 No Content
@@ -203,32 +202,32 @@ HTTP 204 No Content
 
 ### 4.1 Parâmetros de Paginação
 
-| Parâmetro | Tipo | Default | Máximo | Descrição |
-|-----------|------|:-------:|:------:|-----------|
-| `page` | integer | `1` | — | Página desejada |
-| `perPage` | integer | `20` | `100` | Itens por página |
+| Parâmetro | Tipo    | Default | Máximo | Descrição        |
+| --------- | ------- | :-----: | :----: | ---------------- |
+| `page`    | integer |   `1`   |   —    | Página desejada  |
+| `perPage` | integer |  `20`   | `100`  | Itens por página |
 
 ### 4.2 Parâmetros de Ordenação
 
-| Parâmetro | Formato | Exemplo |
-|-----------|---------|---------|
-| `sort` | `campo:asc` ou `campo:desc` | `sort=created_at:desc` |
-| `sort` | Múltiplos separados por vírgula | `sort=priority:asc,created_at:desc` |
+| Parâmetro | Formato                         | Exemplo                             |
+| --------- | ------------------------------- | ----------------------------------- |
+| `sort`    | `campo:asc` ou `campo:desc`     | `sort=created_at:desc`              |
+| `sort`    | Múltiplos separados por vírgula | `sort=priority:asc,created_at:desc` |
 
 ### 4.3 Parâmetros de Filtro
 
 Filtros são passados como query parameters com prefixos que indicam o operador:
 
-| Operador | Formato | Exemplo |
-|----------|---------|---------|
-| Igual | `campo=valor` | `status=OPEN` |
-| Diferente | `campo[ne]=valor` | `status[ne]=CLOSED` |
-| Contém (LIKE) | `campo[contains]=valor` | `title[contains]=vpn` |
-| Maior que | `campo[gt]=valor` | `created_at[gt]=2026-01-01` |
-| Maior ou igual | `campo[gte]=valor` | `priority[gte]=2` |
-| Menor que | `campo[lt]=valor` | `sla_deadline[lt]=2026-06-10` |
-| Em lista | `campo[in]=v1,v2,v3` | `status[in]=OPEN,IN_PROGRESS` |
-| Nulo | `campo[null]=true` | `assignee_id[null]=true` |
+| Operador       | Formato                 | Exemplo                       |
+| -------------- | ----------------------- | ----------------------------- |
+| Igual          | `campo=valor`           | `status=OPEN`                 |
+| Diferente      | `campo[ne]=valor`       | `status[ne]=CLOSED`           |
+| Contém (LIKE)  | `campo[contains]=valor` | `title[contains]=vpn`         |
+| Maior que      | `campo[gt]=valor`       | `created_at[gt]=2026-01-01`   |
+| Maior ou igual | `campo[gte]=valor`      | `priority[gte]=2`             |
+| Menor que      | `campo[lt]=valor`       | `sla_deadline[lt]=2026-06-10` |
+| Em lista       | `campo[in]=v1,v2,v3`    | `status[in]=OPEN,IN_PROGRESS` |
+| Nulo           | `campo[null]=true`      | `assignee_id[null]=true`      |
 
 ### 4.4 Busca Textual
 
@@ -236,7 +235,8 @@ Filtros são passados como query parameters com prefixos que indicam o operador:
 GET /api/v1/tickets?q=vpn+não+conecta
 ```
 
-O parâmetro `q` aciona a busca full-text PostgreSQL em campos relevantes do recurso.
+O parâmetro `q` aciona a busca full-text PostgreSQL em campos relevantes do
+recurso.
 
 ---
 
@@ -244,35 +244,35 @@ O parâmetro `q` aciona a busca full-text PostgreSQL em campos relevantes do rec
 
 ### 5.1 Códigos HTTP Utilizados
 
-| HTTP | Código de Erro | Situação |
-|------|---------------|---------|
-| `400` | `VALIDATION_ERROR` | Dados de entrada inválidos (campo obrigatório ausente, tipo incorreto) |
-| `401` | `UNAUTHORIZED` | Token ausente, expirado ou inválido |
-| `403` | `FORBIDDEN` | Usuário autenticado sem permissão para a operação |
-| `404` | `NOT_FOUND` | Recurso não existe ou foi excluído (soft delete) |
-| `409` | `CONFLICT` | Conflito de estado (ex: fechar incidente já fechado) |
+| HTTP  | Código de Erro            | Situação                                                                          |
+| ----- | ------------------------- | --------------------------------------------------------------------------------- |
+| `400` | `VALIDATION_ERROR`        | Dados de entrada inválidos (campo obrigatório ausente, tipo incorreto)            |
+| `401` | `UNAUTHORIZED`            | Token ausente, expirado ou inválido                                               |
+| `403` | `FORBIDDEN`               | Usuário autenticado sem permissão para a operação                                 |
+| `404` | `NOT_FOUND`               | Recurso não existe ou foi excluído (soft delete)                                  |
+| `409` | `CONFLICT`                | Conflito de estado (ex: fechar incidente já fechado)                              |
 | `422` | `BUSINESS_RULE_VIOLATION` | Violação de regra de negócio (ex: SLA já violado, ticket com status incompatível) |
-| `429` | `RATE_LIMIT_EXCEEDED` | Limite de requisições atingido |
-| `500` | `INTERNAL_SERVER_ERROR` | Erro interno não tratado |
-| `502` | `INTEGRATION_ERROR` | Falha de integração externa (GLPI, Google) |
-| `503` | `SERVICE_UNAVAILABLE` | Sistema em manutenção ou sobrecarga |
+| `429` | `RATE_LIMIT_EXCEEDED`     | Limite de requisições atingido                                                    |
+| `500` | `INTERNAL_SERVER_ERROR`   | Erro interno não tratado                                                          |
+| `502` | `INTEGRATION_ERROR`       | Falha de integração externa (GLPI, Google)                                        |
+| `503` | `SERVICE_UNAVAILABLE`     | Sistema em manutenção ou sobrecarga                                               |
 
 ### 5.2 Catálogo de Códigos de Erro de Negócio
 
-| Código | Descrição |
-|--------|-----------|
-| `TICKET_ALREADY_CLOSED` | Operação inválida em ticket fechado |
-| `SLA_CANNOT_PAUSE` | SLA não pode ser pausado neste status |
-| `APPROVAL_ALREADY_DECIDED` | Etapa de aprovação já foi decidida |
-| `ASSET_ALREADY_ALLOCATED` | Ativo já está alocado a outro usuário |
+| Código                          | Descrição                                    |
+| ------------------------------- | -------------------------------------------- |
+| `TICKET_ALREADY_CLOSED`         | Operação inválida em ticket fechado          |
+| `SLA_CANNOT_PAUSE`              | SLA não pode ser pausado neste status        |
+| `APPROVAL_ALREADY_DECIDED`      | Etapa de aprovação já foi decidida           |
+| `ASSET_ALREADY_ALLOCATED`       | Ativo já está alocado a outro usuário        |
 | `IDENTITY_PENDING_PROVISIONING` | Identidade aguarda provisionamento no Google |
-| `INSUFFICIENT_BUDGET` | Orçamento insuficiente para a operação |
-| `DUPLICATE_ASSET_TAG` | Etiqueta patrimonial já existe |
-| `ARTICLE_NOT_PUBLISHED` | Artigo não está publicado para esta operação |
-| `GOOGLE_SYNC_FAILED` | Falha na sincronização com Google Workspace |
-| `GLPI_SYNC_FAILED` | Falha na sincronização com GLPI |
-| `FILE_TYPE_NOT_ALLOWED` | Tipo de arquivo não permitido |
-| `FILE_SIZE_EXCEEDED` | Tamanho do arquivo excede o limite |
+| `INSUFFICIENT_BUDGET`           | Orçamento insuficiente para a operação       |
+| `DUPLICATE_ASSET_TAG`           | Etiqueta patrimonial já existe               |
+| `ARTICLE_NOT_PUBLISHED`         | Artigo não está publicado para esta operação |
+| `GOOGLE_SYNC_FAILED`            | Falha na sincronização com Google Workspace  |
+| `GLPI_SYNC_FAILED`              | Falha na sincronização com GLPI              |
+| `FILE_TYPE_NOT_ALLOWED`         | Tipo de arquivo não permitido                |
+| `FILE_SIZE_EXCEEDED`            | Tamanho do arquivo excede o limite           |
 
 ---
 
@@ -280,16 +280,17 @@ O parâmetro `q` aciona a busca full-text PostgreSQL em campos relevantes do rec
 
 Limites aplicados por usuário autenticado (ou por IP para rotas públicas):
 
-| Categoria | Limite | Janela |
-|-----------|--------|--------|
-| Rotas de autenticação | 10 req/IP | 1 minuto |
-| Rotas de escrita (POST, PATCH, PUT, DELETE) | 60 req/usuário | 1 minuto |
-| Rotas de leitura (GET) | 300 req/usuário | 1 minuto |
-| Rotas de busca | 30 req/usuário | 1 minuto |
-| Geração de relatórios | 5 req/usuário | 1 hora |
-| Exportação de auditoria | 3 req/usuário | 1 hora |
+| Categoria                                   | Limite          | Janela   |
+| ------------------------------------------- | --------------- | -------- |
+| Rotas de autenticação                       | 10 req/IP       | 1 minuto |
+| Rotas de escrita (POST, PATCH, PUT, DELETE) | 60 req/usuário  | 1 minuto |
+| Rotas de leitura (GET)                      | 300 req/usuário | 1 minuto |
+| Rotas de busca                              | 30 req/usuário  | 1 minuto |
+| Geração de relatórios                       | 5 req/usuário   | 1 hora   |
+| Exportação de auditoria                     | 3 req/usuário   | 1 hora   |
 
 **Headers de resposta:**
+
 ```
 X-RateLimit-Limit: 60
 X-RateLimit-Remaining: 43
@@ -301,9 +302,13 @@ Retry-After: 60   (apenas quando 429)
 
 ## 7. Auditoria de API
 
-Toda operação de escrita gera registro automático em `shared.audit_log` via `AuditInterceptor` global. O registro inclui: `user_id`, `user_role`, `action`, `entity_type`, `entity_id`, `old_values`, `new_values`, `ip_address`, `request_id`, `occurred_at`.
+Toda operação de escrita gera registro automático em `shared.audit_log` via
+`AuditInterceptor` global. O registro inclui: `user_id`, `user_role`, `action`,
+`entity_type`, `entity_id`, `old_values`, `new_values`, `ip_address`,
+`request_id`, `occurred_at`.
 
-Operações de leitura a dados sensíveis (compliance, identidades, financeiro acima de threshold) também geram registro com `action=ACCESS`.
+Operações de leitura a dados sensíveis (compliance, identidades, financeiro
+acima de threshold) também geram registro com `action=ACCESS`.
 
 ---
 
@@ -315,39 +320,37 @@ Operações de leitura a dados sensíveis (compliance, identidades, financeiro a
 
 ### POST /auth/google/init — Iniciar login OAuth
 
-**Objetivo:** Redirecionar o usuário para o Google OAuth 2.0.
-**Autenticação:** Pública
-**Permissões:** Nenhuma
+**Objetivo:** Redirecionar o usuário para o Google OAuth 2.0. **Autenticação:**
+Pública **Permissões:** Nenhuma
 
-**Query Parameters:**
-| Parâmetro | Tipo | Obrigatório | Descrição |
-|-----------|------|:-----------:|-----------|
-| `redirect_uri` | string | Não | URL de retorno pós-login (deve ser pré-registrada) |
+**Query Parameters:** | Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|:-----------:|-----------| | `redirect_uri` | string | Não |
+URL de retorno pós-login (deve ser pré-registrada) |
 
-**Resposta (302):** Redirecionamento para `accounts.google.com/o/oauth2/auth` com `code_challenge` (PKCE), `state` e `hd` (domínio corporativo).
+**Resposta (302):** Redirecionamento para `accounts.google.com/o/oauth2/auth`
+com `code_challenge` (PKCE), `state` e `hd` (domínio corporativo).
 
 ---
 
 ### GET /auth/callback — Callback OAuth Google
 
-**Objetivo:** Receber o `authorization_code` do Google, trocar por token, emitir JWT SGTI.
-**Autenticação:** Pública (protegida por `state` token)
+**Objetivo:** Receber o `authorization_code` do Google, trocar por token, emitir
+JWT SGTI. **Autenticação:** Pública (protegida por `state` token)
 **Permissões:** Nenhuma
 
-**Query Parameters:**
-| Parâmetro | Tipo | Obrigatório | Descrição |
-|-----------|------|:-----------:|-----------|
-| `code` | string | Sim | Authorization code do Google |
-| `state` | string | Sim | State token anti-CSRF |
+**Query Parameters:** | Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|:-----------:|-----------| | `code` | string | Sim |
+Authorization code do Google | | `state` | string | Sim | State token anti-CSRF
+|
 
-**Resposta (302):** Redireciona para o dashboard. Cookies definidos: `access_token` (1h) e `refresh_token` (7d), ambos `HttpOnly; Secure; SameSite=Strict`.
+**Resposta (302):** Redireciona para o dashboard. Cookies definidos:
+`access_token` (1h) e `refresh_token` (7d), ambos
+`HttpOnly; Secure; SameSite=Strict`.
 
-**Erros:**
-| HTTP | Código | Situação |
-|------|--------|---------|
-| 400 | `INVALID_STATE` | State token ausente, expirado ou não correspondente |
-| 400 | `INVALID_DOMAIN` | E-mail não pertence ao domínio corporativo |
-| 502 | `GOOGLE_AUTH_FAILED` | Falha ao trocar code por token com o Google |
+**Erros:** | HTTP | Código | Situação | |------|--------|---------| | 400 |
+`INVALID_STATE` | State token ausente, expirado ou não correspondente | | 400 |
+`INVALID_DOMAIN` | E-mail não pertence ao domínio corporativo | | 502 |
+`GOOGLE_AUTH_FAILED` | Falha ao trocar code por token com o Google |
 
 ---
 
@@ -357,6 +360,7 @@ Operações de leitura a dados sensíveis (compliance, identidades, financeiro a
 **Autenticação:** Cookie `refresh_token`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -364,21 +368,20 @@ Operações de leitura a dados sensíveis (compliance, identidades, financeiro a
   }
 }
 ```
+
 Novos cookies são definidos. Refresh token anterior é imediatamente invalidado.
 
-**Erros:**
-| HTTP | Código | Situação |
-|------|--------|---------|
-| 401 | `REFRESH_TOKEN_INVALID` | Token inválido, expirado ou já rotacionado |
-| 401 | `REFRESH_TOKEN_REVOKED` | Token foi revogado (logout ou suspensão) |
-| 409 | `TOKEN_REUSE_DETECTED` | Token usado após rotação — todas as sessões revogadas |
+**Erros:** | HTTP | Código | Situação | |------|--------|---------| | 401 |
+`REFRESH_TOKEN_INVALID` | Token inválido, expirado ou já rotacionado | | 401 |
+`REFRESH_TOKEN_REVOKED` | Token foi revogado (logout ou suspensão) | | 409 |
+`TOKEN_REUSE_DETECTED` | Token usado após rotação — todas as sessões revogadas |
 
 ---
 
 ### POST /auth/logout — Encerrar sessão
 
-**Objetivo:** Revogar o refresh token e limpar cookies.
-**Autenticação:** Obrigatória
+**Objetivo:** Revogar o refresh token e limpar cookies. **Autenticação:**
+Obrigatória
 
 **Resposta (204):** Sem body. Cookies limpos. Refresh token revogado no banco.
 
@@ -390,6 +393,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Autenticação:** Obrigatória
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -413,6 +417,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Autenticação:** Obrigatória
 
 **Resposta (200):**
+
 ```json
 {
   "data": [
@@ -434,53 +439,48 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Objetivo:** Revogar uma sessão ativa (deslogar de dispositivo específico).
 **Autenticação:** Obrigatória
 
-**Parâmetros de Path:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `id` | UUID | ID da sessão |
+**Parâmetros de Path:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `id` | UUID | ID da sessão |
 
 **Resposta (204):** Sem body.
 
-**Erros:**
-| HTTP | Código | Situação |
-|------|--------|---------|
-| 403 | `FORBIDDEN` | Sessão não pertence ao usuário autenticado |
+**Erros:** | HTTP | Código | Situação | |------|--------|---------| | 403 |
+`FORBIDDEN` | Sessão não pertence ao usuário autenticado |
 
 ---
 
 ## 9. Users
 
-**Base:** `/api/v1/users`
-**Papéis mínimos para gestão:** `IT_MANAGER`, `SUPER_ADMIN`
+**Base:** `/api/v1/users` **Papéis mínimos para gestão:** `IT_MANAGER`,
+`SUPER_ADMIN`
 
 ---
 
 ### GET /users — Listar usuários
 
-**Objetivo:** Listar usuários do tenant com paginação e filtros.
-**Permissões:** `IT_MANAGER`, `SUPER_ADMIN`
+**Objetivo:** Listar usuários do tenant com paginação e filtros. **Permissões:**
+`IT_MANAGER`, `SUPER_ADMIN`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `q` | string | Busca por nome ou e-mail |
-| `status` | enum | `ACTIVE`, `INACTIVE`, `SUSPENDED` |
-| `role` | enum | Filtrar por papel |
-| `departmentId` | UUID | Filtrar por departamento |
-| `businessUnitId` | UUID | Filtrar por unidade de negócio |
-| `managerId` | UUID | Filtrar por gestor direto |
-| `page`, `perPage`, `sort` | — | Paginação padrão |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `q` | string | Busca por nome ou e-mail | |
+`status` | enum | `ACTIVE`, `INACTIVE`, `SUSPENDED` | | `role` | enum | Filtrar
+por papel | | `departmentId` | UUID | Filtrar por departamento | |
+`businessUnitId` | UUID | Filtrar por unidade de negócio | | `managerId` | UUID
+| Filtrar por gestor direto | | `page`, `perPage`, `sort` | — | Paginação padrão
+|
 
-**Resposta (200):** Lista paginada com `id`, `email`, `displayName`, `status`, `roles`, `department`, `lastLoginAt`.
+**Resposta (200):** Lista paginada com `id`, `email`, `displayName`, `status`,
+`roles`, `department`, `lastLoginAt`.
 
 ---
 
 ### GET /users/:id — Buscar usuário
 
-**Objetivo:** Retornar dados completos de um usuário.
-**Permissões:** Próprio usuário ou `IT_MANAGER+`
+**Objetivo:** Retornar dados completos de um usuário. **Permissões:** Próprio
+usuário ou `IT_MANAGER+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -505,10 +505,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /users — Criar usuário
 
-**Objetivo:** Provisionar manualmente um usuário (quando não via sincronização Google).
-**Permissões:** `IT_MANAGER`, `SUPER_ADMIN`
+**Objetivo:** Provisionar manualmente um usuário (quando não via sincronização
+Google). **Permissões:** `IT_MANAGER`, `SUPER_ADMIN`
 
 **Payload:**
+
 ```json
 {
   "email": "novo@empresa.com",
@@ -521,11 +522,9 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Resposta (201):** Dados do usuário criado.
 
-**Erros:**
-| HTTP | Código | Situação |
-|------|--------|---------|
-| 409 | `CONFLICT` | E-mail já cadastrado |
-| 400 | `VALIDATION_ERROR` | Campos obrigatórios ausentes |
+**Erros:** | HTTP | Código | Situação | |------|--------|---------| | 409 |
+`CONFLICT` | E-mail já cadastrado | | 400 | `VALIDATION_ERROR` | Campos
+obrigatórios ausentes |
 
 ---
 
@@ -535,6 +534,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Próprio usuário (campos limitados) ou `IT_MANAGER+`
 
 **Payload (campos atualizáveis por IT_MANAGER):**
+
 ```json
 {
   "displayName": "Novo Nome",
@@ -560,33 +560,36 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /users/:id/personal-data — Exportar dados pessoais (LGPD)
 
-**Objetivo:** Exportar todos os dados pessoais de um usuário (direito de acesso LGPD Art. 18).
-**Permissões:** Próprio usuário ou `SUPER_ADMIN`
+**Objetivo:** Exportar todos os dados pessoais de um usuário (direito de acesso
+LGPD Art. 18). **Permissões:** Próprio usuário ou `SUPER_ADMIN`
 
-**Resposta (200):** JSON com todos os dados pessoais do usuário em todos os módulos.
+**Resposta (200):** JSON com todos os dados pessoais do usuário em todos os
+módulos.
 
 ---
 
 ### POST /users/:id/anonymize — Anonimizar usuário (LGPD)
 
-**Objetivo:** Anonimizar dados pessoais de usuário desligado.
-**Permissões:** `SUPER_ADMIN`
+**Objetivo:** Anonimizar dados pessoais de usuário desligado. **Permissões:**
+`SUPER_ADMIN`
 
 **Payload:**
+
 ```json
 {
   "reason": "Solicitação de eliminação - Art. 18 LGPD"
 }
 ```
 
-**Resposta (204):** Dados pessoais anonimizados. Registros de negócio preservados com `user_id` pseudônimo.
+**Resposta (204):** Dados pessoais anonimizados. Registros de negócio
+preservados com `user_id` pseudônimo.
 
 ---
 
 ### POST /users/:id/revoke-all-sessions — Revogar todas as sessões
 
-**Objetivo:** Revogar todas as sessões ativas de um usuário (emergência de segurança).
-**Permissões:** `IT_MANAGER`, `SUPER_ADMIN`
+**Objetivo:** Revogar todas as sessões ativas de um usuário (emergência de
+segurança). **Permissões:** `IT_MANAGER`, `SUPER_ADMIN`
 
 **Resposta (204):** Todas as sessões do usuário revogadas.
 
@@ -602,7 +605,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`
 
-**Resposta (200):** Lista de papéis com `id`, `name`, `displayName`, `priority`, `isSystem`.
+**Resposta (200):** Lista de papéis com `id`, `name`, `displayName`, `priority`,
+`isSystem`.
 
 ---
 
@@ -616,10 +620,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /roles/:id/users — Atribuir papel a usuário
 
-**Objetivo:** Vincular um papel a um usuário com justificativa.
-**Permissões:** `IT_MANAGER` (papéis até IT_SPECIALIST); `SUPER_ADMIN` (todos)
+**Objetivo:** Vincular um papel a um usuário com justificativa. **Permissões:**
+`IT_MANAGER` (papéis até IT_SPECIALIST); `SUPER_ADMIN` (todos)
 
 **Payload:**
+
 ```json
 {
   "userId": "uuid",
@@ -630,11 +635,9 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Resposta (201):** Registro de `UserRole` criado.
 
-**Erros:**
-| HTTP | Código | Situação |
-|------|--------|---------|
-| 409 | `CONFLICT` | Usuário já possui este papel |
-| 403 | `FORBIDDEN` | Papel requer SUPER_ADMIN e solicitante é IT_MANAGER |
+**Erros:** | HTTP | Código | Situação | |------|--------|---------| | 409 |
+`CONFLICT` | Usuário já possui este papel | | 403 | `FORBIDDEN` | Papel requer
+SUPER_ADMIN e solicitante é IT_MANAGER |
 
 ---
 
@@ -643,6 +646,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "reason": "Desligamento do colaborador"
@@ -658,13 +662,12 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Objetivo:** Consultar todas as permissões definidas no sistema por módulo.
 **Permissões:** `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `module` | string | Filtrar por módulo |
-| `roleId` | UUID | Filtrar por papel |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `module` | string | Filtrar por módulo | |
+`roleId` | UUID | Filtrar por papel |
 
-**Resposta (200):** Lista de permissões com `id`, `module`, `resource`, `action`, `role`.
+**Resposta (200):** Lista de permissões com `id`, `module`, `resource`,
+`action`, `role`.
 
 ---
 
@@ -676,18 +679,17 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /catalog — Listar itens do catálogo
 
-**Objetivo:** Retornar itens publicados do catálogo. Itens DRAFT visíveis apenas para IT_MANAGER+.
-**Permissões:** Pública para itens PUBLISHED; `IT_MANAGER+` para DRAFT
+**Objetivo:** Retornar itens publicados do catálogo. Itens DRAFT visíveis apenas
+para IT_MANAGER+. **Permissões:** Pública para itens PUBLISHED; `IT_MANAGER+`
+para DRAFT
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `q` | string | Busca por nome ou descrição |
-| `categoryId` | UUID | Filtrar por categoria |
-| `status` | enum | `PUBLISHED`, `DRAFT`, `DEPRECATED` |
-| `audience` | enum | `END_USER`, `TECHNICAL`, `BOTH` |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `q` | string | Busca por nome ou descrição |
+| `categoryId` | UUID | Filtrar por categoria | | `status` | enum | `PUBLISHED`,
+`DRAFT`, `DEPRECATED` | | `audience` | enum | `END_USER`, `TECHNICAL`, `BOTH` |
 
-**Resposta (200):** Lista paginada com `id`, `slug`, `name`, `category`, `status`, `audience`, `defaultTicketType`.
+**Resposta (200):** Lista paginada com `id`, `slug`, `name`, `category`,
+`status`, `audience`, `defaultTicketType`.
 
 ---
 
@@ -696,6 +698,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Pública para itens PUBLISHED
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -706,9 +709,15 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
     "descriptionTech": "...",
     "status": "PUBLISHED",
     "category": { "id": "uuid", "name": "Acesso e Segurança" },
-    "sla": { "priority": "MEDIUM", "responseMinutes": 240, "resolutionMinutes": 1440 },
+    "sla": {
+      "priority": "MEDIUM",
+      "responseMinutes": 240,
+      "resolutionMinutes": 1440
+    },
     "approvalRequired": true,
-    "formFields": [{ "name": "justification", "type": "textarea", "required": true }]
+    "formFields": [
+      { "name": "justification", "type": "textarea", "required": true }
+    ]
   }
 }
 ```
@@ -720,6 +729,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER`, `SUPER_ADMIN`
 
 **Payload:**
+
 ```json
 {
   "categoryId": "uuid",
@@ -730,7 +740,9 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
   "defaultTicketType": "REQUEST",
   "approvalRequired": true,
   "approvalFlow": [{ "step": 1, "approverRole": "IT_MANAGER" }],
-  "formSchema": [{ "name": "justification", "type": "textarea", "required": true }]
+  "formSchema": [
+    { "name": "justification", "type": "textarea", "required": true }
+  ]
 }
 ```
 
@@ -748,8 +760,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /catalog/:id/publish — Publicar item
 
-**Objetivo:** Mover item de DRAFT para PUBLISHED.
-**Permissões:** `IT_MANAGER+`
+**Objetivo:** Mover item de DRAFT para PUBLISHED. **Permissões:** `IT_MANAGER+`
 
 **Resposta (200):** Item com `status: PUBLISHED`.
 
@@ -761,6 +772,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 { "reason": "Substituído por novo processo de VPN" }
 ```
@@ -773,7 +785,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** Pública
 
-**Resposta (200):** Hierarquia de categorias com `id`, `name`, `slug`, `parentId`, `icon`, `children`.
+**Resposta (200):** Hierarquia de categorias com `id`, `name`, `slug`,
+`parentId`, `icon`, `children`.
 
 ---
 
@@ -787,13 +800,12 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_TECHNICIAN+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `priority` | enum | `CRITICAL`, `HIGH`, `MEDIUM`, `LOW` |
-| `catalogId` | UUID | SLAs de item específico do catálogo |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `priority` | enum | `CRITICAL`, `HIGH`,
+`MEDIUM`, `LOW` | | `catalogId` | UUID | SLAs de item específico do catálogo |
 
-**Resposta (200):** Lista de SLAs com `id`, `name`, `priority`, `responseMinutes`, `resolutionMinutes`, `workingHoursOnly`.
+**Resposta (200):** Lista de SLAs com `id`, `name`, `priority`,
+`responseMinutes`, `resolutionMinutes`, `workingHoursOnly`.
 
 ---
 
@@ -810,6 +822,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "catalogId": null,
@@ -836,16 +849,18 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`
 
-**Resposta (200):** Nova versão criada (versionamento automático). Versão anterior marcada como `is_current=false`.
+**Resposta (200):** Nova versão criada (versionamento automático). Versão
+anterior marcada como `is_current=false`.
 
 ---
 
 ### GET /sla/history/:ticketId — Histórico de SLA de um ticket
 
-**Objetivo:** Retornar todos os eventos de SLA de um ticket (início, pausas, retomadas, violações).
-**Permissões:** `IT_TECHNICIAN+`
+**Objetivo:** Retornar todos os eventos de SLA de um ticket (início, pausas,
+retomadas, violações). **Permissões:** `IT_TECHNICIAN+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -857,7 +872,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
     "pausedTotalMinutes": 45,
     "events": [
       { "event": "STARTED", "eventAt": "2026-06-09T13:00:00Z" },
-      { "event": "PAUSED", "eventAt": "2026-06-09T13:30:00Z", "reason": "Aguardando usuário" },
+      {
+        "event": "PAUSED",
+        "eventAt": "2026-06-09T13:30:00Z",
+        "reason": "Aguardando usuário"
+      },
       { "event": "RESUMED", "eventAt": "2026-06-09T14:15:00Z" }
     ]
   }
@@ -874,25 +893,21 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /tickets — Listar tickets
 
-**Permissões:** `END_USER` (apenas próprios); `IT_TECHNICIAN+` (todos do seu grupo); `IT_MANAGER+` (todos)
+**Permissões:** `END_USER` (apenas próprios); `IT_TECHNICIAN+` (todos do seu
+grupo); `IT_MANAGER+` (todos)
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `q` | string | Busca full-text em título e descrição |
-| `type` | enum | `INCIDENT`, `REQUEST`, `PROBLEM` |
-| `status` | enum/lista | `OPEN,IN_PROGRESS` |
-| `priority` | enum/lista | `CRITICAL,HIGH` |
-| `assigneeId` | UUID | Atribuído a |
-| `requesterId` | UUID | Solicitado por |
-| `departmentId` | UUID | Departamento |
-| `catalogId` | UUID | Item do catálogo |
-| `slaAtRisk` | boolean | `true` = apenas com SLA em risco |
-| `createdAt[gte]` | date | Filtro de período |
-| `createdAt[lte]` | date | Filtro de período |
-| `page`, `perPage`, `sort` | — | Paginação e ordenação |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `q` | string | Busca full-text em título e
+descrição | | `type` | enum | `INCIDENT`, `REQUEST`, `PROBLEM` | | `status` |
+enum/lista | `OPEN,IN_PROGRESS` | | `priority` | enum/lista | `CRITICAL,HIGH` |
+| `assigneeId` | UUID | Atribuído a | | `requesterId` | UUID | Solicitado por |
+| `departmentId` | UUID | Departamento | | `catalogId` | UUID | Item do catálogo
+| | `slaAtRisk` | boolean | `true` = apenas com SLA em risco | |
+`createdAt[gte]` | date | Filtro de período | | `createdAt[lte]` | date | Filtro
+de período | | `page`, `perPage`, `sort` | — | Paginação e ordenação |
 
-**Resposta (200):** Lista paginada. Campos: `id`, `number`, `title`, `type`, `status`, `priority`, `requester`, `assignee`, `slaStatus`, `createdAt`.
+**Resposta (200):** Lista paginada. Campos: `id`, `number`, `title`, `type`,
+`status`, `priority`, `requester`, `assignee`, `slaStatus`, `createdAt`.
 
 ---
 
@@ -901,6 +916,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Solicitante do ticket, técnico atribuído, ou `IT_TECHNICIAN+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -936,6 +952,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Qualquer usuário autenticado
 
 **Payload:**
+
 ```json
 {
   "type": "INCIDENT",
@@ -951,6 +968,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 ```
 
 **Resposta (201):**
+
 ```json
 {
   "data": {
@@ -970,6 +988,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Técnico atribuído ou `IT_MANAGER+`
 
 **Payload (campos atualizáveis):**
+
 ```json
 {
   "title": "Título atualizado",
@@ -988,10 +1007,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### DELETE /tickets/:id — Cancelar ticket
 
-**Objetivo:** Soft delete — cancela o ticket.
-**Permissões:** Solicitante (se OPEN) ou `IT_MANAGER+`
+**Objetivo:** Soft delete — cancela o ticket. **Permissões:** Solicitante (se
+OPEN) ou `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 { "reason": "Aberto por engano" }
 ```
@@ -1005,6 +1025,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Qualquer usuário com acesso ao ticket
 
 **Payload:**
+
 ```json
 {
   "content": "Verificado no servidor de autenticação — certificado expirado.",
@@ -1022,22 +1043,22 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** Solicitante vê apenas `PUBLIC`; `IT_TECHNICIAN+` vê todos
 
-**Resposta (200):** Lista de comentários com `id`, `author`, `content`, `type`, `source`, `createdAt`.
+**Resposta (200):** Lista de comentários com `id`, `author`, `content`, `type`,
+`source`, `createdAt`.
 
 ---
 
 ### POST /tickets/:id/attachments — Adicionar anexo
 
-**Permissões:** Qualquer usuário com acesso ao ticket
-**Content-Type:** `multipart/form-data`
+**Permissões:** Qualquer usuário com acesso ao ticket **Content-Type:**
+`multipart/form-data`
 
-**Form Fields:**
-| Campo | Tipo | Obrigatório | Limite |
-|-------|------|:-----------:|--------|
-| `file` | file | Sim | 50MB máx. |
-| `description` | string | Não | 300 chars |
+**Form Fields:** | Campo | Tipo | Obrigatório | Limite |
+|-------|------|:-----------:|--------| | `file` | file | Sim | 50MB máx. | |
+`description` | string | Não | 300 chars |
 
 **Resposta (201):**
+
 ```json
 {
   "data": {
@@ -1050,26 +1071,26 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 }
 ```
 
-**Erros:**
-| HTTP | Código | Situação |
-|------|--------|---------|
-| 400 | `FILE_TYPE_NOT_ALLOWED` | MIME type não permitido |
-| 400 | `FILE_SIZE_EXCEEDED` | Arquivo maior que 50MB |
+**Erros:** | HTTP | Código | Situação | |------|--------|---------| | 400 |
+`FILE_TYPE_NOT_ALLOWED` | MIME type não permitido | | 400 | `FILE_SIZE_EXCEEDED`
+| Arquivo maior que 50MB |
 
 ---
 
 ### GET /tickets/:id/attachments — Listar anexos
 
-**Resposta (200):** Lista de anexos com URL assinada para download (expira em 1h).
+**Resposta (200):** Lista de anexos com URL assinada para download (expira em
+1h).
 
 ---
 
 ### POST /tickets/:id/transfer — Transferir ticket
 
-**Objetivo:** Transferir atribuição para outro técnico ou grupo.
-**Permissões:** Técnico atribuído, `IT_MANAGER+`
+**Objetivo:** Transferir atribuição para outro técnico ou grupo. **Permissões:**
+Técnico atribuído, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "toAssigneeId": "uuid",
@@ -1087,6 +1108,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Técnico atribuído, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 { "reason": "Aguardando retorno do fornecedor externo" }
 ```
@@ -1108,6 +1130,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Técnico atribuído, `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "resolutionNotes": "Renovado certificado SSL do servidor de autenticação VPN.",
@@ -1121,9 +1144,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /tickets/:id/close — Fechar ticket
 
-**Permissões:** Solicitante do ticket (confirmação de resolução) ou `IT_MANAGER+` (24h após resolução, automático)
+**Permissões:** Solicitante do ticket (confirmação de resolução) ou
+`IT_MANAGER+` (24h após resolução, automático)
 
 **Payload:**
+
 ```json
 {
   "csatScore": 5,
@@ -1140,6 +1165,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Solicitante (até 7 dias após fechamento) ou `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 { "justification": "O problema voltou após reinicialização do sistema." }
 ```
@@ -1158,21 +1184,21 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_TECHNICIAN+`
 
-**Query Parameters adicionais (além dos de ticket):**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `classification` | enum | `HARDWARE`, `SOFTWARE`, `NETWORK`, `ACCESS`, `PERFORMANCE` |
-| `affectedAssetId` | UUID | Incidentes do ativo |
-| `problemId` | UUID | Incidentes vinculados a um problema |
-| `isKnownError` | boolean | Tem workaround publicado |
+**Query Parameters adicionais (além dos de ticket):** | Parâmetro | Tipo |
+Descrição | |-----------|------|-----------| | `classification` | enum |
+`HARDWARE`, `SOFTWARE`, `NETWORK`, `ACCESS`, `PERFORMANCE` | | `affectedAssetId`
+| UUID | Incidentes do ativo | | `problemId` | UUID | Incidentes vinculados a um
+problema | | `isKnownError` | boolean | Tem workaround publicado |
 
-**Resposta (200):** Lista paginada com campos de ticket + `incidentNumber`, `classification`, `affectedAsset`, `workaroundApplied`.
+**Resposta (200):** Lista paginada com campos de ticket + `incidentNumber`,
+`classification`, `affectedAsset`, `workaroundApplied`.
 
 ---
 
 ### GET /incidents/:id — Buscar incidente
 
-**Resposta (200):** Dados do ticket base + dados específicos do incidente (classification, affectedAsset, incidentImpacts, incidentCauses, linkedProblem).
+**Resposta (200):** Dados do ticket base + dados específicos do incidente
+(classification, affectedAsset, incidentImpacts, incidentCauses, linkedProblem).
 
 ---
 
@@ -1181,6 +1207,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Técnico atribuído, `IT_TECHNICIAN+`
 
 **Payload (campos específicos de incidente):**
+
 ```json
 {
   "classification": "SOFTWARE",
@@ -1200,6 +1227,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Técnico atribuído, `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "impactType": "ASSET",
@@ -1218,6 +1246,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_SPECIALIST+`
 
 **Payload:**
+
 ```json
 {
   "category": "SOFTWARE_BUG",
@@ -1232,10 +1261,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /incidents/:id/link-problem — Vincular a problema
 
-**Objetivo:** Associar o incidente a um problema existente.
-**Permissões:** `IT_SPECIALIST+`
+**Objetivo:** Associar o incidente a um problema existente. **Permissões:**
+`IT_SPECIALIST+`
 
 **Payload:**
+
 ```json
 { "problemId": "uuid" }
 ```
@@ -1254,20 +1284,20 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `END_USER` (próprias); `IT_TECHNICIAN+` (todas)
 
-**Query Parameters adicionais:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `requestTypeId` | UUID | Tipo de requisição |
-| `pendingApproval` | boolean | Aguardando minha aprovação |
-| `approvalStep` | integer | Etapa de aprovação atual |
+**Query Parameters adicionais:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `requestTypeId` | UUID | Tipo de requisição |
+| `pendingApproval` | boolean | Aguardando minha aprovação | | `approvalStep` |
+integer | Etapa de aprovação atual |
 
-**Resposta (200):** Lista com `requestNumber`, `requestType`, `status`, `currentApprovalStep`, `requester`.
+**Resposta (200):** Lista com `requestNumber`, `requestType`, `status`,
+`currentApprovalStep`, `requester`.
 
 ---
 
 ### GET /requests/:id — Buscar requisição
 
-**Resposta (200):** Dados do ticket base + `requestType`, `formData`, `approvalSteps` (com status de cada etapa), `fulfillmentNotes`.
+**Resposta (200):** Dados do ticket base + `requestType`, `formData`,
+`approvalSteps` (com status de cada etapa), `fulfillmentNotes`.
 
 ---
 
@@ -1277,18 +1307,19 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Aprovador da etapa atual
 
 **Payload:**
+
 ```json
 { "notes": "Aprovado — usuário tem necessidade justificada." }
 ```
 
-**Resposta (200):** Requisição com próxima etapa ou status `APPROVED` (se última etapa).
+**Resposta (200):** Requisição com próxima etapa ou status `APPROVED` (se última
+etapa).
 
-**Erros:**
-| HTTP | Código | Situação |
-|------|--------|---------|
-| 403 | `NOT_CURRENT_APPROVER` | Usuário não é o aprovador da etapa atual |
-| 409 | `ALREADY_DECIDED` | Etapa já foi decidida |
-| 422 | `REQUESTER_CANNOT_APPROVE_OWN` | Solicitante não pode aprovar a própria requisição |
+**Erros:** | HTTP | Código | Situação | |------|--------|---------| | 403 |
+`NOT_CURRENT_APPROVER` | Usuário não é o aprovador da etapa atual | | 409 |
+`ALREADY_DECIDED` | Etapa já foi decidida | | 422 |
+`REQUESTER_CANNOT_APPROVE_OWN` | Solicitante não pode aprovar a própria
+requisição |
 
 ---
 
@@ -1297,6 +1328,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Aprovador da etapa atual
 
 **Payload:**
+
 ```json
 { "reason": "Justificativa insuficiente para aquisição de notebook adicional." }
 ```
@@ -1310,6 +1342,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Aprovador da etapa atual
 
 **Payload:**
+
 ```json
 {
   "delegateToId": "uuid",
@@ -1323,10 +1356,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /requests/:id/fulfill — Registrar entrega
 
-**Objetivo:** Marcar a requisição como entregue/executada.
-**Permissões:** Técnico atribuído, `IT_TECHNICIAN+`
+**Objetivo:** Marcar a requisição como entregue/executada. **Permissões:**
+Técnico atribuído, `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 { "fulfillmentNotes": "Acesso VPN configurado e testado com o usuário." }
 ```
@@ -1340,7 +1374,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Objetivo:** Listar requisições aguardando aprovação do usuário autenticado.
 **Permissões:** Qualquer usuário (filtra por aprovações do próprio usuário)
 
-**Resposta (200):** Lista de requisições com `id`, `number`, `title`, `requester`, `estimatedValue`, `stepNumber`, `deadline`.
+**Resposta (200):** Lista de requisições com `id`, `number`, `title`,
+`requester`, `estimatedValue`, `stepNumber`, `deadline`.
 
 ---
 
@@ -1354,19 +1389,20 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_SPECIALIST+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `status` | enum | `UNDER_INVESTIGATION`, `ROOT_CAUSE_IDENTIFIED`, `KNOWN_ERROR`, `RESOLVED` |
-| `isKnownError` | boolean | Apenas erros conhecidos |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `status` | enum | `UNDER_INVESTIGATION`,
+`ROOT_CAUSE_IDENTIFIED`, `KNOWN_ERROR`, `RESOLVED` | | `isKnownError` | boolean
+| Apenas erros conhecidos |
 
-**Resposta (200):** Lista com `problemNumber`, `title`, `status`, `isKnownError`, `linkedIncidentsCount`.
+**Resposta (200):** Lista com `problemNumber`, `title`, `status`,
+`isKnownError`, `linkedIncidentsCount`.
 
 ---
 
 ### GET /problems/:id — Buscar problema
 
-**Resposta (200):** Dados do ticket base + `status`, `isKnownError`, `rootCauses`, `workarounds`, `linkedIncidents`.
+**Resposta (200):** Dados do ticket base + `status`, `isKnownError`,
+`rootCauses`, `workarounds`, `linkedIncidents`.
 
 ---
 
@@ -1375,6 +1411,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_SPECIALIST+`
 
 **Payload:**
+
 ```json
 {
   "title": "VPN com falha recorrente em certificado SSL",
@@ -1395,6 +1432,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_SPECIALIST+`
 
 **Payload:**
+
 ```json
 {
   "description": "Processo de renovação de certificado SSL não automatizado",
@@ -1413,6 +1451,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_SPECIALIST+`
 
 **Payload:**
+
 ```json
 {
   "title": "Reiniciar cliente VPN resolve temporariamente",
@@ -1429,7 +1468,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`
 
-**Resposta (200):** Workaround com status `PUBLISHED`. Rascunho de artigo KB gerado automaticamente.
+**Resposta (200):** Workaround com status `PUBLISHED`. Rascunho de artigo KB
+gerado automaticamente.
 
 ---
 
@@ -1438,7 +1478,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Objetivo:** Listar problemas com workarounds publicados (KEDB).
 **Permissões:** `IT_TECHNICIAN+`
 
-**Resposta (200):** Lista de erros conhecidos com `title`, `workaround`, `catalog`.
+**Resposta (200):** Lista de erros conhecidos com `title`, `workaround`,
+`catalog`.
 
 ---
 
@@ -1452,24 +1493,22 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_TECHNICIAN+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `q` | string | Busca por tag, nome, serial |
-| `status` | enum/lista | Status do ativo |
-| `categoryId` | UUID | Categoria |
-| `departmentId` | UUID | Departamento |
-| `assignedToId` | UUID | Atribuído ao usuário |
-| `warrantyEnding` | integer | Garantia vencendo em X dias |
-| `glpiSynced` | boolean | Apenas sincronizados com GLPI |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `q` | string | Busca por tag, nome, serial |
+| `status` | enum/lista | Status do ativo | | `categoryId` | UUID | Categoria |
+| `departmentId` | UUID | Departamento | | `assignedToId` | UUID | Atribuído ao
+usuário | | `warrantyEnding` | integer | Garantia vencendo em X dias | |
+`glpiSynced` | boolean | Apenas sincronizados com GLPI |
 
-**Resposta (200):** Lista com `assetTag`, `name`, `category`, `status`, `assignedTo`, `warrantyEnd`, `currentValue`.
+**Resposta (200):** Lista com `assetTag`, `name`, `category`, `status`,
+`assignedTo`, `warrantyEnd`, `currentValue`.
 
 ---
 
 ### GET /assets/:id — Buscar ativo
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -1483,8 +1522,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
     "assignedTo": { "id": "uuid", "displayName": "João Silva" },
     "department": { "id": "uuid", "name": "TI - Desenvolvimento" },
     "purchaseDate": "2024-01-15",
-    "purchaseValue": 8500.00,
-    "currentValue": 6375.00,
+    "purchaseValue": 8500.0,
+    "currentValue": 6375.0,
     "warrantyStart": "2024-01-15",
     "warrantyEnd": "2027-01-15",
     "supplier": { "id": "uuid", "name": "Dell Technologies" },
@@ -1502,6 +1541,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "categoryId": "uuid",
@@ -1512,13 +1552,17 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
   "manufacturer": "Dell Technologies",
   "location": "Almoxarifado TI",
   "purchaseDate": "2026-06-01",
-  "purchaseValue": 7200.00,
+  "purchaseValue": 7200.0,
   "warrantyStart": "2026-06-01",
   "warrantyEnd": "2029-06-01",
   "warrantyProvider": "Dell",
   "supplierId": "uuid",
   "contractId": "uuid",
-  "customFields": { "processor": "Intel Core i5", "ram": "16GB", "storage": "512GB SSD" }
+  "customFields": {
+    "processor": "Intel Core i5",
+    "ram": "16GB",
+    "storage": "512GB SSD"
+  }
 }
 ```
 
@@ -1539,6 +1583,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "userId": "uuid",
@@ -1549,10 +1594,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Resposta (200):** Ativo com status `ALLOCATED`.
 
-**Erros:**
-| HTTP | Código | Situação |
-|------|--------|---------|
-| 409 | `ASSET_ALREADY_ALLOCATED` | Ativo já está alocado |
+**Erros:** | HTTP | Código | Situação | |------|--------|---------| | 409 |
+`ASSET_ALREADY_ALLOCATED` | Ativo já está alocado |
 
 ---
 
@@ -1561,6 +1604,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "conditionOnReturn": "GOOD",
@@ -1577,6 +1621,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "type": "PREVENTIVE",
@@ -1596,6 +1641,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_SPECIALIST+` (requer aprovação `IT_MANAGER`)
 
 **Payload:**
+
 ```json
 {
   "reason": "Fim da vida útil — 5 anos de uso",
@@ -1609,10 +1655,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /assets/:id/history — Histórico do ativo
 
-**Objetivo:** Retornar histórico completo: atribuições, movimentações, manutenções, chamados relacionados.
-**Permissões:** `IT_TECHNICIAN+`
+**Objetivo:** Retornar histórico completo: atribuições, movimentações,
+manutenções, chamados relacionados. **Permissões:** `IT_TECHNICIAN+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -1631,6 +1678,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "fromLocation": "Escritório SP - Andar 3",
@@ -1654,6 +1702,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -1674,6 +1723,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "ticketIds": ["uuid", "uuid"],
@@ -1684,6 +1734,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 `direction`: `FROM_GLPI` (GLPI → SGTI) ou `TO_GLPI` (SGTI → GLPI)
 
 **Resposta (202):** Job de sincronização iniciado.
+
 ```json
 {
   "data": { "jobId": "uuid", "status": "QUEUED", "estimatedDuration": "30s" }
@@ -1694,8 +1745,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /integrations/glpi/sync/assets — Sincronizar inventário de ativos
 
-**Objetivo:** Importar inventário do GLPI para o SGTI.
-**Permissões:** `IT_MANAGER+`
+**Objetivo:** Importar inventário do GLPI para o SGTI. **Permissões:**
+`IT_MANAGER+`
 
 **Resposta (202):** Job iniciado.
 
@@ -1706,6 +1757,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -1726,7 +1778,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`
 
-**Resposta (200):** Lista de `SyncFailureRecord` com `integration`, `operation`, `error`, `attempts`, `nextRetryAt`.
+**Resposta (200):** Lista de `SyncFailureRecord` com `integration`, `operation`,
+`error`, `attempts`, `nextRetryAt`.
 
 ---
 
@@ -1740,14 +1793,13 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `iamStatus` | enum | `ACTIVE`, `PENDING_PROVISIONING`, `PENDING_DEPROVISIONING` |
-| `reviewOverdue` | boolean | Revisão de acesso atrasada |
-| `departmentId` | UUID | Por departamento |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `iamStatus` | enum | `ACTIVE`,
+`PENDING_PROVISIONING`, `PENDING_DEPROVISIONING` | | `reviewOverdue` | boolean |
+Revisão de acesso atrasada | | `departmentId` | UUID | Por departamento |
 
-**Resposta (200):** Lista com `id`, `displayName`, `iamStatus`, `lastAccessReviewAt`, `nextAccessReviewDue`, `provisioningStatus`.
+**Resposta (200):** Lista com `id`, `displayName`, `iamStatus`,
+`lastAccessReviewAt`, `nextAccessReviewDue`, `provisioningStatus`.
 
 ---
 
@@ -1755,16 +1807,18 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`
 
-**Resposta (200):** Dados completos da identidade incluindo grupos, permissões individuais e referência Google.
+**Resposta (200):** Dados completos da identidade incluindo grupos, permissões
+individuais e referência Google.
 
 ---
 
 ### POST /identity/users/:id/provision — Provisionar usuário
 
-**Objetivo:** Iniciar processo de provisionamento de acesso (criação de conta Google e permissões).
-**Permissões:** `IT_MANAGER+`
+**Objetivo:** Iniciar processo de provisionamento de acesso (criação de conta
+Google e permissões). **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "roles": ["IT_TECHNICIAN"],
@@ -1779,15 +1833,17 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /identity/users/:id/deprovision — Desprovisionar usuário
 
-**Objetivo:** Revogar todos os acessos e desativar conta Google.
-**Permissões:** `IT_MANAGER+`
+**Objetivo:** Revogar todos os acessos e desativar conta Google. **Permissões:**
+`IT_MANAGER+`
 
 **Payload:**
+
 ```json
 { "reason": "Desligamento em 10/06/2026 — processo #DEL-2026-042" }
 ```
 
-**Resposta (202):** Desprovisionamento iniciado. Todas as sessões revogadas imediatamente.
+**Resposta (202):** Desprovisionamento iniciado. Todas as sessões revogadas
+imediatamente.
 
 ---
 
@@ -1796,6 +1852,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 { "reason": "Suspeita de comprometimento de credenciais" }
 ```
@@ -1806,10 +1863,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /identity/access-reviews — Iniciar revisão de acessos
 
-**Objetivo:** Criar ciclo de revisão periódica de acessos.
-**Permissões:** `IT_MANAGER+`
+**Objetivo:** Criar ciclo de revisão periódica de acessos. **Permissões:**
+`IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "title": "Revisão Trimestral Q2 2026",
@@ -1825,10 +1883,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /identity/access-reviews/pending — Pendências de revisão
 
-**Objetivo:** Listar identidades com revisão de acesso vencida ou próxima do vencimento.
-**Permissões:** `IT_MANAGER+`
+**Objetivo:** Listar identidades com revisão de acesso vencida ou próxima do
+vencimento. **Permissões:** `IT_MANAGER+`
 
-**Resposta (200):** Lista de identidades com `displayName`, `lastAccessReviewAt`, `nextAccessReviewDue`, `daysSinceReview`.
+**Resposta (200):** Lista de identidades com `displayName`,
+`lastAccessReviewAt`, `nextAccessReviewDue`, `daysSinceReview`.
 
 ---
 
@@ -1836,7 +1895,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`
 
-**Resposta (200):** Lista de grupos com `id`, `name`, `type`, `memberCount`, `googleGroupEmail`.
+**Resposta (200):** Lista de grupos com `id`, `name`, `type`, `memberCount`,
+`googleGroupEmail`.
 
 ---
 
@@ -1845,6 +1905,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 { "userId": "uuid" }
 ```
@@ -1872,6 +1933,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -1891,6 +1953,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "syncType": "INCREMENTAL",
@@ -1906,17 +1969,16 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /integrations/google/users — Listar usuários Google
 
-**Objetivo:** Consultar usuários diretamente no Google Workspace (sem passar pelo cache SGTI).
-**Permissões:** `IT_MANAGER+`
+**Objetivo:** Consultar usuários diretamente no Google Workspace (sem passar
+pelo cache SGTI). **Permissões:** `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `q` | string | Busca por nome ou e-mail |
-| `orgUnit` | string | Filtrar por unidade organizacional |
-| `suspended` | boolean | Contas suspensas |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `q` | string | Busca por nome ou e-mail | |
+`orgUnit` | string | Filtrar por unidade organizacional | | `suspended` |
+boolean | Contas suspensas |
 
-**Resposta (200):** Lista de usuários Google com `googleUserId`, `email`, `displayName`, `orgUnit`, `suspended`.
+**Resposta (200):** Lista de usuários Google com `googleUserId`, `email`,
+`displayName`, `orgUnit`, `suspended`.
 
 ---
 
@@ -1930,19 +1992,19 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `COMPLIANCE_OFFICER`, `AUDITOR`, `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `status` | enum | `PLANNED`, `IN_PROGRESS`, `COMPLETED` |
-| `type` | enum | `INTERNAL`, `EXTERNAL`, `REGULATORY` |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `status` | enum | `PLANNED`, `IN_PROGRESS`,
+`COMPLETED` | | `type` | enum | `INTERNAL`, `EXTERNAL`, `REGULATORY` |
 
-**Resposta (200):** Lista com `id`, `title`, `type`, `status`, `responsible`, `plannedStart`, `plannedEnd`, `maturityScore`.
+**Resposta (200):** Lista com `id`, `title`, `type`, `status`, `responsible`,
+`plannedStart`, `plannedEnd`, `maturityScore`.
 
 ---
 
 ### GET /compliance/audits/:id — Buscar auditoria
 
-**Resposta (200):** Dados completos incluindo normas, achados, planos de ação e métricas de maturidade.
+**Resposta (200):** Dados completos incluindo normas, achados, planos de ação e
+métricas de maturidade.
 
 ---
 
@@ -1951,6 +2013,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `COMPLIANCE_OFFICER+`
 
 **Payload:**
+
 ```json
 {
   "title": "Auditoria ISO 27001 - Q2 2026",
@@ -1972,12 +2035,10 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `COMPLIANCE_OFFICER`, `AUDITOR`, `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `type` | enum | `NON_CONFORMANCE`, `OBSERVATION`, `OPPORTUNITY` |
-| `severity` | enum | `CRITICAL`, `MAJOR`, `MINOR` |
-| `status` | enum | `OPEN`, `IN_TREATMENT`, `RESOLVED` |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `type` | enum | `NON_CONFORMANCE`,
+`OBSERVATION`, `OPPORTUNITY` | | `severity` | enum | `CRITICAL`, `MAJOR`,
+`MINOR` | | `status` | enum | `OPEN`, `IN_TREATMENT`, `RESOLVED` |
 
 ---
 
@@ -1986,6 +2047,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `COMPLIANCE_OFFICER+`
 
 **Payload:**
+
 ```json
 {
   "normItemId": "uuid",
@@ -2004,15 +2066,13 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### POST /compliance/findings/:id/evidences — Adicionar evidência
 
-**Permissões:** `COMPLIANCE_OFFICER+`
-**Content-Type:** `multipart/form-data`
+**Permissões:** `COMPLIANCE_OFFICER+` **Content-Type:** `multipart/form-data`
 
-**Form Fields:**
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|:-----------:|-----------|
-| `file` | file | Condicional | Arquivo de evidência (max. 50MB) |
-| `description` | string | Sim | Descrição da evidência |
-| `evidenceType` | enum | Sim | `DOCUMENT`, `SCREENSHOT`, `LOG`, `REPORT` |
+**Form Fields:** | Campo | Tipo | Obrigatório | Descrição |
+|-------|------|:-----------:|-----------| | `file` | file | Condicional |
+Arquivo de evidência (max. 50MB) | | `description` | string | Sim | Descrição da
+evidência | | `evidenceType` | enum | Sim | `DOCUMENT`, `SCREENSHOT`, `LOG`,
+`REPORT` |
 
 **Resposta (201):** Evidência com `id`, `fileHash`, `reviewStatus: PENDING`.
 
@@ -2031,13 +2091,17 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `COMPLIANCE_OFFICER+`
 
 **Payload:**
+
 ```json
 {
   "responsibleId": "uuid",
   "rootCauseAnalysis": "Processo de revisão de políticas não formalizado...",
   "actions": [
     { "description": "Revisar política de backup", "dueDate": "2026-07-31" },
-    { "description": "Aprovar nova versão da política", "dueDate": "2026-08-15" }
+    {
+      "description": "Aprovar nova versão da política",
+      "dueDate": "2026-08-15"
+    }
   ],
   "targetDate": "2026-08-31"
 }
@@ -2051,7 +2115,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `COMPLIANCE_OFFICER`, `AUDITOR`, `IT_MANAGER+`
 
-**Resposta (200):** Lista de normas com `id`, `name`, `shortName`, `type`, `version`, `isCurrent`.
+**Resposta (200):** Lista de normas com `id`, `name`, `shortName`, `type`,
+`version`, `isCurrent`.
 
 ---
 
@@ -2071,21 +2136,20 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `fiscalYear` | integer | Ano fiscal |
-| `type` | enum | `CAPEX`, `OPEX` |
-| `costCenterId` | UUID | Centro de custo |
-| `status` | enum | `DRAFT`, `APPROVED`, `ACTIVE`, `CLOSED` |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `fiscalYear` | integer | Ano fiscal | |
+`type` | enum | `CAPEX`, `OPEX` | | `costCenterId` | UUID | Centro de custo | |
+`status` | enum | `DRAFT`, `APPROVED`, `ACTIVE`, `CLOSED` |
 
-**Resposta (200):** Lista com `id`, `fiscalYear`, `type`, `costCenter`, `totalAmount`, `spentAmount`, `utilizationPercentage`, `status`.
+**Resposta (200):** Lista com `id`, `fiscalYear`, `type`, `costCenter`,
+`totalAmount`, `spentAmount`, `utilizationPercentage`, `status`.
 
 ---
 
 ### GET /finance/budgets/:id — Buscar orçamento
 
-**Resposta (200):** Dados completos incluindo `budgetItems`, despesas do período, variância vs. orçado.
+**Resposta (200):** Dados completos incluindo `budgetItems`, despesas do
+período, variância vs. orçado.
 
 ---
 
@@ -2094,15 +2158,24 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "fiscalYear": 2026,
   "type": "OPEX",
   "costCenterId": "uuid",
-  "totalAmount": 150000.00,
+  "totalAmount": 150000.0,
   "items": [
-    { "category": "Licenças de Software", "description": "Microsoft 365", "plannedAmount": 45000.00 },
-    { "category": "Serviços Cloud", "description": "AWS", "plannedAmount": 36000.00 }
+    {
+      "category": "Licenças de Software",
+      "description": "Microsoft 365",
+      "plannedAmount": 45000.0
+    },
+    {
+      "category": "Serviços Cloud",
+      "description": "AWS",
+      "plannedAmount": 36000.0
+    }
   ]
 }
 ```
@@ -2123,16 +2196,14 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `period` | string | `YYYY-MM` (ex: `2026-06`) |
-| `costCenterId` | UUID | Centro de custo |
-| `supplierId` | UUID | Fornecedor |
-| `status` | enum | `PENDING`, `APPROVED`, `PAID` |
-| `category` | string | Categoria da despesa |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `period` | string | `YYYY-MM` (ex: `2026-06`)
+| | `costCenterId` | UUID | Centro de custo | | `supplierId` | UUID | Fornecedor
+| | `status` | enum | `PENDING`, `APPROVED`, `PAID` | | `category` | string |
+Categoria da despesa |
 
-**Resposta (200):** Lista paginada com `id`, `description`, `amount`, `expenseDate`, `costCenter`, `supplier`, `status`.
+**Resposta (200):** Lista paginada com `id`, `description`, `amount`,
+`expenseDate`, `costCenter`, `supplier`, `status`.
 
 ---
 
@@ -2141,6 +2212,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "costCenterId": "uuid",
@@ -2148,7 +2220,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
   "contractId": "uuid",
   "category": "Licenças de Software",
   "description": "Renovação Microsoft 365 - Junho 2026",
-  "amount": 3750.00,
+  "amount": 3750.0,
   "expenseDate": "2026-06-01",
   "invoiceNumber": "NF-2026-12345"
 }
@@ -2162,7 +2234,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
-**Resposta (200):** Lista com `id`, `description`, `amount`, `investmentDate`, `costCenter`, `asset`, `project`, `status`.
+**Resposta (200):** Lista com `id`, `description`, `amount`, `investmentDate`,
+`costCenter`, `asset`, `project`, `status`.
 
 ---
 
@@ -2171,13 +2244,14 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "costCenterId": "uuid",
   "assetId": "uuid",
   "projectId": null,
   "description": "Aquisição Notebook Dell XPS 15",
-  "amount": 8500.00,
+  "amount": 8500.0,
   "investmentDate": "2026-06-09",
   "depreciationYears": 3,
   "depreciationStart": "2026-07-01"
@@ -2192,12 +2266,10 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`, `PROCUREMENT_MANAGER`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `q` | string | Busca por nome ou CNPJ |
-| `category` | enum | Categoria do fornecedor |
-| `isActive` | boolean | Apenas ativos |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `q` | string | Busca por nome ou CNPJ | |
+`category` | enum | Categoria do fornecedor | | `isActive` | boolean | Apenas
+ativos |
 
 ---
 
@@ -2206,6 +2278,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "name": "Dell Technologies Brasil Ltda",
@@ -2226,14 +2299,13 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `supplierId` | UUID | Por fornecedor |
-| `status` | enum | `ACTIVE`, `EXPIRING_SOON`, `EXPIRED` |
-| `expiringInDays` | integer | Contratos vencendo em X dias |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `supplierId` | UUID | Por fornecedor | |
+`status` | enum | `ACTIVE`, `EXPIRING_SOON`, `EXPIRED` | | `expiringInDays` |
+integer | Contratos vencendo em X dias |
 
-**Resposta (200):** Lista com `id`, `number`, `title`, `supplier`, `value`, `endDate`, `status`, `daysUntilExpiry`.
+**Resposta (200):** Lista com `id`, `number`, `title`, `supplier`, `value`,
+`endDate`, `status`, `daysUntilExpiry`.
 
 ---
 
@@ -2242,6 +2314,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "supplierId": "uuid",
@@ -2250,7 +2323,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
   "type": "MAINTENANCE",
   "startDate": "2026-01-01",
   "endDate": "2026-12-31",
-  "value": 18000.00,
+  "value": 18000.0,
   "paymentFrequency": "MONTHLY",
   "autoRenew": false,
   "alertDaysBefore": 90,
@@ -2268,13 +2341,12 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Objetivo:** Relatório de rateio de custos de TI por unidade de negócio.
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `period` | string | `YYYY-MM` |
-| `businessUnitId` | UUID | Por unidade de negócio |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `period` | string | `YYYY-MM` | |
+`businessUnitId` | UUID | Por unidade de negócio |
 
-**Resposta (200):** Rateio por BU com `totalAllocated`, `allocationPercentage`, `allocationBasis`.
+**Resposta (200):** Rateio por BU com `totalAllocated`, `allocationPercentage`,
+`allocationBasis`.
 
 ---
 
@@ -2288,15 +2360,13 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_TECHNICIAN+` (próprias); `IT_MANAGER+` (todas)
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `status` | enum | Status da solicitação |
-| `category` | enum | Categoria da compra |
-| `priority` | enum | Prioridade |
-| `requesterId` | UUID | Solicitante |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `status` | enum | Status da solicitação | |
+`category` | enum | Categoria da compra | | `priority` | enum | Prioridade | |
+`requesterId` | UUID | Solicitante |
 
-**Resposta (200):** Lista com `number`, `title`, `category`, `estimatedValue`, `status`, `requester`, `neededBy`.
+**Resposta (200):** Lista com `number`, `title`, `category`, `estimatedValue`,
+`status`, `requester`, `neededBy`.
 
 ---
 
@@ -2305,12 +2375,13 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "category": "HARDWARE",
   "title": "Notebook para novo colaborador",
   "justification": "Admissão em 15/06/2026 — colaborador João Silva (matrícula 1234)",
-  "estimatedValue": 7500.00,
+  "estimatedValue": 7500.0,
   "costCenterId": "uuid",
   "budgetId": "uuid",
   "projectId": null,
@@ -2328,6 +2399,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+` (conforme threshold de valor)
 
 **Payload:**
+
 ```json
 { "notes": "Aprovado dentro do orçamento Q2" }
 ```
@@ -2340,7 +2412,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`, `FINANCIAL_ANALYST`
 
-**Resposta (200):** Lista com `orderNumber`, `supplier`, `totalValue`, `status`, `expectedDelivery`.
+**Resposta (200):** Lista com `orderNumber`, `supplier`, `totalValue`, `status`,
+`expectedDelivery`.
 
 ---
 
@@ -2349,12 +2422,13 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "purchaseRequestId": "uuid",
   "supplierId": "uuid",
   "orderNumber": "PO-2026-001",
-  "totalValue": 7500.00,
+  "totalValue": 7500.0,
   "expectedDelivery": "2026-06-13",
   "deliveryAddress": "Rua das Flores, 123 - São Paulo/SP",
   "items": [
@@ -2362,7 +2436,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
       "description": "Notebook Dell Latitude 5540",
       "quantity": 1,
       "unit": "unidade",
-      "unitPrice": 7500.00
+      "unitPrice": 7500.0
     }
   ]
 }
@@ -2377,6 +2451,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "items": [
@@ -2394,7 +2469,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 }
 ```
 
-**Resposta (200):** Pedido atualizado. Se `createAsset=true`, ativo criado automaticamente.
+**Resposta (200):** Pedido atualizado. Se `createAsset=true`, ativo criado
+automaticamente.
 
 ---
 
@@ -2408,21 +2484,20 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_TECHNICIAN+` (participantes); `IT_MANAGER+` (todos)
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `status` | enum | Status do projeto |
-| `health` | enum | `GREEN`, `YELLOW`, `RED` |
-| `managerId` | UUID | Gerente do projeto |
-| `sponsorId` | UUID | Patrocinador |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `status` | enum | Status do projeto | |
+`health` | enum | `GREEN`, `YELLOW`, `RED` | | `managerId` | UUID | Gerente do
+projeto | | `sponsorId` | UUID | Patrocinador |
 
-**Resposta (200):** Lista com `code`, `name`, `status`, `health`, `manager`, `plannedEnd`, `actualEnd`, `budgetAmount`, `spentAmount`.
+**Resposta (200):** Lista com `code`, `name`, `status`, `health`, `manager`,
+`plannedEnd`, `actualEnd`, `budgetAmount`, `spentAmount`.
 
 ---
 
 ### GET /projects/:id — Buscar projeto
 
-**Resposta (200):** Dados completos incluindo `tasks`, `risks`, `costs`, `githubRepos`, `healthHistory`.
+**Resposta (200):** Dados completos incluindo `tasks`, `risks`, `costs`,
+`githubRepos`, `healthHistory`.
 
 ---
 
@@ -2431,6 +2506,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "name": "Migração ERP para Cloud",
@@ -2440,7 +2516,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
   "managerId": "uuid",
   "plannedStart": "2026-07-01",
   "plannedEnd": "2026-12-31",
-  "budgetAmount": 250000.00,
+  "budgetAmount": 250000.0,
   "githubRepos": ["empresa/erp-cloud-migration"]
 }
 ```
@@ -2468,6 +2544,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Gerente do projeto, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "title": "Análise de infraestrutura atual",
@@ -2486,6 +2563,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 ### PATCH /projects/:id/tasks/:taskId — Atualizar tarefa
 
 **Payload:**
+
 ```json
 {
   "status": "IN_PROGRESS",
@@ -2503,11 +2581,12 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Gerente do projeto, `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "type": "SERVICE",
   "description": "Consultoria de arquitetura cloud",
-  "amount": 15000.00,
+  "amount": 15000.0,
   "incurredDate": "2026-07-20",
   "expenseId": "uuid"
 }
@@ -2525,19 +2604,18 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /knowledge — Listar artigos
 
-**Permissões:** Pública (apenas PUBLISHED); `IT_TECHNICIAN+` (inclui DRAFT e DRAFT_AI)
+**Permissões:** Pública (apenas PUBLISHED); `IT_TECHNICIAN+` (inclui DRAFT e
+DRAFT_AI)
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `q` | string | Busca full-text |
-| `categoryId` | UUID | Por categoria |
-| `tag` | string | Por tag (slug) |
-| `audience` | enum | `END_USER`, `TECHNICAL`, `MANAGEMENT` |
-| `status` | enum | `PUBLISHED`, `DRAFT`, `UNDER_REVIEW` |
-| `aiGenerated` | boolean | Gerado pela IA |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `q` | string | Busca full-text | |
+`categoryId` | UUID | Por categoria | | `tag` | string | Por tag (slug) | |
+`audience` | enum | `END_USER`, `TECHNICAL`, `MANAGEMENT` | | `status` | enum |
+`PUBLISHED`, `DRAFT`, `UNDER_REVIEW` | | `aiGenerated` | boolean | Gerado pela
+IA |
 
-**Resposta (200):** Lista com `id`, `slug`, `title`, `excerpt`, `category`, `audience`, `viewCount`, `rating`, `publishedAt`.
+**Resposta (200):** Lista com `id`, `slug`, `title`, `excerpt`, `category`,
+`audience`, `viewCount`, `rating`, `publishedAt`.
 
 ---
 
@@ -2546,6 +2624,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Pública para PUBLISHED
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -2572,17 +2651,16 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /knowledge/search — Busca inteligente
 
-**Objetivo:** Busca semântica com full-text, ordenação por relevância e destaque do trecho.
-**Permissões:** Pública
+**Objetivo:** Busca semântica com full-text, ordenação por relevância e destaque
+do trecho. **Permissões:** Pública
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `q` | string | Consulta de busca (obrigatório) |
-| `audience` | enum | Filtrar por público |
-| `categoryId` | UUID | Filtrar por categoria |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `q` | string | Consulta de busca
+(obrigatório) | | `audience` | enum | Filtrar por público | | `categoryId` |
+UUID | Filtrar por categoria |
 
 **Resposta (200):**
+
 ```json
 {
   "data": [
@@ -2606,6 +2684,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Payload:**
+
 ```json
 {
   "categoryId": "uuid",
@@ -2624,7 +2703,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** Autor ou `IT_MANAGER+`
 
-**Resposta (200):** Nova versão criada; versão anterior marcada como `is_current=false`.
+**Resposta (200):** Nova versão criada; versão anterior marcada como
+`is_current=false`.
 
 ---
 
@@ -2649,6 +2729,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 { "reason": "Processo substituído por novo fluxo de VPN" }
 ```
@@ -2662,6 +2743,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Qualquer usuário autenticado
 
 **Payload:**
+
 ```json
 {
   "rating": "HELPFUL",
@@ -2682,7 +2764,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /knowledge/tags — Listar tags
 
-**Resposta (200):** Lista de tags com `id`, `name`, `slug`, `usageCount` ordenadas por uso.
+**Resposta (200):** Lista de tags com `id`, `name`, `slug`, `usageCount`
+ordenadas por uso.
 
 ---
 
@@ -2694,17 +2777,16 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /notifications — Listar notificações
 
-**Objetivo:** Retornar notificações do usuário autenticado.
-**Permissões:** Qualquer usuário autenticado
+**Objetivo:** Retornar notificações do usuário autenticado. **Permissões:**
+Qualquer usuário autenticado
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `status` | enum | `PENDING`, `READ`, `UNREAD` |
-| `priority` | enum | `URGENT`, `HIGH`, `NORMAL`, `LOW` |
-| `channel` | enum | `IN_APP`, `EMAIL` |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `status` | enum | `PENDING`, `READ`, `UNREAD`
+| | `priority` | enum | `URGENT`, `HIGH`, `NORMAL`, `LOW` | | `channel` | enum |
+`IN_APP`, `EMAIL` |
 
 **Resposta (200):**
+
 ```json
 {
   "data": [
@@ -2731,10 +2813,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /notifications/unread-count — Contador de não lidas
 
-**Objetivo:** Retornar apenas o número de notificações não lidas (para o badge da interface).
-**Permissões:** Qualquer usuário autenticado
+**Objetivo:** Retornar apenas o número de notificações não lidas (para o badge
+da interface). **Permissões:** Qualquer usuário autenticado
 
 **Resposta (200):**
+
 ```json
 { "data": { "unreadCount": 7 } }
 ```
@@ -2753,7 +2836,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** Qualquer usuário autenticado
 
-**Resposta (204):** Todas as notificações `PENDING` do usuário marcadas como `READ`.
+**Resposta (204):** Todas as notificações `PENDING` do usuário marcadas como
+`READ`.
 
 ---
 
@@ -2778,6 +2862,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_MANAGER+`
 
 **Payload:**
+
 ```json
 {
   "titleTemplate": "{{entityType}} {{action}}: {{entityNumber}}",
@@ -2798,13 +2883,12 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_TECHNICIAN+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `ticketId` | UUID | Threads vinculadas a um ticket |
-| `status` | enum | `OPEN`, `CLOSED` |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `ticketId` | UUID | Threads vinculadas a um
+ticket | | `status` | enum | `OPEN`, `CLOSED` |
 
-**Resposta (200):** Lista de threads com `id`, `subject`, `participantEmails`, `messageCount`, `ticket`, `status`.
+**Resposta (200):** Lista de threads com `id`, `subject`, `participantEmails`,
+`messageCount`, `ticket`, `status`.
 
 ---
 
@@ -2812,7 +2896,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_TECHNICIAN+`
 
-**Resposta (200):** Lista de mensagens com `id`, `direction`, `fromEmail`, `toEmails`, `subject`, `bodyText`, `status`, `sentAt`.
+**Resposta (200):** Lista de mensagens com `id`, `direction`, `fromEmail`,
+`toEmails`, `subject`, `bodyText`, `status`, `sentAt`.
 
 ---
 
@@ -2830,15 +2915,15 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /dashboard/executive — Dashboard Executivo
 
-**Objetivo:** KPIs estratégicos consolidados para alta direção.
-**Permissões:** `EXECUTIVE`, `IT_MANAGER+`
+**Objetivo:** KPIs estratégicos consolidados para alta direção. **Permissões:**
+`EXECUTIVE`, `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `period` | string | `current_month`, `last_month`, `current_quarter` |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `period` | string | `current_month`,
+`last_month`, `current_quarter` |
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -2892,6 +2977,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `IT_TECHNICIAN+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -2921,7 +3007,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `COMPLIANCE_OFFICER`, `AUDITOR`, `IT_MANAGER+`
 
-**Resposta (200):** Maturidade por framework, NCs abertas, próximas auditorias, progresso de planos de ação.
+**Resposta (200):** Maturidade por framework, NCs abertas, próximas auditorias,
+progresso de planos de ação.
 
 ---
 
@@ -2929,12 +3016,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `FINANCIAL_ANALYST`, `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `fiscalYear` | integer | Ano fiscal |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `fiscalYear` | integer | Ano fiscal |
 
-**Resposta (200):** OPEX e CAPEX realizados vs. orçado por mês, contratos a vencer, top despesas, variância por centro de custo.
+**Resposta (200):** OPEX e CAPEX realizados vs. orçado por mês, contratos a
+vencer, top despesas, variância por centro de custo.
 
 ---
 
@@ -2942,7 +3028,8 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** `IT_MANAGER+`
 
-**Resposta (200):** Lista de KPIs configurados com `code`, `name`, `currentValue`, `targetValue`, `trend`, `unit`.
+**Resposta (200):** Lista de KPIs configurados com `code`, `name`,
+`currentValue`, `targetValue`, `trend`, `unit`.
 
 ---
 
@@ -2951,14 +3038,12 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Objetivo:** Histórico de valores de um KPI para análise de tendência.
 **Permissões:** `IT_MANAGER+`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `granularity` | enum | `DAILY`, `WEEKLY`, `MONTHLY` |
-| `from` | date | Data inicial |
-| `to` | date | Data final |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `granularity` | enum | `DAILY`, `WEEKLY`,
+`MONTHLY` | | `from` | date | Data inicial | | `to` | date | Data final |
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -2985,6 +3070,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** Varia por tipo de relatório (ver tabela)
 
 **Payload:**
+
 ```json
 {
   "type": "SLA_PERFORMANCE",
@@ -2999,18 +3085,19 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Tipos disponíveis:**
 
-| Tipo | Permissão Mínima | Descrição |
-|------|:----------------:|-----------|
-| `SLA_PERFORMANCE` | `IT_MANAGER` | Desempenho de SLA por período |
-| `INCIDENT_SUMMARY` | `IT_MANAGER` | Resumo de incidentes por período |
-| `ASSET_INVENTORY` | `IT_TECHNICIAN` | Inventário completo de ativos |
-| `LICENSE_COMPLIANCE` | `IT_TECHNICIAN` | Conformidade de licenças |
-| `COMPLIANCE_MATURITY` | `COMPLIANCE_OFFICER` | Maturidade por framework |
-| `FINANCIAL_SUMMARY` | `FINANCIAL_ANALYST` | Resumo financeiro OPEX/CAPEX |
-| `ACCESS_REVIEW_HISTORY` | `IT_MANAGER` | Histórico de revisões de acesso |
-| `PROJECT_PORTFOLIO` | `IT_MANAGER` | Portfólio de projetos |
+| Tipo                    |   Permissão Mínima   | Descrição                        |
+| ----------------------- | :------------------: | -------------------------------- |
+| `SLA_PERFORMANCE`       |     `IT_MANAGER`     | Desempenho de SLA por período    |
+| `INCIDENT_SUMMARY`      |     `IT_MANAGER`     | Resumo de incidentes por período |
+| `ASSET_INVENTORY`       |   `IT_TECHNICIAN`    | Inventário completo de ativos    |
+| `LICENSE_COMPLIANCE`    |   `IT_TECHNICIAN`    | Conformidade de licenças         |
+| `COMPLIANCE_MATURITY`   | `COMPLIANCE_OFFICER` | Maturidade por framework         |
+| `FINANCIAL_SUMMARY`     | `FINANCIAL_ANALYST`  | Resumo financeiro OPEX/CAPEX     |
+| `ACCESS_REVIEW_HISTORY` |     `IT_MANAGER`     | Histórico de revisões de acesso  |
+| `PROJECT_PORTFOLIO`     |     `IT_MANAGER`     | Portfólio de projetos            |
 
 **Resposta (202):**
+
 ```json
 {
   "data": {
@@ -3025,10 +3112,11 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 ### GET /reports/jobs/:jobId — Consultar status do relatório
 
-**Objetivo:** Verificar o progresso de geração de um relatório.
-**Permissões:** Solicitante do relatório ou `IT_MANAGER+`
+**Objetivo:** Verificar o progresso de geração de um relatório. **Permissões:**
+Solicitante do relatório ou `IT_MANAGER+`
 
 **Resposta (200):**
+
 ```json
 {
   "data": {
@@ -3052,14 +3140,12 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 
 **Permissões:** Usuário autenticado (apenas próprios) ou `IT_MANAGER+` (todos)
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `type` | enum | Tipo de relatório |
-| `status` | enum | Status do job |
-| `page`, `perPage` | — | Paginação |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `type` | enum | Tipo de relatório | |
+`status` | enum | Status do job | | `page`, `perPage` | — | Paginação |
 
-**Resposta (200):** Lista com `jobId`, `type`, `format`, `status`, `generatedAt`, `downloadAvailable`.
+**Resposta (200):** Lista com `jobId`, `type`, `format`, `status`,
+`generatedAt`, `downloadAvailable`.
 
 ---
 
@@ -3074,20 +3160,17 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Objetivo:** Consultar a trilha de auditoria do sistema com filtros avançados.
 **Permissões:** `AUDITOR`, `SUPER_ADMIN`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `userId` | UUID | Filtrar por usuário |
-| `action` | enum | `CREATE`, `UPDATE`, `DELETE`, `ACCESS`, `LOGIN`, `EXPORT` |
-| `module` | string | Módulo do sistema |
-| `entityType` | string | Tipo da entidade |
-| `entityId` | UUID | ID específico de entidade |
-| `occurredAt[gte]` | datetime | Período — início |
-| `occurredAt[lte]` | datetime | Período — fim |
-| `ipAddress` | string | Filtrar por IP |
-| `page`, `perPage`, `sort` | — | Paginação |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `userId` | UUID | Filtrar por usuário | |
+`action` | enum | `CREATE`, `UPDATE`, `DELETE`, `ACCESS`, `LOGIN`, `EXPORT` | |
+`module` | string | Módulo do sistema | | `entityType` | string | Tipo da
+entidade | | `entityId` | UUID | ID específico de entidade | | `occurredAt[gte]`
+| datetime | Período — início | | `occurredAt[lte]` | datetime | Período — fim |
+| `ipAddress` | string | Filtrar por IP | | `page`, `perPage`, `sort` | — |
+Paginação |
 
 **Resposta (200):**
+
 ```json
 {
   "data": [
@@ -3125,6 +3208,7 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Permissões:** `AUDITOR`, `SUPER_ADMIN`
 
 **Payload:**
+
 ```json
 {
   "format": "CSV",
@@ -3139,26 +3223,26 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 }
 ```
 
-**Resposta (202):** Job de exportação criado. Mesmo padrão de `/reports/generate`.
+**Resposta (202):** Job de exportação criado. Mesmo padrão de
+`/reports/generate`.
 
-**Nota de segurança:** Esta operação gera registro de auditoria com `action=EXPORT` para o próprio solicitante.
+**Nota de segurança:** Esta operação gera registro de auditoria com
+`action=EXPORT` para o próprio solicitante.
 
 ---
 
 ### GET /audit/security-events — Eventos de segurança
 
-**Objetivo:** Consultar eventos de segurança específicos (logins, falhas de auth, acessos negados).
-**Permissões:** `SUPER_ADMIN`
+**Objetivo:** Consultar eventos de segurança específicos (logins, falhas de
+auth, acessos negados). **Permissões:** `SUPER_ADMIN`
 
-**Query Parameters:**
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `action` | enum | `LOGIN`, `FAILED_LOGIN`, `LOGOUT`, `REVOKE` |
-| `userId` | UUID | Filtrar por usuário |
-| `ipAddress` | string | Filtrar por IP |
-| `occurredAt[gte]` | datetime | Período |
+**Query Parameters:** | Parâmetro | Tipo | Descrição |
+|-----------|------|-----------| | `action` | enum | `LOGIN`, `FAILED_LOGIN`,
+`LOGOUT`, `REVOKE` | | `userId` | UUID | Filtrar por usuário | | `ipAddress` |
+string | Filtrar por IP | | `occurredAt[gte]` | datetime | Período |
 
-**Resposta (200):** Lista de eventos de segurança com metadados de dispositivo e localização.
+**Resposta (200):** Lista de eventos de segurança com metadados de dispositivo e
+localização.
 
 ---
 
@@ -3167,19 +3251,21 @@ Novos cookies são definidos. Refresh token anterior é imediatamente invalidado
 **Objetivo:** Retornar toda a trilha de auditoria de uma entidade específica.
 **Permissões:** `IT_MANAGER+` (com acesso ao módulo da entidade)
 
-**Resposta (200):** Todos os logs da entidade em ordem cronológica, com `diff` calculado entre versões.
+**Resposta (200):** Todos os logs da entidade em ordem cronológica, com `diff`
+calculado entre versões.
 
 ---
 
 ## Controle de Versões do Documento
 
-| Versão | Data | Autor | Descrição da Alteração |
-|--------|------|-------|------------------------|
-| 1.0.0 | 2026-06-09 | Arquitetura Corporativa de TI | Criação do documento com 24 módulos de API |
+| Versão | Data       | Autor                         | Descrição da Alteração                     |
+| ------ | ---------- | ----------------------------- | ------------------------------------------ |
+| 1.0.0  | 2026-06-09 | Arquitetura Corporativa de TI | Criação do documento com 24 módulos de API |
 
 ---
 
-> **Próximos documentos recomendados:**
-> [`20_DATABASE.md`](./20_DATABASE.md) — Modelo de dados que fundamenta esta especificação
+> **Próximos documentos recomendados:** [`20_DATABASE.md`](./20_DATABASE.md) —
+> Modelo de dados que fundamenta esta especificação
 > [`12_ARCHITECTURE.md`](./12_ARCHITECTURE.md) — Arquitetura técnica dos módulos
-> [`14_SECURITY_REQUIREMENTS.md`](./14_SECURITY_REQUIREMENTS.md) — Requisitos de segurança aplicados a cada endpoint
+> [`14_SECURITY_REQUIREMENTS.md`](./14_SECURITY_REQUIREMENTS.md) — Requisitos de
+> segurança aplicados a cada endpoint

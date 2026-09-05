@@ -59,14 +59,27 @@ const RISK_LEVEL_OPTIONS = [
   { value: "HIGH", label: "Alto" },
   { value: "VERY_HIGH", label: "Muito Alto" },
 ];
-const RISK_CATEGORY_OPTIONS = ["REGULATORY", "OPERATIONAL", "REPUTATIONAL", "FINANCIAL", "SECURITY", "PRIVACY"];
+const RISK_CATEGORY_OPTIONS = [
+  "REGULATORY",
+  "OPERATIONAL",
+  "REPUTATIONAL",
+  "FINANCIAL",
+  "SECURITY",
+  "PRIVACY",
+];
 const RISK_RANK: Record<string, number> = { VERY_LOW: 1, LOW: 2, MEDIUM: 3, HIGH: 4, VERY_HIGH: 5 };
 
 function riskLevelLabel(probability: string, impact: string): string {
   const score = (RISK_RANK[probability] ?? 0) * (RISK_RANK[impact] ?? 0);
-  if (score >= 15) {return "Crítico";}
-  if (score >= 10) {return "Alto";}
-  if (score >= 5) {return "Médio";}
+  if (score >= 15) {
+    return "Crítico";
+  }
+  if (score >= 10) {
+    return "Alto";
+  }
+  if (score >= 5) {
+    return "Médio";
+  }
   return "Baixo";
 }
 
@@ -93,11 +106,11 @@ export default async function FindingDetailPage({
   if (error || !finding) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/compliance/audits">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/compliance/audits">
           ← Voltar para Auditorias
         </Link>
-        <div className="mt-4 rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-4 rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Apontamento não encontrado, ou você não tem permissão para vê-lo.
           </p>
         </div>
@@ -108,23 +121,38 @@ export default async function FindingDetailPage({
   const isAssignedAnalyst = finding.analyst_id === user.id;
   const canManageFinding = isManager || isAssignedAnalyst;
 
-  const [normItemResult, evidenceResult, actionItemsResult, riskResult, staffRolesResult] = await Promise.all([
-    supabase.schema("compliance").from("NormItem").select("item_code, item_name").eq("id", finding.norm_item_id).single(),
-    supabase
-      .schema("compliance")
-      .from("FindingEvidence")
-      .select("id, title, description, evidence_type, evidence_date, uploaded_by, review_status, reviewed_by, rejection_reason, sha256_hash")
-      .eq("finding_id", id)
-      .order("created_at", { ascending: false }),
-    supabase
-      .schema("compliance")
-      .from("ActionItem")
-      .select("id, sequence_number, description, responsible_id, due_date, status, completion_percentage")
-      .eq("finding_id", id)
-      .order("sequence_number"),
-    supabase.schema("compliance").from("FindingRisk").select("*").eq("finding_id", id).maybeSingle(),
-    supabase.schema("shared").from("UserRole").select("user_id").in("role", IT_STAFF_ROLES),
-  ]);
+  const [normItemResult, evidenceResult, actionItemsResult, riskResult, staffRolesResult] =
+    await Promise.all([
+      supabase
+        .schema("compliance")
+        .from("NormItem")
+        .select("item_code, item_name")
+        .eq("id", finding.norm_item_id)
+        .single(),
+      supabase
+        .schema("compliance")
+        .from("FindingEvidence")
+        .select(
+          "id, title, description, evidence_type, evidence_date, uploaded_by, review_status, reviewed_by, rejection_reason, sha256_hash",
+        )
+        .eq("finding_id", id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .schema("compliance")
+        .from("ActionItem")
+        .select(
+          "id, sequence_number, description, responsible_id, due_date, status, completion_percentage",
+        )
+        .eq("finding_id", id)
+        .order("sequence_number"),
+      supabase
+        .schema("compliance")
+        .from("FindingRisk")
+        .select("*")
+        .eq("finding_id", id)
+        .maybeSingle(),
+      supabase.schema("shared").from("UserRole").select("user_id").in("role", IT_STAFF_ROLES),
+    ]);
 
   const normItem = normItemResult.data;
   const evidences = evidenceResult.data ?? [];
@@ -146,61 +174,74 @@ export default async function FindingDetailPage({
     .in("id", authorIds.length > 0 ? authorIds : ["00000000-0000-0000-0000-000000000000"]);
 
   function nameFor(userId: string | null): string {
-    if (!userId) {return "—";}
+    if (!userId) {
+      return "—";
+    }
     return profiles?.find((p) => p.id === userId)?.full_name ?? "Usuário desconhecido";
   }
 
   const avgCompletion =
     actionItems.length > 0
-      ? Math.round(actionItems.reduce((sum, item) => sum + item.completion_percentage, 0) / actionItems.length)
+      ? Math.round(
+          actionItems.reduce((sum, item) => sum + item.completion_percentage, 0) /
+            actionItems.length,
+        )
       : 0;
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link className="text-sm text-muted-foreground hover:underline" href={`/compliance/audits/${finding.audit_id}`}>
+      <Link
+        className="text-muted-foreground text-sm hover:underline"
+        href={`/compliance/audits/${finding.audit_id}`}
+      >
         ← Voltar para a auditoria
       </Link>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
+      <div className="border-border bg-card mt-4 rounded-lg border p-6">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-semibold text-foreground">{finding.title}</h1>
+          <h1 className="text-foreground text-xl font-semibold">{finding.title}</h1>
           <div className="flex shrink-0 gap-2">
             {finding.is_urgent && (
-              <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">
+              <span className="bg-destructive/10 text-destructive rounded-full px-2.5 py-0.5 text-xs font-medium">
                 URGENTE
               </span>
             )}
             {finding.is_recurrent && (
-              <span className="rounded-full bg-priority-high/10 px-2.5 py-0.5 text-xs font-medium text-priority-high">
+              <span className="bg-priority-high/10 text-priority-high rounded-full px-2.5 py-0.5 text-xs font-medium">
                 RECORRENTE
               </span>
             )}
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${CRITICALITY_CLASS[finding.criticality] ?? ""}`}>
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${CRITICALITY_CLASS[finding.criticality] ?? ""}`}
+            >
               {finding.criticality}
             </span>
           </div>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-xs">
           {finding.code} · {normItem && `${normItem.item_code} — ${normItem.item_name}`}
         </p>
-        <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{finding.description}</p>
-        <p className="mt-3 text-xs text-muted-foreground">
+        <p className="text-foreground mt-3 text-sm whitespace-pre-wrap">{finding.description}</p>
+        <p className="text-muted-foreground mt-3 text-xs">
           Analista: {nameFor(finding.analyst_id)} · Prazo: {formatDateOnly(finding.due_date)}
           {finding.estimated_cost !== null &&
             ` · Custo estimado: R$ ${Number(finding.estimated_cost).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
         </p>
-        <p className="mt-2 text-sm font-medium text-foreground">
+        <p className="text-foreground mt-2 text-sm font-medium">
           Status: {STATUS_LABEL[finding.status] ?? finding.status}
           {actionItems.length > 0 && ` · Progresso do plano de ação: ${avgCompletion}%`}
         </p>
       </div>
 
       {canManageFinding && !["CANCELLED", "NOT_APPLICABLE"].includes(finding.status) && (
-        <form action={updateFindingStatus} className="mt-4 space-y-2 rounded-lg border border-border bg-card p-4">
+        <form
+          action={updateFindingStatus}
+          className="border-border bg-card mt-4 space-y-2 rounded-lg border p-4"
+        >
           <input name="finding_id" type="hidden" value={finding.id} />
           <div className="flex items-center gap-2">
             <select
-              className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
               defaultValue={finding.status}
               key={finding.status}
               name="status"
@@ -220,7 +261,7 @@ export default async function FindingDetailPage({
               Motivo (obrigatório para cancelar / não aplicável / reabrir)
             </Label>
             <input
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-1.5 text-sm focus-visible:ring-2 focus-visible:outline-none"
               id="reason"
               name="reason"
               type="text"
@@ -231,16 +272,16 @@ export default async function FindingDetailPage({
 
       {/* ─── Evidências ─────────────────────────────────────────────── */}
       <div className="mt-6">
-        <h2 className="mb-3 font-medium text-foreground">Evidências</h2>
+        <h2 className="text-foreground mb-3 font-medium">Evidências</h2>
 
         {evidences.length > 0 && (
           <ul className="mb-4 space-y-3">
             {evidences.map((evidence) => (
-              <li className="rounded-lg border border-border bg-card p-3" key={evidence.id}>
+              <li className="border-border bg-card rounded-lg border p-3" key={evidence.id}>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium text-foreground">{evidence.title}</p>
-                    <p className="text-xs text-muted-foreground">{evidence.description}</p>
+                    <p className="text-foreground text-sm font-medium">{evidence.title}</p>
+                    <p className="text-muted-foreground text-xs">{evidence.description}</p>
                   </div>
                   <span
                     className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -250,61 +291,70 @@ export default async function FindingDetailPage({
                     {EVIDENCE_REVIEW_LABEL[evidence.review_status] ?? evidence.review_status}
                   </span>
                 </div>
-                <p className="mt-2 font-mono text-[10px] text-muted-foreground">SHA-256: {evidence.sha256_hash}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-2 font-mono text-[10px]">
+                  SHA-256: {evidence.sha256_hash}
+                </p>
+                <p className="text-muted-foreground mt-1 text-xs">
                   Enviado por {nameFor(evidence.uploaded_by)} em{" "}
                   {formatDateOnly(evidence.evidence_date)}
                   {evidence.reviewed_by && ` · Revisado por ${nameFor(evidence.reviewed_by)}`}
                 </p>
                 {evidence.rejection_reason && (
-                  <p className="mt-1 text-xs text-destructive">Motivo da rejeição: {evidence.rejection_reason}</p>
+                  <p className="text-destructive mt-1 text-xs">
+                    Motivo da rejeição: {evidence.rejection_reason}
+                  </p>
                 )}
 
-                {isManager && evidence.review_status === "PENDING" && evidence.uploaded_by !== user.id && (
-                  <div className="mt-3 space-y-2">
-                    <form action={reviewEvidence} className="inline">
-                      <input name="evidence_id" type="hidden" value={evidence.id} />
-                      <input name="finding_id" type="hidden" value={finding.id} />
-                      <input name="decision" type="hidden" value="APPROVED" />
-                      <Button size="sm" type="submit">
-                        Aprovar
-                      </Button>
-                    </form>
-                    <form action={reviewEvidence} className="mt-2 flex items-center gap-2">
-                      <input name="evidence_id" type="hidden" value={evidence.id} />
-                      <input name="finding_id" type="hidden" value={finding.id} />
-                      <input name="decision" type="hidden" value="REJECTED" />
-                      <input
-                        className="flex-1 rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground"
-                        name="rejection_reason"
-                        placeholder="Motivo da rejeição (mín. 30 caracteres)"
-                        type="text"
-                      />
-                      <Button size="sm" type="submit" variant="outline">
-                        Rejeitar
-                      </Button>
-                    </form>
-                  </div>
-                )}
+                {isManager &&
+                  evidence.review_status === "PENDING" &&
+                  evidence.uploaded_by !== user.id && (
+                    <div className="mt-3 space-y-2">
+                      <form action={reviewEvidence} className="inline">
+                        <input name="evidence_id" type="hidden" value={evidence.id} />
+                        <input name="finding_id" type="hidden" value={finding.id} />
+                        <input name="decision" type="hidden" value="APPROVED" />
+                        <Button size="sm" type="submit">
+                          Aprovar
+                        </Button>
+                      </form>
+                      <form action={reviewEvidence} className="mt-2 flex items-center gap-2">
+                        <input name="evidence_id" type="hidden" value={evidence.id} />
+                        <input name="finding_id" type="hidden" value={finding.id} />
+                        <input name="decision" type="hidden" value="REJECTED" />
+                        <input
+                          className="border-input bg-background text-foreground flex-1 rounded-md border px-2 py-1 text-xs"
+                          name="rejection_reason"
+                          placeholder="Motivo da rejeição (mín. 30 caracteres)"
+                          type="text"
+                        />
+                        <Button size="sm" type="submit" variant="outline">
+                          Rejeitar
+                        </Button>
+                      </form>
+                    </div>
+                  )}
               </li>
             ))}
           </ul>
         )}
 
         {canManageFinding && (
-          <form action={uploadEvidence} className="space-y-2 rounded-lg border border-border bg-card p-4">
+          <form
+            action={uploadEvidence}
+            className="border-border bg-card space-y-2 rounded-lg border p-4"
+          >
             <input name="finding_id" type="hidden" value={finding.id} />
             <div className="grid gap-2 sm:grid-cols-2">
               <input
                 required
-                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+                className="border-input bg-background text-foreground placeholder:text-muted-foreground rounded-md border px-3 py-1.5 text-sm"
                 name="title"
                 placeholder="Título"
                 type="text"
               />
               <select
                 required
-                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
                 defaultValue=""
                 name="evidence_type"
               >
@@ -320,21 +370,21 @@ export default async function FindingDetailPage({
             </div>
             <textarea
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm"
               name="description"
               placeholder="O que a evidência comprova"
             />
             <div className="grid gap-2 sm:grid-cols-2">
               <input
                 required
-                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
                 name="evidence_date"
                 type="date"
               />
               <input
                 required
                 accept=".pdf,.docx,.doc,.xlsx,.xls,.png,.jpg,.jpeg,.csv"
-                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
                 name="file"
                 type="file"
               />
@@ -350,16 +400,16 @@ export default async function FindingDetailPage({
 
       {/* ─── Plano de Ação ──────────────────────────────────────────── */}
       <div className="mt-6">
-        <h2 className="mb-3 font-medium text-foreground">Plano de Ação</h2>
+        <h2 className="text-foreground mb-3 font-medium">Plano de Ação</h2>
 
         {actionItems.length > 0 && (
           <ul className="mb-4 space-y-2">
             {actionItems.map((item) => (
-              <li className="rounded-lg border border-border bg-card p-3" key={item.id}>
-                <p className="text-sm text-foreground">
+              <li className="border-border bg-card rounded-lg border p-3" key={item.id}>
+                <p className="text-foreground text-sm">
                   #{item.sequence_number} {item.description}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-1 text-xs">
                   {nameFor(item.responsible_id)} · Prazo: {formatDateOnly(item.due_date)}
                 </p>
                 {canManageFinding ? (
@@ -367,7 +417,7 @@ export default async function FindingDetailPage({
                     <input name="action_item_id" type="hidden" value={item.id} />
                     <input name="finding_id" type="hidden" value={finding.id} />
                     <select
-                      className="rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground"
+                      className="border-input bg-background text-foreground rounded-md border px-2 py-1 text-xs"
                       defaultValue={item.status}
                       key={item.status}
                       name="status"
@@ -379,7 +429,7 @@ export default async function FindingDetailPage({
                       ))}
                     </select>
                     <input
-                      className="w-20 rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground"
+                      className="border-input bg-background text-foreground w-20 rounded-md border px-2 py-1 text-xs"
                       defaultValue={item.completion_percentage}
                       key={item.completion_percentage}
                       max={100}
@@ -387,13 +437,13 @@ export default async function FindingDetailPage({
                       name="completion_percentage"
                       type="number"
                     />
-                    <span className="text-xs text-muted-foreground">%</span>
+                    <span className="text-muted-foreground text-xs">%</span>
                     <Button size="sm" type="submit" variant="outline">
                       Salvar
                     </Button>
                   </form>
                 ) : (
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     {item.status} · {item.completion_percentage}%
                   </p>
                 )}
@@ -405,12 +455,12 @@ export default async function FindingDetailPage({
         {canManageFinding && (
           <form
             action={addActionItem}
-            className="space-y-2 rounded-lg border border-border bg-card p-4"
+            className="border-border bg-card space-y-2 rounded-lg border p-4"
           >
             <input name="finding_id" type="hidden" value={finding.id} />
             <textarea
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm"
               minLength={30}
               name="description"
               placeholder="O que deve ser feito (mínimo 30 caracteres)"
@@ -418,7 +468,7 @@ export default async function FindingDetailPage({
             <div className="grid gap-2 sm:grid-cols-2">
               <select
                 required
-                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
                 defaultValue=""
                 name="responsible_id"
               >
@@ -433,7 +483,7 @@ export default async function FindingDetailPage({
               </select>
               <input
                 required
-                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
                 name="due_date"
                 type="date"
               />
@@ -449,29 +499,36 @@ export default async function FindingDetailPage({
 
       {/* ─── Risco ──────────────────────────────────────────────────── */}
       <div className="mt-6">
-        <h2 className="mb-3 font-medium text-foreground">Risco</h2>
+        <h2 className="text-foreground mb-3 font-medium">Risco</h2>
 
         {risk && (
-          <div className="mb-4 rounded-lg border border-border bg-card p-4">
-            <p className="text-sm text-foreground">{risk.description}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+          <div className="border-border bg-card mb-4 rounded-lg border p-4">
+            <p className="text-foreground text-sm">{risk.description}</p>
+            <p className="text-muted-foreground mt-1 text-xs">
               Probabilidade {risk.probability} × Impacto {risk.impact} → Nível{" "}
-              <span className="font-medium text-foreground">{riskLevelLabel(risk.probability, risk.impact)}</span>
+              <span className="text-foreground font-medium">
+                {riskLevelLabel(risk.probability, risk.impact)}
+              </span>
               {" · "}
               {risk.category} · Responsável: {nameFor(risk.responsible_id)}
             </p>
             {risk.contingency_plan && (
-              <p className="mt-2 text-xs text-muted-foreground">Contingência: {risk.contingency_plan}</p>
+              <p className="text-muted-foreground mt-2 text-xs">
+                Contingência: {risk.contingency_plan}
+              </p>
             )}
           </div>
         )}
 
         {canManageFinding && (
-          <form action={saveFindingRisk} className="space-y-2 rounded-lg border border-border bg-card p-4">
+          <form
+            action={saveFindingRisk}
+            className="border-border bg-card space-y-2 rounded-lg border p-4"
+          >
             <input name="finding_id" type="hidden" value={finding.id} />
             <textarea
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm"
               defaultValue={risk?.description ?? ""}
               name="description"
               placeholder="O que pode acontecer se não tratado"
@@ -479,7 +536,7 @@ export default async function FindingDetailPage({
             <div className="grid gap-2 sm:grid-cols-3">
               <select
                 required
-                className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
                 defaultValue={risk?.probability ?? ""}
                 name="probability"
               >
@@ -494,7 +551,7 @@ export default async function FindingDetailPage({
               </select>
               <select
                 required
-                className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
                 defaultValue={risk?.impact ?? ""}
                 name="impact"
               >
@@ -509,7 +566,7 @@ export default async function FindingDetailPage({
               </select>
               <select
                 required
-                className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
                 defaultValue={risk?.category ?? ""}
                 name="category"
               >
@@ -524,14 +581,14 @@ export default async function FindingDetailPage({
               </select>
             </div>
             <textarea
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm"
               defaultValue={risk?.contingency_plan ?? ""}
               name="contingency_plan"
               placeholder="Plano de contingência (obrigatório se nível Alto ou Crítico)"
             />
             <select
               required
-              className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              className="border-input bg-background text-foreground w-full rounded-md border px-2 py-1.5 text-sm"
               defaultValue={risk?.responsible_id ?? ""}
               name="responsible_id"
             >

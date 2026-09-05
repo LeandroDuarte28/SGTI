@@ -36,12 +36,15 @@ export async function createNorm(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.schema("compliance").from("Norm").insert({
-    code: code.trim().toUpperCase().replace(/\s+/g, "_"),
-    full_name: fullName.trim(),
-    issuing_body: issuingBody.trim(),
-    type,
-  });
+  const { error } = await supabase
+    .schema("compliance")
+    .from("Norm")
+    .insert({
+      code: code.trim().toUpperCase().replace(/\s+/g, "_"),
+      full_name: fullName.trim(),
+      issuing_body: issuingBody.trim(),
+      type,
+    });
 
   if (error) {
     throw new Error(`Não foi possível cadastrar a norma: ${error.message}`);

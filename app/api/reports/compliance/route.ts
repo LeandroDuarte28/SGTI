@@ -20,10 +20,15 @@ export async function GET(): Promise<Response> {
     .order("due_date");
 
   if (error || !findings) {
-    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, { status: 500 });
+    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, {
+      status: 500,
+    });
   }
 
-  const names = await fetchUserNames(supabase, findings.map((f) => f.analyst_id));
+  const names = await fetchUserNames(
+    supabase,
+    findings.map((f) => f.analyst_id),
+  );
 
   const rows = findings.map((f) => ({
     code: f.code,
@@ -48,7 +53,12 @@ export async function GET(): Promise<Response> {
   await supabase
     .schema("shared")
     .from("AuditLog")
-    .insert({ user_id: user.id, action: "REPORT_EXPORTED", entity_type: "ComplianceFinding", new_values: { format: "csv", rows: rows.length } });
+    .insert({
+      user_id: user.id,
+      action: "REPORT_EXPORTED",
+      entity_type: "ComplianceFinding",
+      new_values: { format: "csv", rows: rows.length },
+    });
 
   return csvResponse("apontamentos-compliance.csv", csv);
 }

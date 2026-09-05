@@ -8,7 +8,11 @@ export const metadata: Metadata = { title: "Compliance" };
 const HUB_LINKS = [
   { href: "/compliance/audits", label: "Auditorias", desc: "Ciclos de auditoria e apontamentos" },
   { href: "/compliance/norms", label: "Normas", desc: "Normas, frameworks e itens normativos" },
-  { href: "/compliance/consultancies", label: "Consultorias", desc: "Empresas de auditoria externa" },
+  {
+    href: "/compliance/consultancies",
+    label: "Consultorias",
+    desc: "Empresas de auditoria externa",
+  },
 ] as const;
 
 const FINDING_STATUS_LABEL: Record<string, string> = {
@@ -85,13 +89,13 @@ export default async function CompliancePage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Compliance</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-foreground text-2xl font-semibold">Compliance</h1>
+          <p className="text-muted-foreground text-sm">
             Apontamentos de auditoria em aberto e ciclos de auditoria recentes.
           </p>
         </div>
         <a
-          className="shrink-0 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
+          className="border-input bg-background text-foreground hover:bg-muted shrink-0 rounded-md border px-3 py-1.5 text-sm font-medium"
           href="/api/reports/compliance"
         >
           Exportar CSV
@@ -101,25 +105,25 @@ export default async function CompliancePage(): Promise<React.JSX.Element> {
       <div className="mb-8 grid gap-3 sm:grid-cols-3">
         {HUB_LINKS.map((link) => (
           <Link
-            className="rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+            className="border-border bg-card hover:bg-muted/50 rounded-lg border p-4 shadow-sm transition-colors"
             href={link.href}
             key={link.href}
           >
-            <p className="font-medium text-foreground">{link.label}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{link.desc}</p>
+            <p className="text-foreground font-medium">{link.label}</p>
+            <p className="text-muted-foreground mt-1 text-xs">{link.desc}</p>
           </Link>
         ))}
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar os dados de compliance: {error.message}
         </div>
       )}
 
       {!error && findings.length === 0 && audits.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Nenhum apontamento ou auditoria cadastrada ainda, ou você não tem permissão para ver
             este módulo (restrito a Auditores e Gestores de TI).
           </p>
@@ -128,22 +132,25 @@ export default async function CompliancePage(): Promise<React.JSX.Element> {
 
       {!error && findings.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 font-medium text-foreground">Apontamentos em Aberto</h2>
+          <h2 className="text-foreground mb-3 font-medium">Apontamentos em Aberto</h2>
           <ul className="space-y-3">
             {findings.map((finding) => (
-              <li className="rounded-lg border border-border bg-card p-4 shadow-sm" key={finding.id}>
+              <li
+                className="border-border bg-card rounded-lg border p-4 shadow-sm"
+                key={finding.id}
+              >
                 <Link className="block" href={`/compliance/findings/${finding.id}`}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-medium text-foreground">{finding.title}</p>
-                      <p className="text-xs text-muted-foreground">{finding.code}</p>
+                      <p className="text-foreground text-sm font-medium">{finding.title}</p>
+                      <p className="text-muted-foreground text-xs">{finding.code}</p>
                     </div>
                     <Pill
                       className={CRITICALITY_CLASS[finding.criticality] ?? ""}
                       label={CRITICALITY_LABEL[finding.criticality] ?? finding.criticality}
                     />
                   </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-2 text-xs">
                     {FINDING_STATUS_LABEL[finding.status] ?? finding.status} · Prazo:{" "}
                     {new Date(finding.due_date).toLocaleDateString("pt-BR")}
                   </p>
@@ -156,17 +163,17 @@ export default async function CompliancePage(): Promise<React.JSX.Element> {
 
       {!error && audits.length > 0 && (
         <section>
-          <h2 className="mb-3 font-medium text-foreground">Auditorias Recentes</h2>
+          <h2 className="text-foreground mb-3 font-medium">Auditorias Recentes</h2>
           <ul className="space-y-2">
             {audits.map((audit) => (
               <li key={audit.id}>
                 <Link
-                  className="flex items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm transition-colors hover:bg-muted/50"
+                  className="border-border bg-card hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 shadow-sm transition-colors"
                   href={`/compliance/audits/${audit.id}`}
                 >
                   <div>
-                    <p className="text-sm font-medium text-foreground">{audit.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-foreground text-sm font-medium">{audit.name}</p>
+                    <p className="text-muted-foreground text-xs">
                       {audit.code}
                       {audit.compliance_score_final !== null &&
                         ` · Score: ${Number(audit.compliance_score_final).toFixed(1)}%`}

@@ -21,18 +21,21 @@ export default async function NewArticlePage(): Promise<React.JSX.Element> {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/knowledge">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/knowledge">
           ← Voltar para Base de Conhecimento
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-foreground">Novo Artigo</h1>
+        <h1 className="text-foreground mt-2 text-2xl font-semibold">Novo Artigo</h1>
       </div>
 
-      <form action={createArticle} className="space-y-5 rounded-lg border border-border bg-card p-6">
+      <form
+        action={createArticle}
+        className="border-border bg-card space-y-5 rounded-lg border p-6"
+      >
         <div className="space-y-2">
           <Label htmlFor="title">Título</Label>
           <input
             required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             id="title"
             name="title"
             type="text"
@@ -43,7 +46,7 @@ export default async function NewArticlePage(): Promise<React.JSX.Element> {
           <Label htmlFor="content">Conteúdo</Label>
           <textarea
             required
-            className="min-h-40 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring min-h-40 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             id="content"
             name="content"
           />
@@ -53,7 +56,7 @@ export default async function NewArticlePage(): Promise<React.JSX.Element> {
           <div className="space-y-2">
             <Label htmlFor="category_id">Categoria (opcional)</Label>
             <select
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
               defaultValue=""
               id="category_id"
               name="category_id"
@@ -71,7 +74,7 @@ export default async function NewArticlePage(): Promise<React.JSX.Element> {
         <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
           <select
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             defaultValue="DRAFT"
             id="status"
             name="status"

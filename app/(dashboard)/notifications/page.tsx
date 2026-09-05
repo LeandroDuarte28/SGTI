@@ -38,8 +38,10 @@ export default async function NotificationsPage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-2xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Notificações</h1>
-          <p className="text-sm text-muted-foreground">Alertas do sistema, incluindo violações e riscos de SLA.</p>
+          <h1 className="text-foreground text-2xl font-semibold">Notificações</h1>
+          <p className="text-muted-foreground text-sm">
+            Alertas do sistema, incluindo violações e riscos de SLA.
+          </p>
         </div>
         {hasUnread && (
           <form action={markAllNotificationsRead}>
@@ -51,14 +53,14 @@ export default async function NotificationsPage(): Promise<React.JSX.Element> {
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar as notificações: {error.message}
         </div>
       )}
 
       {!error && rows.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">Nenhuma notificação ainda.</p>
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">Nenhuma notificação ainda.</p>
         </div>
       )}
 
@@ -75,15 +77,17 @@ export default async function NotificationsPage(): Promise<React.JSX.Element> {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium text-foreground">{notification.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{notification.body}</p>
-                    <p className="mt-2 text-xs text-muted-foreground">{formatRelativeDate(notification.created_at)}</p>
+                    <p className="text-foreground text-sm font-medium">{notification.title}</p>
+                    <p className="text-muted-foreground mt-1 text-sm">{notification.body}</p>
+                    <p className="text-muted-foreground mt-2 text-xs">
+                      {formatRelativeDate(notification.created_at)}
+                    </p>
                   </div>
-                  {isUnread && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+                  {isUnread && <span className="bg-primary mt-1 h-2 w-2 shrink-0 rounded-full" />}
                 </div>
                 <div className="mt-3 flex items-center gap-3">
                   {notification.link && (
-                    <a className="text-xs text-primary underline" href={notification.link}>
+                    <a className="text-primary text-xs underline" href={notification.link}>
                       Ver detalhes
                     </a>
                   )}

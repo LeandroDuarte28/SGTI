@@ -90,8 +90,8 @@ export default async function AssetsPage({
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Ativos de TI</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-foreground text-2xl font-semibold">Ativos de TI</h1>
+          <p className="text-muted-foreground text-sm">
             Inventário de hardware, licenças e equipamentos.
           </p>
         </div>
@@ -102,7 +102,7 @@ export default async function AssetsPage({
 
       <form className="mb-4 flex flex-wrap gap-3" method="get">
         <select
-          className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+          className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
           defaultValue={statusFilter ?? ""}
           name="status"
         >
@@ -114,7 +114,7 @@ export default async function AssetsPage({
           ))}
         </select>
         <select
-          className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+          className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
           defaultValue={typeFilter ?? ""}
           name="type"
         >
@@ -126,14 +126,14 @@ export default async function AssetsPage({
           ))}
         </select>
         <button
-          className="rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
+          className="border-input bg-background text-foreground hover:bg-muted rounded-md border px-3 py-1.5 text-sm font-medium"
           type="submit"
         >
           Filtrar
         </button>
         {(statusFilter || typeFilter) && (
           <Link
-            className="rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:underline"
+            className="text-muted-foreground rounded-md px-3 py-1.5 text-sm hover:underline"
             href="/assets"
           >
             Limpar filtros
@@ -142,15 +142,17 @@ export default async function AssetsPage({
       </form>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar os ativos: {error.message}
         </div>
       )}
 
       {!error && assets.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Nenhum ativo encontrado{statusFilter || typeFilter ? " para este filtro" : ", ou nenhum está atribuído a você"}.
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
+            Nenhum ativo encontrado
+            {statusFilter || typeFilter ? " para este filtro" : ", ou nenhum está atribuído a você"}
+            .
           </p>
         </div>
       )}
@@ -162,13 +164,13 @@ export default async function AssetsPage({
             return (
               <li key={asset.id}>
                 <Link
-                  className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+                  className="border-border bg-card hover:bg-muted/50 block rounded-lg border p-4 shadow-sm transition-colors"
                   href={`/assets/${asset.id}`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="font-medium text-foreground">{asset.name}</h2>
-                      <p className="text-xs text-muted-foreground">
+                      <h2 className="text-foreground font-medium">{asset.name}</h2>
+                      <p className="text-muted-foreground text-xs">
                         {asset.asset_tag} · {TYPE_LABEL[asset.type] ?? asset.type}
                         {asset.manufacturer && ` · ${asset.manufacturer}`}
                         {asset.model && ` ${asset.model}`}
@@ -180,7 +182,7 @@ export default async function AssetsPage({
                     />
                   </div>
                   {owner && (
-                    <p className="mt-2 text-xs text-muted-foreground">
+                    <p className="text-muted-foreground mt-2 text-xs">
                       Atribuído a: {owner.full_name}
                     </p>
                   )}

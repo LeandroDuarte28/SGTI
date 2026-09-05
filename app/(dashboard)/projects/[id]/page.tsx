@@ -93,11 +93,11 @@ export default async function ProjectDetailPage({
   if (error || !project) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/projects">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/projects">
           ← Voltar para Projetos
         </Link>
-        <div className="mt-4 rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-4 rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Projeto não encontrado, ou você não tem permissão para vê-lo.
           </p>
         </div>
@@ -107,18 +107,39 @@ export default async function ProjectDetailPage({
 
   const canManageStatus = isManager || project.owner_id === user.id;
 
-  const [milestonesResult, risksResult, refsResult, ownerResult, benefitsResult] = await Promise.all([
-    supabase.schema("project").from("Milestone").select("id, title, due_date, completed_at").eq("project_id", id).order("due_date"),
-    supabase.schema("project").from("Risk").select("id, description, probability, impact, mitigation, is_resolved").eq("project_id", id),
-    supabase.schema("project").from("GithubReference").select("id, ref_type, url, title").eq("project_id", id),
-    supabase.schema("shared").from("UserProfile").select("full_name").eq("id", project.owner_id ?? "").maybeSingle(),
-    supabase
-      .schema("project")
-      .from("ProjectBenefit")
-      .select("id, description, benefit_type, expected_value, realization_deadline, realized_value, status")
-      .eq("project_id", id)
-      .order("created_at"),
-  ]);
+  const [milestonesResult, risksResult, refsResult, ownerResult, benefitsResult] =
+    await Promise.all([
+      supabase
+        .schema("project")
+        .from("Milestone")
+        .select("id, title, due_date, completed_at")
+        .eq("project_id", id)
+        .order("due_date"),
+      supabase
+        .schema("project")
+        .from("Risk")
+        .select("id, description, probability, impact, mitigation, is_resolved")
+        .eq("project_id", id),
+      supabase
+        .schema("project")
+        .from("GithubReference")
+        .select("id, ref_type, url, title")
+        .eq("project_id", id),
+      supabase
+        .schema("shared")
+        .from("UserProfile")
+        .select("full_name")
+        .eq("id", project.owner_id ?? "")
+        .maybeSingle(),
+      supabase
+        .schema("project")
+        .from("ProjectBenefit")
+        .select(
+          "id, description, benefit_type, expected_value, realization_deadline, realized_value, status",
+        )
+        .eq("project_id", id)
+        .order("created_at"),
+    ]);
 
   const milestones = milestonesResult.data ?? [];
   const risks = risksResult.data ?? [];
@@ -135,19 +156,21 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link className="text-sm text-muted-foreground hover:underline" href="/projects">
+      <Link className="text-muted-foreground text-sm hover:underline" href="/projects">
         ← Voltar para Projetos
       </Link>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
+      <div className="border-border bg-card mt-4 rounded-lg border p-6">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-semibold text-foreground">{project.name}</h1>
-          <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+          <h1 className="text-foreground text-xl font-semibold">{project.name}</h1>
+          <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium">
             {STATUS_LABEL[project.status] ?? project.status}
           </span>
         </div>
-        {project.description && <p className="mt-2 text-sm text-foreground">{project.description}</p>}
-        <p className="mt-3 text-xs text-muted-foreground">
+        {project.description && (
+          <p className="text-foreground mt-2 text-sm">{project.description}</p>
+        )}
+        <p className="text-muted-foreground mt-3 text-xs">
           {ownerResult.data && `Responsável: ${ownerResult.data.full_name}`}
           {project.start_date && ` · Início: ${formatDateOnly(project.start_date)}`}
           {project.end_date && ` · Fim: ${formatDateOnly(project.end_date)}`}
@@ -156,10 +179,13 @@ export default async function ProjectDetailPage({
       </div>
 
       {canManageStatus && (
-        <form action={updateProjectStatus} className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-card p-4">
+        <form
+          action={updateProjectStatus}
+          className="border-border bg-card mt-4 flex items-center gap-2 rounded-lg border p-4"
+        >
           <input name="project_id" type="hidden" value={project.id} />
           <select
-            className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+            className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
             defaultValue={project.status}
             key={project.status}
             name="status"
@@ -178,18 +204,18 @@ export default async function ProjectDetailPage({
 
       {isManager && (
         <div className="mt-6">
-          <h2 className="mb-3 font-medium text-foreground">Financeiro do Projeto</h2>
+          <h2 className="text-foreground mb-3 font-medium">Financeiro do Projeto</h2>
           <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-xs text-muted-foreground">Aprovado (Total)</p>
-              <p className="text-sm font-medium text-foreground">{formatCurrency(totalApproved)}</p>
+            <div className="border-border bg-card rounded-lg border p-3">
+              <p className="text-muted-foreground text-xs">Aprovado (Total)</p>
+              <p className="text-foreground text-sm font-medium">{formatCurrency(totalApproved)}</p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-xs text-muted-foreground">Realizado (Total)</p>
-              <p className="text-sm font-medium text-foreground">{formatCurrency(totalRealized)}</p>
+            <div className="border-border bg-card rounded-lg border p-3">
+              <p className="text-muted-foreground text-xs">Realizado (Total)</p>
+              <p className="text-foreground text-sm font-medium">{formatCurrency(totalRealized)}</p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-xs text-muted-foreground">% Utilizado</p>
+            <div className="border-border bg-card rounded-lg border p-3">
+              <p className="text-muted-foreground text-xs">% Utilizado</p>
               <p
                 className={`text-sm font-medium ${
                   percentUsed !== null && percentUsed > 100 ? "text-destructive" : "text-foreground"
@@ -198,22 +224,24 @@ export default async function ProjectDetailPage({
                 {percentUsed !== null ? `${percentUsed.toFixed(1)}%` : "—"}
               </p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-xs text-muted-foreground">Saldo Disponível</p>
-              <p className="text-sm font-medium text-foreground">{formatCurrency(totalApproved - totalRealized)}</p>
+            <div className="border-border bg-card rounded-lg border p-3">
+              <p className="text-muted-foreground text-xs">Saldo Disponível</p>
+              <p className="text-foreground text-sm font-medium">
+                {formatCurrency(totalApproved - totalRealized)}
+              </p>
             </div>
           </div>
           <form
             action={updateProjectFinancials}
-            className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-card p-4 sm:grid-cols-4"
+            className="border-border bg-card grid grid-cols-2 gap-3 rounded-lg border p-4 sm:grid-cols-4"
           >
             <input name="project_id" type="hidden" value={project.id} />
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground" htmlFor="capex_approved">
+              <label className="text-muted-foreground text-xs" htmlFor="capex_approved">
                 CAPEX Aprovado
               </label>
               <input
-                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground w-full rounded-md border px-2 py-1.5 text-sm"
                 defaultValue={project.capex_approved ?? ""}
                 id="capex_approved"
                 min="0"
@@ -223,11 +251,11 @@ export default async function ProjectDetailPage({
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground" htmlFor="opex_approved">
+              <label className="text-muted-foreground text-xs" htmlFor="opex_approved">
                 OPEX Aprovado
               </label>
               <input
-                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground w-full rounded-md border px-2 py-1.5 text-sm"
                 defaultValue={project.opex_approved ?? ""}
                 id="opex_approved"
                 min="0"
@@ -237,11 +265,11 @@ export default async function ProjectDetailPage({
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground" htmlFor="capex_realized">
+              <label className="text-muted-foreground text-xs" htmlFor="capex_realized">
                 CAPEX Realizado
               </label>
               <input
-                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground w-full rounded-md border px-2 py-1.5 text-sm"
                 defaultValue={project.capex_realized}
                 id="capex_realized"
                 min="0"
@@ -251,11 +279,11 @@ export default async function ProjectDetailPage({
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground" htmlFor="opex_realized">
+              <label className="text-muted-foreground text-xs" htmlFor="opex_realized">
                 OPEX Realizado
               </label>
               <input
-                className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground w-full rounded-md border px-2 py-1.5 text-sm"
                 defaultValue={project.opex_realized}
                 id="opex_realized"
                 min="0"
@@ -274,17 +302,24 @@ export default async function ProjectDetailPage({
       )}
 
       <div className="mt-6">
-        <h2 className="mb-3 font-medium text-foreground">Marcos</h2>
+        <h2 className="text-foreground mb-3 font-medium">Marcos</h2>
         {milestones.length > 0 && (
           <ul className="mb-4 space-y-2">
             {milestones.map((milestone) => (
-              <li className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3" key={milestone.id}>
+              <li
+                className="border-border bg-card flex items-center justify-between gap-3 rounded-lg border p-3"
+                key={milestone.id}
+              >
                 <div>
-                  <p className={`text-sm ${milestone.completed_at ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                  <p
+                    className={`text-sm ${milestone.completed_at ? "text-muted-foreground line-through" : "text-foreground"}`}
+                  >
                     {milestone.title}
                   </p>
                   {milestone.due_date && (
-                    <p className="text-xs text-muted-foreground">Prazo: {formatDateOnly(milestone.due_date)}</p>
+                    <p className="text-muted-foreground text-xs">
+                      Prazo: {formatDateOnly(milestone.due_date)}
+                    </p>
                   )}
                 </div>
                 {isItStaff && !milestone.completed_at && (
@@ -301,16 +336,23 @@ export default async function ProjectDetailPage({
           </ul>
         )}
         {isItStaff && (
-          <form action={addMilestone} className="flex items-center gap-2 rounded-lg border border-border bg-card p-4">
+          <form
+            action={addMilestone}
+            className="border-border bg-card flex items-center gap-2 rounded-lg border p-4"
+          >
             <input name="project_id" type="hidden" value={project.id} />
             <input
               required
-              className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground flex-1 rounded-md border px-3 py-1.5 text-sm"
               name="title"
               placeholder="Título do marco"
               type="text"
             />
-            <input className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground" name="due_date" type="date" />
+            <input
+              className="border-input bg-background text-foreground rounded-md border px-3 py-1.5 text-sm"
+              name="due_date"
+              type="date"
+            />
             <Button size="sm" type="submit">
               Adicionar
             </Button>
@@ -319,25 +361,33 @@ export default async function ProjectDetailPage({
       </div>
 
       <div className="mt-6">
-        <h2 className="mb-3 font-medium text-foreground">Riscos</h2>
+        <h2 className="text-foreground mb-3 font-medium">Riscos</h2>
         {risks.length > 0 && (
           <ul className="mb-4 space-y-2">
             {risks.map((risk) => (
-              <li className="rounded-lg border border-border bg-card p-3" key={risk.id}>
+              <li className="border-border bg-card rounded-lg border p-3" key={risk.id}>
                 <div className="flex items-start justify-between gap-3">
-                  <p className={`text-sm ${risk.is_resolved ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                  <p
+                    className={`text-sm ${risk.is_resolved ? "text-muted-foreground line-through" : "text-foreground"}`}
+                  >
                     {risk.description}
                   </p>
                   <div className="flex shrink-0 gap-1">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${RISK_LEVEL_CLASS[risk.probability] ?? ""}`}>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${RISK_LEVEL_CLASS[risk.probability] ?? ""}`}
+                    >
                       P: {RISK_LEVEL_LABEL[risk.probability]}
                     </span>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${RISK_LEVEL_CLASS[risk.impact] ?? ""}`}>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${RISK_LEVEL_CLASS[risk.impact] ?? ""}`}
+                    >
                       I: {RISK_LEVEL_LABEL[risk.impact]}
                     </span>
                   </div>
                 </div>
-                {risk.mitigation && <p className="mt-1 text-xs text-muted-foreground">Mitigação: {risk.mitigation}</p>}
+                {risk.mitigation && (
+                  <p className="text-muted-foreground mt-1 text-xs">Mitigação: {risk.mitigation}</p>
+                )}
                 {isItStaff && !risk.is_resolved && (
                   <form action={resolveRisk} className="mt-2">
                     <input name="risk_id" type="hidden" value={risk.id} />
@@ -352,17 +402,22 @@ export default async function ProjectDetailPage({
           </ul>
         )}
         {isItStaff && (
-          <form action={addRisk} className="space-y-2 rounded-lg border border-border bg-card p-4">
+          <form action={addRisk} className="border-border bg-card space-y-2 rounded-lg border p-4">
             <input name="project_id" type="hidden" value={project.id} />
             <input
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm"
               name="description"
               placeholder="Descrição do risco"
               type="text"
             />
             <div className="grid grid-cols-2 gap-2">
-              <select required className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground" defaultValue="" name="probability">
+              <select
+                required
+                className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
+                defaultValue=""
+                name="probability"
+              >
                 <option disabled value="">
                   Probabilidade
                 </option>
@@ -370,7 +425,12 @@ export default async function ProjectDetailPage({
                 <option value="MEDIUM">Médio</option>
                 <option value="HIGH">Alto</option>
               </select>
-              <select required className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground" defaultValue="" name="impact">
+              <select
+                required
+                className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
+                defaultValue=""
+                name="impact"
+              >
                 <option disabled value="">
                   Impacto
                 </option>
@@ -380,7 +440,7 @@ export default async function ProjectDetailPage({
               </select>
             </div>
             <input
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm"
               name="mitigation"
               placeholder="Plano de mitigação (opcional)"
               type="text"
@@ -395,23 +455,36 @@ export default async function ProjectDetailPage({
       </div>
 
       <div className="mt-6">
-        <h2 className="mb-3 font-medium text-foreground">Referências GitHub</h2>
+        <h2 className="text-foreground mb-3 font-medium">Referências GitHub</h2>
         {githubRefs.length > 0 && (
           <ul className="mb-4 space-y-2">
             {githubRefs.map((ref) => (
-              <li className="rounded-lg border border-border bg-card p-3 text-sm" key={ref.id}>
-                <a className="text-foreground underline" href={ref.url} rel="noreferrer" target="_blank">
+              <li className="border-border bg-card rounded-lg border p-3 text-sm" key={ref.id}>
+                <a
+                  className="text-foreground underline"
+                  href={ref.url}
+                  rel="noreferrer"
+                  target="_blank"
+                >
                   {ref.title ?? ref.url}
                 </a>
-                <span className="ml-2 text-xs text-muted-foreground">{ref.ref_type}</span>
+                <span className="text-muted-foreground ml-2 text-xs">{ref.ref_type}</span>
               </li>
             ))}
           </ul>
         )}
         {isItStaff && (
-          <form action={addGithubReference} className="flex items-center gap-2 rounded-lg border border-border bg-card p-4">
+          <form
+            action={addGithubReference}
+            className="border-border bg-card flex items-center gap-2 rounded-lg border p-4"
+          >
             <input name="project_id" type="hidden" value={project.id} />
-            <select required className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground" defaultValue="" name="ref_type">
+            <select
+              required
+              className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
+              defaultValue=""
+              name="ref_type"
+            >
               <option disabled value="">
                 Tipo
               </option>
@@ -423,13 +496,13 @@ export default async function ProjectDetailPage({
             </select>
             <input
               required
-              className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground flex-1 rounded-md border px-3 py-1.5 text-sm"
               name="url"
               placeholder="URL"
               type="text"
             />
             <input
-              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground rounded-md border px-3 py-1.5 text-sm"
               name="title"
               placeholder="Título (opcional)"
               type="text"
@@ -443,19 +516,21 @@ export default async function ProjectDetailPage({
 
       {isItStaff && (
         <div className="mt-6">
-          <h2 className="mb-3 font-medium text-foreground">Benefícios</h2>
+          <h2 className="text-foreground mb-3 font-medium">Benefícios</h2>
           {benefits.length > 0 && (
             <ul className="mb-4 space-y-2">
               {benefits.map((benefit) => (
-                <li className="rounded-lg border border-border bg-card p-3" key={benefit.id}>
+                <li className="border-border bg-card rounded-lg border p-3" key={benefit.id}>
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm text-foreground">{benefit.description}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-foreground text-sm">{benefit.description}</p>
+                      <p className="text-muted-foreground text-xs">
                         {BENEFIT_TYPE_LABEL[benefit.benefit_type] ?? benefit.benefit_type} · Prazo:{" "}
                         {formatDateOnly(benefit.realization_deadline)}
-                        {benefit.expected_value !== null && ` · Esperado: ${formatCurrency(Number(benefit.expected_value))}`}
-                        {benefit.realized_value !== null && ` · Realizado: ${formatCurrency(Number(benefit.realized_value))}`}
+                        {benefit.expected_value !== null &&
+                          ` · Esperado: ${formatCurrency(Number(benefit.expected_value))}`}
+                        {benefit.realized_value !== null &&
+                          ` · Realizado: ${formatCurrency(Number(benefit.realized_value))}`}
                       </p>
                     </div>
                     <span
@@ -466,11 +541,14 @@ export default async function ProjectDetailPage({
                       {BENEFIT_STATUS_LABEL[benefit.status] ?? benefit.status}
                     </span>
                   </div>
-                  <form action={measureProjectBenefit} className="mt-2 flex flex-wrap items-center gap-2">
+                  <form
+                    action={measureProjectBenefit}
+                    className="mt-2 flex flex-wrap items-center gap-2"
+                  >
                     <input name="benefit_id" type="hidden" value={benefit.id} />
                     <input name="project_id" type="hidden" value={project.id} />
                     <input
-                      className="w-32 rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground"
+                      className="border-input bg-background text-foreground w-32 rounded-md border px-2 py-1 text-xs"
                       defaultValue={benefit.realized_value ?? ""}
                       min="0"
                       name="realized_value"
@@ -479,7 +557,7 @@ export default async function ProjectDetailPage({
                       type="number"
                     />
                     <select
-                      className="rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground"
+                      className="border-input bg-background text-foreground rounded-md border px-2 py-1 text-xs"
                       defaultValue={benefit.status}
                       key={benefit.status}
                       name="status"
@@ -498,17 +576,25 @@ export default async function ProjectDetailPage({
               ))}
             </ul>
           )}
-          <form action={addProjectBenefit} className="space-y-2 rounded-lg border border-border bg-card p-4">
+          <form
+            action={addProjectBenefit}
+            className="border-border bg-card space-y-2 rounded-lg border p-4"
+          >
             <input name="project_id" type="hidden" value={project.id} />
             <input
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground w-full rounded-md border px-3 py-1.5 text-sm"
               name="description"
               placeholder="Descrição do benefício esperado"
               type="text"
             />
             <div className="grid grid-cols-3 gap-2">
-              <select required className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground" defaultValue="" name="benefit_type">
+              <select
+                required
+                className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
+                defaultValue=""
+                name="benefit_type"
+              >
                 <option disabled value="">
                   Tipo
                 </option>
@@ -519,7 +605,7 @@ export default async function ProjectDetailPage({
                 ))}
               </select>
               <input
-                className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+                className="border-input bg-background text-foreground placeholder:text-muted-foreground rounded-md border px-2 py-1.5 text-sm"
                 min="0"
                 name="expected_value"
                 placeholder="Valor esperado (R$, opcional)"
@@ -528,7 +614,7 @@ export default async function ProjectDetailPage({
               />
               <input
                 required
-                className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
                 name="realization_deadline"
                 type="date"
               />

@@ -1,11 +1,12 @@
 # SGTI — Regras do Claude Code
 
-> Este arquivo é lido automaticamente pelo Claude Code em toda sessão.
-> É derivado de `Docs/01_CLAUDE.md` — a fonte de verdade permanece nos Docs.
+> Este arquivo é lido automaticamente pelo Claude Code em toda sessão. É
+> derivado de `Docs/01_CLAUDE.md` — a fonte de verdade permanece nos Docs.
 
 ## Stack Obrigatória (Sprint 0+)
 
-- **Frontend:** Next.js 15 (App Router) · TypeScript 5 · Tailwind CSS 4 · shadcn/ui
+- **Frontend:** Next.js 15 (App Router) · TypeScript 5 · Tailwind CSS 4 ·
+  shadcn/ui
 - **Backend:** Supabase Edge Functions (Deno)
 - **Banco:** Supabase PostgreSQL (SQL migrations — sem Prisma neste projeto)
 - **Auth:** Supabase Auth + Google OAuth 2.0
@@ -40,8 +41,8 @@
 
 ## Estrutura de Schemas PostgreSQL
 
-Cada módulo tem seu próprio schema. Nunca importar dados de outros schemas diretamente.
-Ver: `Docs/71_SUPABASE.md` e `supabase/migrations/`.
+Cada módulo tem seu próprio schema. Nunca importar dados de outros schemas
+diretamente. Ver: `Docs/71_SUPABASE.md` e `supabase/migrations/`.
 
 ## Referências
 

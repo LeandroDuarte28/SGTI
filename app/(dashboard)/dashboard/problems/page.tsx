@@ -20,14 +20,20 @@ export default async function ProblemsDashboardPage(): Promise<React.JSX.Element
     supabase.schema("ticket").from("Problem").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
     supabase.schema("ticket").from("Problem").select("id").eq("is_known_error", true),
     supabase.schema("ticket").from("Problem").select("id").gte("related_incident_count", 3),
-    supabase.schema("ticket").from("Problem").select("created_at, updated_at").in("status", ["RESOLVED", "CLOSED"]),
+    supabase
+      .schema("ticket")
+      .from("Problem")
+      .select("created_at, updated_at")
+      .in("status", ["RESOLVED", "CLOSED"]),
   ]);
 
   const resolvedRows = resolvedRowsResult.data ?? [];
   const avgResolutionDays =
     resolvedRows.length > 0
       ? resolvedRows.reduce(
-          (sum, r) => sum + (new Date(r.updated_at).getTime() - new Date(r.created_at).getTime()) / 86_400_000,
+          (sum, r) =>
+            sum +
+            (new Date(r.updated_at).getTime() - new Date(r.created_at).getTime()) / 86_400_000,
           0,
         ) / resolvedRows.length
       : NaN;
@@ -35,13 +41,23 @@ export default async function ProblemsDashboardPage(): Promise<React.JSX.Element
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard de Problemas</h1>
-        <p className="text-sm text-muted-foreground">Gestão proativa de problemas e erros conhecidos.</p>
+        <h1 className="text-foreground text-2xl font-semibold">Dashboard de Problemas</h1>
+        <p className="text-muted-foreground text-sm">
+          Gestão proativa de problemas e erros conhecidos.
+        </p>
       </div>
 
       <Section title="Visão Geral">
-        <StatCard href="/problems" label="Problemas Abertos" value={String(openResult.data?.length ?? 0)} />
-        <StatCard href="/problems" label="Erros Conhecidos (KEDB)" value={String(knownErrorsResult.data?.length ?? 0)} />
+        <StatCard
+          href="/problems"
+          label="Problemas Abertos"
+          value={String(openResult.data?.length ?? 0)}
+        />
+        <StatCard
+          href="/problems"
+          label="Erros Conhecidos (KEDB)"
+          value={String(knownErrorsResult.data?.length ?? 0)}
+        />
         <StatCard
           href="/problems"
           label="Problemas Recorrentes"

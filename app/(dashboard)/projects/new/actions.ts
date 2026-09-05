@@ -37,11 +37,15 @@ export async function createProject(formData: FormData): Promise<void> {
     .from("Project")
     .insert({
       name: name.trim(),
-      description: typeof description === "string" && description.trim().length > 0 ? description.trim() : null,
+      description:
+        typeof description === "string" && description.trim().length > 0
+          ? description.trim()
+          : null,
       budget_id: typeof budgetId === "string" && budgetId !== "" ? budgetId : null,
       start_date: typeof startDate === "string" && startDate.length > 0 ? startDate : null,
       end_date: typeof endDate === "string" && endDate.length > 0 ? endDate : null,
-      github_repo: typeof githubRepo === "string" && githubRepo.trim().length > 0 ? githubRepo.trim() : null,
+      github_repo:
+        typeof githubRepo === "string" && githubRepo.trim().length > 0 ? githubRepo.trim() : null,
       owner_id: user.id,
     })
     .select("id")

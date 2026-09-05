@@ -85,7 +85,9 @@ export async function createFinding(formData: FormData): Promise<void> {
   }
 
   const parsedCost =
-    typeof estimatedCost === "string" && estimatedCost.trim().length > 0 ? Number(estimatedCost) : null;
+    typeof estimatedCost === "string" && estimatedCost.trim().length > 0
+      ? Number(estimatedCost)
+      : null;
 
   const { data: finding, error } = await supabase
     .schema("compliance")
@@ -108,7 +110,9 @@ export async function createFinding(formData: FormData): Promise<void> {
     .single();
 
   if (error || !finding) {
-    throw new Error(`Não foi possível criar o apontamento: ${error?.message ?? "erro desconhecido"}`);
+    throw new Error(
+      `Não foi possível criar o apontamento: ${error?.message ?? "erro desconhecido"}`,
+    );
   }
 
   redirect(`/compliance/findings/${finding.id}`);

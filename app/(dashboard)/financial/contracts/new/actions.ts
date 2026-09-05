@@ -43,18 +43,21 @@ export async function createContract(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.schema("financial").from("Contract").insert({
-    vendor_name: vendorName.trim(),
-    title: title.trim(),
-    category,
-    start_date: startDate,
-    end_date: typeof endDate === "string" && endDate.length > 0 ? endDate : null,
-    value: parsedValue,
-    renewal_notice_days:
-      typeof renewalNoticeDays === "string" && renewalNoticeDays.length > 0
-        ? Number(renewalNoticeDays)
-        : 30,
-  });
+  const { error } = await supabase
+    .schema("financial")
+    .from("Contract")
+    .insert({
+      vendor_name: vendorName.trim(),
+      title: title.trim(),
+      category,
+      start_date: startDate,
+      end_date: typeof endDate === "string" && endDate.length > 0 ? endDate : null,
+      value: parsedValue,
+      renewal_notice_days:
+        typeof renewalNoticeDays === "string" && renewalNoticeDays.length > 0
+          ? Number(renewalNoticeDays)
+          : 30,
+    });
 
   if (error) {
     throw new Error(`Não foi possível criar o contrato: ${error.message}`);

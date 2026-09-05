@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import type { Database } from "@/lib/supabase/database.types";
 import { evaluateResolutionSla } from "@/lib/utils/sla";
 
-import { addComment, assignToMe, escalateIncident, resolveEscalation, updateStatus } from "./actions";
+import {
+  addComment,
+  assignToMe,
+  escalateIncident,
+  resolveEscalation,
+  updateStatus,
+} from "./actions";
 
 export const metadata: Metadata = { title: "Detalhe do Incidente" };
 
@@ -67,11 +73,11 @@ export default async function IncidentDetailPage({
   if (error || !incident) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/incidents">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/incidents">
           ← Voltar para Incidentes
         </Link>
-        <div className="mt-4 rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-4 rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Incidente não encontrado, ou você não tem permissão para vê-lo.
           </p>
         </div>
@@ -114,11 +120,7 @@ export default async function IncidentDetailPage({
     .order("escalated_at", { ascending: false });
 
   const { data: itStaffRoles } = isItStaff
-    ? await supabase
-        .schema("shared")
-        .from("UserRole")
-        .select("user_id")
-        .in("role", IT_STAFF_ROLES)
+    ? await supabase.schema("shared").from("UserRole").select("user_id").in("role", IT_STAFF_ROLES)
     : { data: null };
 
   const itStaffIds = [...new Set((itStaffRoles ?? []).map((r) => r.user_id))].filter(
@@ -148,26 +150,28 @@ export default async function IncidentDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link className="text-sm text-muted-foreground hover:underline" href="/incidents">
+      <Link className="text-muted-foreground text-sm hover:underline" href="/incidents">
         ← Voltar para Incidentes
       </Link>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
+      <div className="border-border bg-card mt-4 rounded-lg border p-6">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-semibold text-foreground">{incident.title}</h1>
+          <h1 className="text-foreground text-xl font-semibold">{incident.title}</h1>
           <div className="flex shrink-0 gap-2">
             {slaStatus && (
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${SLA_BADGE_CLASS[slaStatus]}`}>
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${SLA_BADGE_CLASS[slaStatus]}`}
+              >
                 {SLA_BADGE_LABEL[slaStatus]}
               </span>
             )}
-            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-medium">
               {PRIORITY_LABEL[incident.priority] ?? incident.priority}
             </span>
           </div>
         </div>
-        <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{incident.description}</p>
-        <p className="mt-4 text-xs text-muted-foreground">
+        <p className="text-foreground mt-3 text-sm whitespace-pre-wrap">{incident.description}</p>
+        <p className="text-muted-foreground mt-4 text-xs">
           Reportado por {nameFor(incident.reporter_id)} em{" "}
           {new Date(incident.created_at).toLocaleDateString("pt-BR")} · Responsável:{" "}
           {nameFor(incident.assignee_id)}
@@ -176,11 +180,11 @@ export default async function IncidentDetailPage({
       </div>
 
       {isItStaff && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4">
+        <div className="border-border bg-card mt-4 flex flex-wrap items-center gap-3 rounded-lg border p-4">
           <form action={updateStatus} className="flex items-center gap-2">
             <input name="incident_id" type="hidden" value={incident.id} />
             <select
-              className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
               defaultValue={incident.status}
               name="status"
             >
@@ -207,21 +211,21 @@ export default async function IncidentDetailPage({
       )}
 
       {!isItStaff && (
-        <div className="mt-4 inline-block rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+        <div className="bg-muted text-muted-foreground mt-4 inline-block rounded-full px-3 py-1 text-xs">
           Status: {STATUS_LABEL[incident.status] ?? incident.status}
         </div>
       )}
 
       {(isItStaff || (escalations && escalations.length > 0)) && (
         <div className="mt-6">
-          <h2 className="mb-3 font-medium text-foreground">Escalonamento</h2>
+          <h2 className="text-foreground mb-3 font-medium">Escalonamento</h2>
 
           {escalations && escalations.length > 0 && (
             <ul className="mb-4 space-y-3">
               {escalations.map((escalation) => (
-                <li className="rounded-lg border border-border bg-card p-3" key={escalation.id}>
+                <li className="border-border bg-card rounded-lg border p-3" key={escalation.id}>
                   <div className="flex items-start justify-between gap-4">
-                    <p className="text-sm text-foreground">
+                    <p className="text-foreground text-sm">
                       Escalonado para {nameFor(escalation.escalated_to)}
                     </p>
                     <span
@@ -234,8 +238,8 @@ export default async function IncidentDetailPage({
                       {escalation.resolved_at ? "Resolvido" : "Em aberto"}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">{escalation.reason}</p>
-                  <p className="mt-2 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-sm">{escalation.reason}</p>
+                  <p className="text-muted-foreground mt-2 text-xs">
                     {new Date(escalation.escalated_at).toLocaleDateString("pt-BR")}
                     {escalation.resolved_at &&
                       ` · resolvido em ${new Date(escalation.resolved_at).toLocaleDateString("pt-BR")}`}
@@ -255,12 +259,15 @@ export default async function IncidentDetailPage({
           )}
 
           {isItStaff && itStaffIds.length > 0 && (
-            <form action={escalateIncident} className="space-y-2 rounded-lg border border-border bg-card p-4">
+            <form
+              action={escalateIncident}
+              className="border-border bg-card space-y-2 rounded-lg border p-4"
+            >
               <input name="incident_id" type="hidden" value={incident.id} />
               <div className="flex flex-col gap-2 sm:flex-row">
                 <select
                   required
-                  className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                  className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
                   defaultValue=""
                   name="escalated_to"
                 >
@@ -275,7 +282,7 @@ export default async function IncidentDetailPage({
                 </select>
                 <input
                   required
-                  className="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex-1 rounded-md border px-3 py-1.5 text-sm focus-visible:ring-2 focus-visible:outline-none"
                   name="reason"
                   placeholder="Motivo do escalonamento"
                   type="text"
@@ -290,14 +297,14 @@ export default async function IncidentDetailPage({
       )}
 
       <div className="mt-6">
-        <h2 className="mb-3 font-medium text-foreground">Comentários</h2>
+        <h2 className="text-foreground mb-3 font-medium">Comentários</h2>
 
         {comments && comments.length > 0 && (
           <ul className="mb-4 space-y-3">
             {comments.map((comment) => (
-              <li className="rounded-lg border border-border bg-card p-3" key={comment.id}>
-                <p className="text-sm text-foreground">{comment.body}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
+              <li className="border-border bg-card rounded-lg border p-3" key={comment.id}>
+                <p className="text-foreground text-sm">{comment.body}</p>
+                <p className="text-muted-foreground mt-1 text-xs">
                   {nameFor(comment.author_id)} ·{" "}
                   {new Date(comment.created_at).toLocaleDateString("pt-BR")}
                 </p>
@@ -310,7 +317,7 @@ export default async function IncidentDetailPage({
           <input name="incident_id" type="hidden" value={incident.id} />
           <textarea
             required
-            className="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring min-h-20 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             name="body"
             placeholder="Escreva um comentário..."
           />

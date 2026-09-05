@@ -10,6 +10,10 @@ export async function fetchUserNames(
     return new Map();
   }
 
-  const { data } = await supabase.schema("shared").from("UserProfile").select("id, full_name").in("id", uniqueIds);
+  const { data } = await supabase
+    .schema("shared")
+    .from("UserProfile")
+    .select("id, full_name")
+    .in("id", uniqueIds);
   return new Map((data ?? []).map((row) => [row.id as string, row.full_name as string]));
 }

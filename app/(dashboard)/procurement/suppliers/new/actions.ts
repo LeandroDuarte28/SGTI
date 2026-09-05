@@ -20,14 +20,21 @@ export async function createSupplier(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.schema("procurement").from("Supplier").insert({
-    name: name.trim(),
-    tax_id: typeof taxId === "string" && taxId.trim().length > 0 ? taxId.trim() : null,
-    contact_email:
-      typeof contactEmail === "string" && contactEmail.trim().length > 0 ? contactEmail.trim() : null,
-    contact_phone:
-      typeof contactPhone === "string" && contactPhone.trim().length > 0 ? contactPhone.trim() : null,
-  });
+  const { error } = await supabase
+    .schema("procurement")
+    .from("Supplier")
+    .insert({
+      name: name.trim(),
+      tax_id: typeof taxId === "string" && taxId.trim().length > 0 ? taxId.trim() : null,
+      contact_email:
+        typeof contactEmail === "string" && contactEmail.trim().length > 0
+          ? contactEmail.trim()
+          : null,
+      contact_phone:
+        typeof contactPhone === "string" && contactPhone.trim().length > 0
+          ? contactPhone.trim()
+          : null,
+    });
 
   if (error) {
     throw new Error(`Não foi possível cadastrar o fornecedor: ${error.message}`);

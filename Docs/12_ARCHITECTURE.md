@@ -1,12 +1,12 @@
 # SGTI — Sistema de Gestão de Tecnologia da Informação
+
 ## Arquitetura Corporativa
 
-> **Classificação:** Interno — Restrito
-> **Versão:** 2.0.0
-> **Status:** Aprovado para Desenvolvimento
-> **Última Atualização:** 2026-06-09
-> **Responsável:** Arquitetura Corporativa de TI
-> **Documentos Relacionados:** [01_CLAUDE.md](../01_CLAUDE.md) · [11_TECH_STACK.md](../11_TECH_STACK.md) · [00_PROJECT_CONTEXT.md](../00_PROJECT_CONTEXT.md)
+> **Classificação:** Interno — Restrito **Versão:** 2.0.0 **Status:** Aprovado
+> para Desenvolvimento **Última Atualização:** 2026-06-09 **Responsável:**
+> Arquitetura Corporativa de TI **Documentos Relacionados:**
+> [01_CLAUDE.md](../01_CLAUDE.md) · [11_TECH_STACK.md](../11_TECH_STACK.md) ·
+> [00_PROJECT_CONTEXT.md](../00_PROJECT_CONTEXT.md)
 
 ---
 
@@ -103,15 +103,15 @@
 
 ### 1.3 Princípios Arquiteturais
 
-| Princípio | Aplicação no SGTI |
-|-----------|-------------------|
+| Princípio                          | Aplicação no SGTI                                              |
+| ---------------------------------- | -------------------------------------------------------------- |
 | **Separação de responsabilidades** | Cada camada tem uma única preocupação; verificação por linting |
-| **Inversão de dependência** | Domínio define interfaces; infraestrutura implementa |
-| **Isolamento de contextos** | Módulos comunicam-se apenas via eventos de domínio |
-| **Auditabilidade** | Toda operação de escrita gera log imutável |
-| **Segurança por padrão** | RLS em todas as tabelas sensíveis; JWT RS256; cookies HttpOnly |
-| **Resiliência** | Falhas em integrações externas não afetam o núcleo |
-| **Evolução planejada** | Fronteiras do DDD habilitam extração futura para microserviços |
+| **Inversão de dependência**        | Domínio define interfaces; infraestrutura implementa           |
+| **Isolamento de contextos**        | Módulos comunicam-se apenas via eventos de domínio             |
+| **Auditabilidade**                 | Toda operação de escrita gera log imutável                     |
+| **Segurança por padrão**           | RLS em todas as tabelas sensíveis; JWT RS256; cookies HttpOnly |
+| **Resiliência**                    | Falhas em integrações externas não afetam o núcleo             |
+| **Evolução planejada**             | Fronteiras do DDD habilitam extração futura para microserviços |
 
 ---
 
@@ -119,21 +119,25 @@
 
 ### 2.1 Definição e Justificativa
 
-O SGTI é implementado como **Modular Monolith**: uma única unidade de deploy internamente organizada em módulos com fronteiras de domínio tão rigorosas quanto as de microserviços.
+O SGTI é implementado como **Modular Monolith**: uma única unidade de deploy
+internamente organizada em módulos com fronteiras de domínio tão rigorosas
+quanto as de microserviços.
 
 **Por que não microserviços no MVP:**
 
-| Fator | Impacto |
-|-------|---------|
-| Equipe inicial pequena | Overhead operacional de microserviços (service discovery, sagas, tracing distribuído) sem retorno proporcional |
-| Domínio em evolução | Congelar fronteiras em serviços físicos antes de validá-las em produção gera acoplamento invertido |
-| Transações ACID necessárias | Operações que cruzam módulos precisam de atomicidade — sagas adicionariam complexidade não justificada |
-| Custo zero | Um processo único roda na Vercel gratuitamente; múltiplos serviços exigem infraestrutura paga |
+| Fator                       | Impacto                                                                                                        |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Equipe inicial pequena      | Overhead operacional de microserviços (service discovery, sagas, tracing distribuído) sem retorno proporcional |
+| Domínio em evolução         | Congelar fronteiras em serviços físicos antes de validá-las em produção gera acoplamento invertido             |
+| Transações ACID necessárias | Operações que cruzam módulos precisam de atomicidade — sagas adicionariam complexidade não justificada         |
+| Custo zero                  | Um processo único roda na Vercel gratuitamente; múltiplos serviços exigem infraestrutura paga                  |
 
 **Como o Modular Monolith preserva a evolução:**
 
-- Fronteiras do DDD são reais e verificadas por regras de linting desde o início.
-- Comunicação entre módulos via EventBus desde o primeiro dia — mesmo padrão de message broker futuro.
+- Fronteiras do DDD são reais e verificadas por regras de linting desde o
+  início.
+- Comunicação entre módulos via EventBus desde o primeiro dia — mesmo padrão de
+  message broker futuro.
 - Schemas de banco isolados por módulo — sem JOINs cruzando contextos.
 - Extração futura é operação de infraestrutura; o código de domínio não muda.
 
@@ -173,12 +177,12 @@ O SGTI é implementado como **Modular Monolith**: uma única unidade de deploy i
 
 ### 2.3 Regras de Isolamento Entre Módulos
 
-| Regra | Mecanismo de Verificação |
-|-------|-------------------------|
-| Nenhum módulo importa código de outro módulo | ESLint rule: `no-restricted-imports` por pasta |
-| Comunicação assíncrona apenas via EventBus | Code review + arquitetura documentada |
-| Sem JOINs SQL entre schemas distintos | Prisma por schema + lint de queries |
-| Dados de outros contextos obtidos via Read Repository | Interface dedicada de leitura |
+| Regra                                                 | Mecanismo de Verificação                       |
+| ----------------------------------------------------- | ---------------------------------------------- |
+| Nenhum módulo importa código de outro módulo          | ESLint rule: `no-restricted-imports` por pasta |
+| Comunicação assíncrona apenas via EventBus            | Code review + arquitetura documentada          |
+| Sem JOINs SQL entre schemas distintos                 | Prisma por schema + lint de queries            |
+| Dados de outros contextos obtidos via Read Repository | Interface dedicada de leitura                  |
 
 ---
 
@@ -255,35 +259,44 @@ src/modules/[modulo]/
 
 ### 3.3 Camada de Domínio
 
-**Responsabilidade:** Conter e proteger as regras de negócio. Completamente independente de frameworks.
+**Responsabilidade:** Conter e proteger as regras de negócio. Completamente
+independente de frameworks.
 
 **Regras obrigatórias:**
-- Zero imports de `@nestjs/*`, `prisma`, `supabase` ou qualquer biblioteca externa.
+
+- Zero imports de `@nestjs/*`, `prisma`, `supabase` ou qualquer biblioteca
+  externa.
 - Entidades expõem apenas métodos de comportamento — sem setters públicos.
 - Value Objects validam no construtor; objetos inválidos nunca são instanciados.
-- Exceções são classes tipadas do domínio: `IncidentAlreadyResolvedException`, `SlaBreachedException`.
+- Exceções são classes tipadas do domínio: `IncidentAlreadyResolvedException`,
+  `SlaBreachedException`.
 - Testável de forma completamente isolada, sem nenhum mock de infraestrutura.
 
 **Blocos táticos utilizados:**
 
-| Bloco | Descrição | Exemplos no SGTI |
-|-------|-----------|-----------------|
-| Entity | Identidade única, estado mutável | `Incident`, `Asset`, `Project` |
-| Value Object | Sem identidade, imutável | `Priority`, `SlaTarget`, `MoneyAmount` |
-| Aggregate Root | Controla invariantes do agregado | `Incident`, `Asset`, `UserIdentity` |
-| Domain Event | Fato ocorrido no domínio (passado) | `IncidentOpened`, `AccessRevoked` |
-| Repository Interface | Contrato de persistência | `IIncidentRepository` |
-| Domain Service | Lógica sem entidade natural | `PriorityMatrixService`, `SlaCalculationService` |
-| Exception | Violação de regra de negócio | `InsufficientAccessLevelException` |
+| Bloco                | Descrição                          | Exemplos no SGTI                                 |
+| -------------------- | ---------------------------------- | ------------------------------------------------ |
+| Entity               | Identidade única, estado mutável   | `Incident`, `Asset`, `Project`                   |
+| Value Object         | Sem identidade, imutável           | `Priority`, `SlaTarget`, `MoneyAmount`           |
+| Aggregate Root       | Controla invariantes do agregado   | `Incident`, `Asset`, `UserIdentity`              |
+| Domain Event         | Fato ocorrido no domínio (passado) | `IncidentOpened`, `AccessRevoked`                |
+| Repository Interface | Contrato de persistência           | `IIncidentRepository`                            |
+| Domain Service       | Lógica sem entidade natural        | `PriorityMatrixService`, `SlaCalculationService` |
+| Exception            | Violação de regra de negócio       | `InsufficientAccessLevelException`               |
 
 ### 3.4 Camada de Aplicação
 
-**Responsabilidade:** Orquestrar casos de uso. Coordena domínio, repositórios e ports — sem regras de negócio próprias.
+**Responsabilidade:** Orquestrar casos de uso. Coordena domínio, repositórios e
+ports — sem regras de negócio próprias.
 
 **Regras obrigatórias:**
-- Um Use Case por arquivo, responsabilidade única no nome: `OpenIncidentUseCase`.
-- Input DTO → Use Case → Output DTO. Nunca expor entidade de domínio para a camada de interface.
-- Ports (interfaces para serviços externos) definidos aqui; implementações na infraestrutura.
+
+- Um Use Case por arquivo, responsabilidade única no nome:
+  `OpenIncidentUseCase`.
+- Input DTO → Use Case → Output DTO. Nunca expor entidade de domínio para a
+  camada de interface.
+- Ports (interfaces para serviços externos) definidos aqui; implementações na
+  infraestrutura.
 - Sem lógica de formatação, serialização ou apresentação.
 
 **Anatomia de um Use Case:**
@@ -308,12 +321,15 @@ OpenIncidentUseCase
 
 ### 3.5 Camada de Infraestrutura
 
-**Responsabilidade:** Implementar as interfaces do domínio e da aplicação usando tecnologias concretas.
+**Responsabilidade:** Implementar as interfaces do domínio e da aplicação usando
+tecnologias concretas.
 
 **Regras obrigatórias:**
+
 - Toda chamada ao Prisma Client ocorre aqui e apenas aqui.
 - Erros de infraestrutura traduzidos para exceções de domínio antes de propagar.
-- Mappers explícitos entre modelo Prisma (flat/snake_case) e entidade de domínio (rich model).
+- Mappers explícitos entre modelo Prisma (flat/snake_case) e entidade de domínio
+  (rich model).
 
 ```
 Erro de infraestrutura → Exceção de domínio:
@@ -331,15 +347,22 @@ HttpException (GLPI 404)
 ### 3.6 Camada de Interface (Apresentação)
 
 **Backend — NestJS:**
-- Controllers com máximo de 10 linhas por método — sem lógica além de chamar Use Case.
+
+- Controllers com máximo de 10 linhas por método — sem lógica além de chamar Use
+  Case.
 - `ValidationPipe` global com `class-validator` em todos os DTOs de entrada.
 - `GlobalExceptionFilter` mapeia exceções de domínio para códigos HTTP corretos.
-- `AuditInterceptor` global captura toda operação de escrita sem modificar lógica de negócio.
+- `AuditInterceptor` global captura toda operação de escrita sem modificar
+  lógica de negócio.
 
 **Frontend — Next.js:**
-- Server Components como padrão; `'use client'` apenas quando estritamente necessário.
-- Server Actions para mutações de dados — sem fetch direto ao backend quando evitável.
-- Componentes React sem acesso direto ao banco — sempre via Server Actions ou Route Handlers.
+
+- Server Components como padrão; `'use client'` apenas quando estritamente
+  necessário.
+- Server Actions para mutações de dados — sem fetch direto ao backend quando
+  evitável.
+- Componentes React sem acesso direto ao banco — sempre via Server Actions ou
+  Route Handlers.
 
 ---
 
@@ -385,26 +408,27 @@ HttpException (GLPI 404)
 
 ### 4.2 Tipos de Relacionamento Entre Contextos
 
-| Tipo | Contextos | Descrição |
-|------|-----------|-----------|
-| **Published Language** | Identity → todos | Identity publica contrato de usuário; demais conformam-se |
-| **Customer-Supplier** | Incident → Notification | Incident produz eventos; Notification reage sem conhecer Incident |
-| **Conformist** | Request → Catalog | Request adota o contrato publicado pelo Catálogo de Serviços |
-| **Anti-Corruption Layer** | SGTI → GLPI | Adapter traduz modelo de domínio SGTI ↔ modelo de tickets GLPI |
-| **Anti-Corruption Layer** | SGTI → Google Workspace | Adapter traduz User SGTI ↔ Account Google Directory |
-| **Shared Kernel** | Todos → Shared | EventBus, AuditLog, Auth e Logger compartilhados por todos |
-| **Read Model** | Todos → Dashboard | Dashboard consome eventos e mantém projeções próprias (CQRS) |
+| Tipo                      | Contextos               | Descrição                                                         |
+| ------------------------- | ----------------------- | ----------------------------------------------------------------- |
+| **Published Language**    | Identity → todos        | Identity publica contrato de usuário; demais conformam-se         |
+| **Customer-Supplier**     | Incident → Notification | Incident produz eventos; Notification reage sem conhecer Incident |
+| **Conformist**            | Request → Catalog       | Request adota o contrato publicado pelo Catálogo de Serviços      |
+| **Anti-Corruption Layer** | SGTI → GLPI             | Adapter traduz modelo de domínio SGTI ↔ modelo de tickets GLPI    |
+| **Anti-Corruption Layer** | SGTI → Google Workspace | Adapter traduz User SGTI ↔ Account Google Directory               |
+| **Shared Kernel**         | Todos → Shared          | EventBus, AuditLog, Auth e Logger compartilhados por todos        |
+| **Read Model**            | Todos → Dashboard       | Dashboard consome eventos e mantém projeções próprias (CQRS)      |
 
 ### 4.3 Linguagem Ubíqua por Contexto
 
-Cada bounded context possui vocabulário próprio. Termos com o mesmo nome em contextos distintos têm significados diferentes e isso é intencional.
+Cada bounded context possui vocabulário próprio. Termos com o mesmo nome em
+contextos distintos têm significados diferentes e isso é intencional.
 
-| Termo | Incident | Identity | Finance |
-|-------|----------|----------|---------|
-| **Usuário** | Solicitante do chamado | Identidade digital gerenciada | Centro de custo |
-| **Status** | Estado do ciclo de atendimento | Estado do ciclo de acesso | Estado do orçamento |
-| **Prioridade** | Calculada por impacto × urgência | N/A | Nível de aprovação necessário |
-| **Resolução** | Solução técnica documentada | Revogação de acesso | Fechamento de despesa |
+| Termo          | Incident                         | Identity                      | Finance                       |
+| -------------- | -------------------------------- | ----------------------------- | ----------------------------- |
+| **Usuário**    | Solicitante do chamado           | Identidade digital gerenciada | Centro de custo               |
+| **Status**     | Estado do ciclo de atendimento   | Estado do ciclo de acesso     | Estado do orçamento           |
+| **Prioridade** | Calculada por impacto × urgência | N/A                           | Nível de aprovação necessário |
+| **Resolução**  | Solução técnica documentada      | Revogação de acesso           | Fechamento de despesa         |
 
 ---
 
@@ -415,6 +439,7 @@ Cada bounded context possui vocabulário próprio. Termos com o mesmo nome em co
 Cada classe tem uma única razão para mudar.
 
 **No domínio:**
+
 ```
 Incident.resolve()       → única responsabilidade: transição de estado para RESOLVED
 PriorityMatrixService   → única responsabilidade: calcular prioridade por impacto/urgência
@@ -422,6 +447,7 @@ SlaCalculationService   → única responsabilidade: calcular deadline a partir 
 ```
 
 **Na aplicação:**
+
 ```
 OpenIncidentUseCase     → única responsabilidade: orquestrar abertura de incidente
 ResolveIncidentUseCase  → única responsabilidade: orquestrar resolução
@@ -429,6 +455,7 @@ EscalateIncidentUseCase → única responsabilidade: orquestrar escalonamento
 ```
 
 **Na infraestrutura:**
+
 ```
 PrismaIncidentRepository → única responsabilidade: persistir e recuperar Incident
 IncidentMapper           → única responsabilidade: converter Prisma model ↔ domain entity
@@ -436,6 +463,7 @@ GlpiTicketAdapter        → única responsabilidade: comunicar com GLPI API
 ```
 
 **Violação a ser evitada:**
+
 ```
 ❌ IncidentService com 500 linhas fazendo open + resolve + escalate + notify + sync GLPI
 ✅ Um Use Case por operação, cada um com 30-50 linhas
@@ -448,24 +476,30 @@ GlpiTicketAdapter        → única responsabilidade: comunicar com GLPI API
 Aberto para extensão, fechado para modificação.
 
 **Canais de notificação:**
+
 ```
 INotificationChannel (interface)
   ├── EmailNotificationChannel   (implementação)
   ├── InAppNotificationChannel   (implementação)
   └── [FuturoSmsChannel]         (extensão sem modificar as existentes)
 ```
-Adicionar SMS não altera `NotificationService` — apenas adiciona nova implementação.
+
+Adicionar SMS não altera `NotificationService` — apenas adiciona nova
+implementação.
 
 **Estratégias de SLA:**
+
 ```
 ISlaStrategy (interface)
   ├── StandardSlaStrategy        (horário comercial)
   ├── ExtendedSlaStrategy        (24×7)
   └── [FuturoVipSlaStrategy]     (SLA premium)
 ```
+
 Novo tipo de SLA não modifica `SlaCalculationService`.
 
 **Tipos de ativo:**
+
 ```
 IAssetDepreciationStrategy
   ├── StraightLineDepreciation   (método linear)
@@ -476,9 +510,11 @@ IAssetDepreciationStrategy
 
 ### 5.3 Liskov Substitution Principle (LSP)
 
-Qualquer implementação concreta substitui sua interface sem quebrar o comportamento.
+Qualquer implementação concreta substitui sua interface sem quebrar o
+comportamento.
 
 **Repositórios:**
+
 ```
 IIncidentRepository (interface)
   └── PrismaIncidentRepository (implementação)
@@ -489,6 +525,7 @@ Trocar PrismaIncidentRepository por InMemoryIncidentRepository (testes)
 ```
 
 **Ports externos:**
+
 ```
 IEmailPort (interface)
   └── NodemailerSmtpAdapter (produção)
@@ -523,12 +560,15 @@ Interfaces específicas são preferíveis a interfaces genéricas.
 ```
 
 **Ports externos também segregados:**
+
 ```
 IGoogleWorkspaceUserPort   → criar/desativar contas de usuário
 IGoogleWorkspaceGroupPort  → gerenciar grupos e membros
 IGmailPort                 → enviar e-mails via SMTP
 ```
-Módulo IAM usa apenas `IGoogleWorkspaceUserPort`. Módulo Email usa apenas `IGmailPort`. Nenhum depende de interface que não usa.
+
+Módulo IAM usa apenas `IGoogleWorkspaceUserPort`. Módulo Email usa apenas
+`IGmailPort`. Nenhum depende de interface que não usa.
 
 ---
 
@@ -590,25 +630,32 @@ Incident
 ```
 
 **Value Objects:**
-- `IncidentStatus`: `OPEN` · `IN_PROGRESS` · `ESCALATED` · `PENDING_USER` · `RESOLVED` · `CLOSED`
-- `Priority`: `CRITICAL` · `HIGH` · `MEDIUM` · `LOW` — resultado da matriz 4×4 impacto × urgência
+
+- `IncidentStatus`: `OPEN` · `IN_PROGRESS` · `ESCALATED` · `PENDING_USER` ·
+  `RESOLVED` · `CLOSED`
+- `Priority`: `CRITICAL` · `HIGH` · `MEDIUM` · `LOW` — resultado da matriz 4×4
+  impacto × urgência
 - `ImpactLevel`: `WIDESPREAD` · `SIGNIFICANT` · `MODERATE` · `MINOR`
 - `UrgencyLevel`: `CRITICAL` · `HIGH` · `MEDIUM` · `LOW`
 - `SlaTarget`: `responseDeadline`, `resolutionDeadline`, `isPaused`, `pausedAt`
-- `ResolutionDetails`: `solution` (texto), `knowledgeArticleId?`, `resolvedBy`, `resolvedAt`
+- `ResolutionDetails`: `solution` (texto), `knowledgeArticleId?`, `resolvedBy`,
+  `resolvedAt`
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
-| `IncidentOpened` | Notification, SlaManagement, Dashboard, GlpiSync |
-| `IncidentAssigned` | Notification, Dashboard |
-| `IncidentEscalated` | Notification, Dashboard |
-| `IncidentResolved` | Notification, SlaManagement, KnowledgeBase, Dashboard |
-| `IncidentClosed` | Dashboard |
-| `IncidentReopened` | Notification, Dashboard |
+| Evento              | Consumidores                                          |
+| ------------------- | ----------------------------------------------------- |
+| `IncidentOpened`    | Notification, SlaManagement, Dashboard, GlpiSync      |
+| `IncidentAssigned`  | Notification, Dashboard                               |
+| `IncidentEscalated` | Notification, Dashboard                               |
+| `IncidentResolved`  | Notification, SlaManagement, KnowledgeBase, Dashboard |
+| `IncidentClosed`    | Dashboard                                             |
+| `IncidentReopened`  | Notification, Dashboard                               |
 
-**Use Cases:** `OpenIncidentUseCase` · `AssignIncidentUseCase` · `EscalateIncidentUseCase` · `ResolveIncidentUseCase` · `CloseIncidentUseCase` · `ReopenIncidentUseCase` · `AddCommentUseCase` · `PauseSlaUseCase` · `LinkKnowledgeArticleUseCase`
+**Use Cases:** `OpenIncidentUseCase` · `AssignIncidentUseCase` ·
+`EscalateIncidentUseCase` · `ResolveIncidentUseCase` · `CloseIncidentUseCase` ·
+`ReopenIncidentUseCase` · `AddCommentUseCase` · `PauseSlaUseCase` ·
+`LinkKnowledgeArticleUseCase`
 
 **Ports:** `IGlpiTicketSyncPort` · `IServiceCatalogPort`
 
@@ -632,21 +679,25 @@ ServiceRequest
 ```
 
 **Value Objects:**
-- `RequestStatus`: `DRAFT` · `SUBMITTED` · `PENDING_APPROVAL` · `APPROVED` · `IN_FULFILLMENT` · `FULFILLED` · `CANCELLED` · `REJECTED`
+
+- `RequestStatus`: `DRAFT` · `SUBMITTED` · `PENDING_APPROVAL` · `APPROVED` ·
+  `IN_FULFILLMENT` · `FULFILLED` · `CANCELLED` · `REJECTED`
 - `ApprovalDecision`: `APPROVED` · `REJECTED` · `DELEGATED`
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
+| Evento                    | Consumidores                           |
+| ------------------------- | -------------------------------------- |
 | `ServiceRequestSubmitted` | Notification, SlaManagement, Dashboard |
-| `ServiceRequestApproved` | Notification, Dashboard |
-| `ServiceRequestRejected` | Notification, Dashboard |
+| `ServiceRequestApproved`  | Notification, Dashboard                |
+| `ServiceRequestRejected`  | Notification, Dashboard                |
 | `ServiceRequestFulfilled` | Notification, SlaManagement, Dashboard |
-| `AccessRequestFulfilled` | Identity (dispara provisionamento) |
-| `AssetRequestFulfilled` | Asset (alocação), Procurement |
+| `AccessRequestFulfilled`  | Identity (dispara provisionamento)     |
+| `AssetRequestFulfilled`   | Asset (alocação), Procurement          |
 
-**Use Cases:** `SubmitServiceRequestUseCase` · `ApproveRequestUseCase` · `RejectRequestUseCase` · `FulfillRequestUseCase` · `CancelRequestUseCase` · `DelegateApprovalUseCase`
+**Use Cases:** `SubmitServiceRequestUseCase` · `ApproveRequestUseCase` ·
+`RejectRequestUseCase` · `FulfillRequestUseCase` · `CancelRequestUseCase` ·
+`DelegateApprovalUseCase`
 
 ---
 
@@ -657,20 +708,24 @@ ServiceRequest
 **Agregados Raiz:** `Problem`, `KnownError`
 
 **Value Objects:**
-- `ProblemStatus`: `UNDER_INVESTIGATION` · `ROOT_CAUSE_IDENTIFIED` · `KNOWN_ERROR` · `RESOLVED`
+
+- `ProblemStatus`: `UNDER_INVESTIGATION` · `ROOT_CAUSE_IDENTIFIED` ·
+  `KNOWN_ERROR` · `RESOLVED`
 - `RootCauseMethod`: `FIVE_WHYS` · `FISHBONE` · `FAULT_TREE` · `TIMELINE`
 - `Workaround`: instrução técnica temporária + limitações conhecidas
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
-| `ProblemIdentified` | Notification, Dashboard |
-| `WorkaroundPublished` | KnowledgeBase, Notification |
-| `KnownErrorRegistered` | KnowledgeBase, Dashboard |
-| `ProblemSolved` | Notification, KnowledgeBase, Dashboard |
+| Evento                 | Consumidores                           |
+| ---------------------- | -------------------------------------- |
+| `ProblemIdentified`    | Notification, Dashboard                |
+| `WorkaroundPublished`  | KnowledgeBase, Notification            |
+| `KnownErrorRegistered` | KnowledgeBase, Dashboard               |
+| `ProblemSolved`        | Notification, KnowledgeBase, Dashboard |
 
-**Use Cases:** `IdentifyProblemFromIncidentUseCase` · `InvestigateProblemUseCase` · `PublishWorkaroundUseCase` · `RegisterKnownErrorUseCase` · `CloseProblemUseCase`
+**Use Cases:** `IdentifyProblemFromIncidentUseCase` ·
+`InvestigateProblemUseCase` · `PublishWorkaroundUseCase` ·
+`RegisterKnownErrorUseCase` · `CloseProblemUseCase`
 
 ---
 
@@ -696,20 +751,24 @@ Asset
 ```
 
 **Value Objects:**
-- `AssetStatus`: `ORDERED` · `RECEIVED` · `IN_STOCK` · `ALLOCATED` · `IN_USE` · `UNDER_MAINTENANCE` · `DECOMMISSIONED`
-- `AssetCategory`: `WORKSTATION` · `SERVER` · `NETWORK` · `PERIPHERAL` · `SOFTWARE` · `LICENSE` · `OTHER`
+
+- `AssetStatus`: `ORDERED` · `RECEIVED` · `IN_STOCK` · `ALLOCATED` · `IN_USE` ·
+  `UNDER_MAINTENANCE` · `DECOMMISSIONED`
+- `AssetCategory`: `WORKSTATION` · `SERVER` · `NETWORK` · `PERIPHERAL` ·
+  `SOFTWARE` · `LICENSE` · `OTHER`
 - `WarrantyPeriod`: `startDate`, `endDate`, `coverage`
-- `DepreciationValue`: `originalValue`, `currentValue`, `method`, `usefulLifeYears`
+- `DepreciationValue`: `originalValue`, `currentValue`, `method`,
+  `usefulLifeYears`
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
-| `AssetAllocated` | Notification, Dashboard |
-| `AssetDecommissioned` | Finance (baixa patrimonial), Dashboard |
-| `AssetUnderMaintenance` | Notification, Dashboard |
-| `WarrantyExpiringSoon` | Notification, Dashboard |
-| `LicenseUtilizationLow` | Notification, Finance, Dashboard |
+| Evento                  | Consumidores                           |
+| ----------------------- | -------------------------------------- |
+| `AssetAllocated`        | Notification, Dashboard                |
+| `AssetDecommissioned`   | Finance (baixa patrimonial), Dashboard |
+| `AssetUnderMaintenance` | Notification, Dashboard                |
+| `WarrantyExpiringSoon`  | Notification, Dashboard                |
+| `LicenseUtilizationLow` | Notification, Finance, Dashboard       |
 
 **Ports:** `IGlpiAssetSyncPort`
 
@@ -717,7 +776,8 @@ Asset
 
 ### 6.5 Identity — Gestão de Identidades (IAM)
 
-**Schema:** `identity` | **Posição:** UPSTREAM — define contrato de usuário para todo o sistema
+**Schema:** `identity` | **Posição:** UPSTREAM — define contrato de usuário para
+todo o sistema
 
 **Agregados Raiz:** `UserIdentity`, `AccessProfile`, `AccessReview`
 
@@ -734,21 +794,28 @@ UserIdentity
 ```
 
 **Value Objects:**
-- `IdentityStatus`: `ACTIVE` · `INACTIVE` · `SUSPENDED` · `PENDING_PROVISIONING` · `PENDING_DEPROVISIONING`
-- `Role`: `SUPER_ADMIN` · `IT_MANAGER` · `IT_SPECIALIST` · `IT_TECHNICIAN` · `COMPLIANCE_OFFICER` · `FINANCIAL_ANALYST` · `PROJECT_MANAGER` · `AUDITOR` · `EXECUTIVE` · `END_USER`
+
+- `IdentityStatus`: `ACTIVE` · `INACTIVE` · `SUSPENDED` · `PENDING_PROVISIONING`
+  · `PENDING_DEPROVISIONING`
+- `Role`: `SUPER_ADMIN` · `IT_MANAGER` · `IT_SPECIALIST` · `IT_TECHNICIAN` ·
+  `COMPLIANCE_OFFICER` · `FINANCIAL_ANALYST` · `PROJECT_MANAGER` · `AUDITOR` ·
+  `EXECUTIVE` · `END_USER`
 - `AccessScope`: conjunto de módulos e operações permitidas para um papel
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
-| `UserProvisioned` | Notification + todos os módulos |
-| `UserDeprovisioned` | Notification + todos os módulos |
-| `AccessGranted` | Notification, Compliance, Dashboard |
-| `AccessRevoked` | Notification, Compliance, Dashboard |
-| `AccessReviewRequired` | Notification, Compliance |
+| Evento                 | Consumidores                        |
+| ---------------------- | ----------------------------------- |
+| `UserProvisioned`      | Notification + todos os módulos     |
+| `UserDeprovisioned`    | Notification + todos os módulos     |
+| `AccessGranted`        | Notification, Compliance, Dashboard |
+| `AccessRevoked`        | Notification, Compliance, Dashboard |
+| `AccessReviewRequired` | Notification, Compliance            |
 
-**Use Cases:** `ProvisionUserUseCase` · `DeprovisionUserUseCase` · `GrantAccessUseCase` · `RevokeAccessUseCase` · `SuspendUserUseCase` · `ReactivateUserUseCase` · `StartAccessReviewUseCase` · `CompleteAccessReviewUseCase` · `SyncFromGoogleWorkspaceUseCase`
+**Use Cases:** `ProvisionUserUseCase` · `DeprovisionUserUseCase` ·
+`GrantAccessUseCase` · `RevokeAccessUseCase` · `SuspendUserUseCase` ·
+`ReactivateUserUseCase` · `StartAccessReviewUseCase` ·
+`CompleteAccessReviewUseCase` · `SyncFromGoogleWorkspaceUseCase`
 
 **Ports:** `IGoogleWorkspaceUserPort` · `IGoogleWorkspaceGroupPort`
 
@@ -761,21 +828,26 @@ UserIdentity
 **Agregados Raiz:** `ComplianceControl`, `Policy`, `AuditCycle`
 
 **Value Objects:**
-- `ControlStatus`: `NOT_IMPLEMENTED` · `PARTIALLY_IMPLEMENTED` · `IMPLEMENTED` · `NOT_APPLICABLE`
+
+- `ControlStatus`: `NOT_IMPLEMENTED` · `PARTIALLY_IMPLEMENTED` · `IMPLEMENTED` ·
+  `NOT_APPLICABLE`
 - `Framework`: `LGPD` · `ISO_27001` · `ITIL_V4` · `INTERNAL`
 - `NonConformanceSeverity`: `CRITICAL` · `MAJOR` · `MINOR` · `OBSERVATION`
 - `PolicyVersion`: número + data de aprovação + responsável
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
-| `PolicyPublished` | Notification, Dashboard |
+| Evento                | Consumidores            |
+| --------------------- | ----------------------- |
+| `PolicyPublished`     | Notification, Dashboard |
 | `NonConformanceFound` | Notification, Dashboard |
-| `AuditCompleted` | Dashboard |
-| `ControlImplemented` | Dashboard |
+| `AuditCompleted`      | Dashboard               |
+| `ControlImplemented`  | Dashboard               |
 
-**Use Cases:** `PublishPolicyUseCase` · `MapControlToFrameworkUseCase` · `CollectEvidenceUseCase` · `RegisterNonConformanceUseCase` · `ScheduleAuditUseCase` · `CompleteAuditUseCase` · `GenerateMaturityReportUseCase`
+**Use Cases:** `PublishPolicyUseCase` · `MapControlToFrameworkUseCase` ·
+`CollectEvidenceUseCase` · `RegisterNonConformanceUseCase` ·
+`ScheduleAuditUseCase` · `CompleteAuditUseCase` ·
+`GenerateMaturityReportUseCase`
 
 ---
 
@@ -786,21 +858,25 @@ UserIdentity
 **Agregados Raiz:** `Budget`, `Contract`, `Expense`
 
 **Value Objects:**
+
 - `BudgetType`: `CAPEX` · `OPEX`
 - `MoneyAmount`: valor + moeda + precisão decimal
 - `CostCenter`: código + nome + responsável
-- `ContractStatus`: `DRAFT` · `ACTIVE` · `EXPIRING_SOON` · `EXPIRED` · `CANCELLED`
+- `ContractStatus`: `DRAFT` · `ACTIVE` · `EXPIRING_SOON` · `EXPIRED` ·
+  `CANCELLED`
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
-| `BudgetExceeded` | Notification, Dashboard |
-| `ContractExpiringSoon` | Notification, Dashboard |
-| `ExpenseRegistered` | Dashboard |
-| `CapexItemReceived` | Asset (vínculo ao ativo adquirido) |
+| Evento                 | Consumidores                       |
+| ---------------------- | ---------------------------------- |
+| `BudgetExceeded`       | Notification, Dashboard            |
+| `ContractExpiringSoon` | Notification, Dashboard            |
+| `ExpenseRegistered`    | Dashboard                          |
+| `CapexItemReceived`    | Asset (vínculo ao ativo adquirido) |
 
-**Use Cases:** `CreateBudgetUseCase` · `RegisterExpenseUseCase` · `AllocateBudgetUseCase` · `RegisterContractUseCase` · `RenewContractUseCase` · `RateCostByCostCenterUseCase` · `GenerateFinancialReportUseCase`
+**Use Cases:** `CreateBudgetUseCase` · `RegisterExpenseUseCase` ·
+`AllocateBudgetUseCase` · `RegisterContractUseCase` · `RenewContractUseCase` ·
+`RateCostByCostCenterUseCase` · `GenerateFinancialReportUseCase`
 
 ---
 
@@ -811,17 +887,20 @@ UserIdentity
 **Agregados Raiz:** `PurchaseOrder`, `Supplier`
 
 **Value Objects:**
-- `PurchaseOrderStatus`: `DRAFT` · `SUBMITTED` · `APPROVED` · `ORDERED` · `PARTIALLY_RECEIVED` · `RECEIVED` · `CANCELLED`
+
+- `PurchaseOrderStatus`: `DRAFT` · `SUBMITTED` · `APPROVED` · `ORDERED` ·
+  `PARTIALLY_RECEIVED` · `RECEIVED` · `CANCELLED`
 - `ApprovalThreshold`: valor que define o nível de aprovação necessário
-- `SupplierCategory`: `HARDWARE` · `SOFTWARE` · `SERVICE` · `CLOUD` · `TELECOM` · `OTHER`
+- `SupplierCategory`: `HARDWARE` · `SOFTWARE` · `SERVICE` · `CLOUD` · `TELECOM`
+  · `OTHER`
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
-| `PurchaseOrderApproved` | Notification, Finance (reserva orçamentária) |
-| `ItemReceived` | Asset (criar ativo), Finance (baixa de CAPEX) |
-| `SupplierEvaluated` | Dashboard |
+| Evento                  | Consumidores                                  |
+| ----------------------- | --------------------------------------------- |
+| `PurchaseOrderApproved` | Notification, Finance (reserva orçamentária)  |
+| `ItemReceived`          | Asset (criar ativo), Finance (baixa de CAPEX) |
+| `SupplierEvaluated`     | Dashboard                                     |
 
 ---
 
@@ -844,19 +923,22 @@ Project
 ```
 
 **Value Objects:**
-- `ProjectStatus`: `IDEATION` · `APPROVED` · `IN_PROGRESS` · `ON_HOLD` · `COMPLETED` · `CANCELLED`
-- `ProjectPhase`: `INITIATION` · `PLANNING` · `EXECUTION` · `MONITORING` · `CLOSURE`
+
+- `ProjectStatus`: `IDEATION` · `APPROVED` · `IN_PROGRESS` · `ON_HOLD` ·
+  `COMPLETED` · `CANCELLED`
+- `ProjectPhase`: `INITIATION` · `PLANNING` · `EXECUTION` · `MONITORING` ·
+  `CLOSURE`
 - `RiskLevel`: `CRITICAL` · `HIGH` · `MEDIUM` · `LOW`
 - `DeliveryStatus`: `NOT_STARTED` · `IN_PROGRESS` · `COMPLETED` · `DELAYED`
 
 **Eventos publicados:**
 
-| Evento | Consumidores |
-|--------|-------------|
-| `ProjectApproved` | Finance (reserva CAPEX), Notification |
-| `MilestoneCompleted` | Dashboard, Notification |
-| `ProjectDelayed` | Notification, Dashboard |
-| `ProjectCompleted` | Finance (fechamento orçamentário), Dashboard |
+| Evento               | Consumidores                                 |
+| -------------------- | -------------------------------------------- |
+| `ProjectApproved`    | Finance (reserva CAPEX), Notification        |
+| `MilestoneCompleted` | Dashboard, Notification                      |
+| `ProjectDelayed`     | Notification, Dashboard                      |
+| `ProjectCompleted`   | Finance (fechamento orçamentário), Dashboard |
 
 **Ports:** `IGithubProjectPort`
 
@@ -869,39 +951,44 @@ Project
 **Agregado Raiz:** `KnowledgeArticle`
 
 **Value Objects:**
+
 - `ArticleStatus`: `DRAFT` · `UNDER_REVIEW` · `PUBLISHED` · `DEPRECATED`
 - `ArticleAudience`: `TECHNICAL` · `END_USER` · `MANAGEMENT`
 - `SearchRelevance`: pontuação calculada por uso + avaliação dos leitores
 
 **Eventos consumidos (reativo):**
 
-| Evento Consumido | Ação no Knowledge Base |
-|-----------------|------------------------|
-| `IncidentResolved` | Sugere criação de artigo com base na solução |
-| `ProblemSolved` | Vincula solução definitiva a artigo existente ou cria novo |
-| `WorkaroundPublished` | Publica artigo de workaround automaticamente |
+| Evento Consumido      | Ação no Knowledge Base                                     |
+| --------------------- | ---------------------------------------------------------- |
+| `IncidentResolved`    | Sugere criação de artigo com base na solução               |
+| `ProblemSolved`       | Vincula solução definitiva a artigo existente ou cria novo |
+| `WorkaroundPublished` | Publica artigo de workaround automaticamente               |
 
-**Use Cases:** `CreateArticleUseCase` · `SubmitForReviewUseCase` · `PublishArticleUseCase` · `SearchArticlesUseCase` · `LinkArticleToIncidentUseCase` · `DeprecateArticleUseCase`
+**Use Cases:** `CreateArticleUseCase` · `SubmitForReviewUseCase` ·
+`PublishArticleUseCase` · `SearchArticlesUseCase` ·
+`LinkArticleToIncidentUseCase` · `DeprecateArticleUseCase`
 
 ---
 
 ### 6.11 Dashboard — Dashboards Executivos e Operacionais
 
-**Schema:** `dashboard` (read models / projeções) | **Posição:** DOWNSTREAM — apenas leitura
+**Schema:** `dashboard` (read models / projeções) | **Posição:** DOWNSTREAM —
+apenas leitura
 
 **Padrão:** CQRS Read Side — projections atualizadas por eventos de domínio.
 
-O Dashboard não acessa schemas de outros módulos via SQL. Mantém projeções desnormalizadas próprias:
+O Dashboard não acessa schemas de outros módulos via SQL. Mantém projeções
+desnormalizadas próprias:
 
-| Projeção | Atualizada por | Consulta |
-|----------|---------------|---------|
-| `incident_metrics` | IncidentOpened, IncidentResolved, IncidentClosed | MTTR, MTTA, SLA%, volume |
-| `sla_compliance_summary` | IncidentOpened, IncidentResolved, SlaAtRisk | SLA global por período |
-| `asset_inventory_summary` | AssetAllocated, AssetDecommissioned | Totais por status e categoria |
-| `identity_access_summary` | UserProvisioned, AccessGranted, AccessRevoked | Usuários ativos, pendências |
-| `compliance_maturity` | ControlImplemented, NonConformanceFound | % por framework |
-| `financial_summary` | ExpenseRegistered, BudgetExceeded | OPEX/CAPEX vs. orçado |
-| `project_portfolio` | ProjectApproved, MilestoneCompleted, ProjectDelayed | Status e saúde dos projetos |
+| Projeção                  | Atualizada por                                      | Consulta                      |
+| ------------------------- | --------------------------------------------------- | ----------------------------- |
+| `incident_metrics`        | IncidentOpened, IncidentResolved, IncidentClosed    | MTTR, MTTA, SLA%, volume      |
+| `sla_compliance_summary`  | IncidentOpened, IncidentResolved, SlaAtRisk         | SLA global por período        |
+| `asset_inventory_summary` | AssetAllocated, AssetDecommissioned                 | Totais por status e categoria |
+| `identity_access_summary` | UserProvisioned, AccessGranted, AccessRevoked       | Usuários ativos, pendências   |
+| `compliance_maturity`     | ControlImplemented, NonConformanceFound             | % por framework               |
+| `financial_summary`       | ExpenseRegistered, BudgetExceeded                   | OPEX/CAPEX vs. orçado         |
+| `project_portfolio`       | ProjectApproved, MilestoneCompleted, ProjectDelayed | Status e saúde dos projetos   |
 
 ```
 Evento publicado por qualquer módulo
@@ -926,6 +1013,7 @@ DashboardProjectionHandler (event listener)
 **Agregados Raiz:** `Notification`, `NotificationPreference`
 
 **Value Objects:**
+
 - `NotificationChannel`: `EMAIL` · `IN_APP` · `PUSH`
 - `NotificationStatus`: `PENDING` · `SENT` · `DELIVERED` · `READ` · `FAILED`
 - `NotificationPriority`: `URGENT` · `HIGH` · `NORMAL` · `LOW`
@@ -956,24 +1044,27 @@ NotificationEventHandler
 **Remetente padrão:** `implantacao@pinpag.com.br` (SMTP via Google Workspace)
 
 **Value Objects:**
-- `EmailStatus`: `QUEUED` · `SENDING` · `SENT` · `DELIVERED` · `BOUNCED` · `FAILED`
-- `RetryPolicy`: maxAttempts=3, intervalSeconds=[30, 120, 300] (backoff exponencial)
+
+- `EmailStatus`: `QUEUED` · `SENDING` · `SENT` · `DELIVERED` · `BOUNCED` ·
+  `FAILED`
+- `RetryPolicy`: maxAttempts=3, intervalSeconds=[30, 120, 300] (backoff
+  exponencial)
 
 **Templates disponíveis:**
 
-| Template | Evento Disparador |
-|----------|------------------|
-| `incident-opened` | IncidentOpened |
-| `incident-resolved` | IncidentResolved |
-| `sla-at-risk` | SlaAtRisk |
-| `access-granted` | AccessGranted |
-| `access-revoked` | AccessRevoked |
-| `approval-required` | RequestSubmitted, PurchaseOrderSubmitted |
-| `contract-expiring` | ContractExpiringSoon |
-| `budget-exceeded` | BudgetExceeded |
-| `compliance-nc-found` | NonConformanceFound |
-| `project-delayed` | ProjectDelayed |
-| `warranty-expiring` | WarrantyExpiringSoon |
+| Template              | Evento Disparador                        |
+| --------------------- | ---------------------------------------- |
+| `incident-opened`     | IncidentOpened                           |
+| `incident-resolved`   | IncidentResolved                         |
+| `sla-at-risk`         | SlaAtRisk                                |
+| `access-granted`      | AccessGranted                            |
+| `access-revoked`      | AccessRevoked                            |
+| `approval-required`   | RequestSubmitted, PurchaseOrderSubmitted |
+| `contract-expiring`   | ContractExpiringSoon                     |
+| `budget-exceeded`     | BudgetExceeded                           |
+| `compliance-nc-found` | NonConformanceFound                      |
+| `project-delayed`     | ProjectDelayed                           |
+| `warranty-expiring`   | WarrantyExpiringSoon                     |
 
 **Port:** `ISmtpEmailPort` → `NodemailerSmtpAdapter` (SMTP Google Workspace)
 
@@ -981,7 +1072,8 @@ NotificationEventHandler
 
 ### 6.14 Authentication — Autenticação
 
-**Schema:** `auth` (sessões e tokens) | **Posição:** UPSTREAM — toda requisição passa por aqui
+**Schema:** `auth` (sessões e tokens) | **Posição:** UPSTREAM — toda requisição
+passa por aqui
 
 **Fluxo completo:**
 
@@ -1025,6 +1117,7 @@ NotificationEventHandler
 ```
 
 **JWT Payload:**
+
 ```json
 {
   "sub": "user-uuid",
@@ -1042,7 +1135,9 @@ NotificationEventHandler
 
 ## 7. Shared Kernel
 
-Artefatos transversais utilizados por todos os módulos. Não é módulo de negócio — é biblioteca interna que pode ser importada por todos, mas não importa nenhum módulo.
+Artefatos transversais utilizados por todos os módulos. Não é módulo de negócio
+— é biblioteca interna que pode ser importada por todos, mas não importa nenhum
+módulo.
 
 ```
 src/shared/
@@ -1078,6 +1173,7 @@ src/shared/
 ```
 
 **EventBus — contrato de evento:**
+
 ```
 Todo evento de domínio deve ter:
   eventId:       UUID único do evento
@@ -1222,7 +1318,8 @@ Analista de Compliance      Compliance UseCase          Storage + DB
 
 ### 9.1 Padrão Anti-Corruption Layer
 
-Toda integração externa é isolada por Anti-Corruption Layer na infraestrutura. O domínio nunca conhece detalhes do sistema externo.
+Toda integração externa é isolada por Anti-Corruption Layer na infraestrutura. O
+domínio nunca conhece detalhes do sistema externo.
 
 ```
 Domínio SGTI           Interface (Port)          ACL (Adapter)          Sistema Externo
@@ -1236,40 +1333,43 @@ Domínio SGTI           Interface (Port)          ACL (Adapter)          Sistema
 
 ### 9.2 Google Workspace
 
-| Operação | Port | Adapter | Endpoint |
-|----------|------|---------|----------|
-| SSO / autenticação | `IGoogleOAuthPort` | `GoogleOAuthAdapter` | OAuth 2.0 |
-| Criar conta | `IGoogleUserPort` | `GoogleDirectoryAdapter` | Admin SDK: users.insert |
-| Desativar conta | `IGoogleUserPort` | `GoogleDirectoryAdapter` | Admin SDK: users.update |
-| Listar grupos | `IGoogleGroupPort` | `GoogleDirectoryAdapter` | Admin SDK: groups.list |
-| Enviar e-mail (SMTP) | `IGmailPort` | `GmailSmtpAdapter` | SMTP TLS 587 |
+| Operação             | Port               | Adapter                  | Endpoint                |
+| -------------------- | ------------------ | ------------------------ | ----------------------- |
+| SSO / autenticação   | `IGoogleOAuthPort` | `GoogleOAuthAdapter`     | OAuth 2.0               |
+| Criar conta          | `IGoogleUserPort`  | `GoogleDirectoryAdapter` | Admin SDK: users.insert |
+| Desativar conta      | `IGoogleUserPort`  | `GoogleDirectoryAdapter` | Admin SDK: users.update |
+| Listar grupos        | `IGoogleGroupPort` | `GoogleDirectoryAdapter` | Admin SDK: groups.list  |
+| Enviar e-mail (SMTP) | `IGmailPort`       | `GmailSmtpAdapter`       | SMTP TLS 587            |
 
-**Tratamento de falha:** provisionamento falha de forma graceful — usuário criado no SGTI com status `PENDING_PROVISIONING`; job de retry a cada 10 minutos até 3 tentativas.
+**Tratamento de falha:** provisionamento falha de forma graceful — usuário
+criado no SGTI com status `PENDING_PROVISIONING`; job de retry a cada 10 minutos
+até 3 tentativas.
 
 ### 9.3 GLPI
 
-| Operação | Port | Sincronismo |
-|----------|------|-------------|
-| Criar ticket | `IGlpiTicketPort` | Síncrono (timeout 5s) |
-| Atualizar status | `IGlpiTicketPort` | Assíncrono (job 5min) |
-| Sincronizar inventário | `IGlpiAssetPort` | Assíncrono (job diário 02h) |
+| Operação               | Port              | Sincronismo                 |
+| ---------------------- | ----------------- | --------------------------- |
+| Criar ticket           | `IGlpiTicketPort` | Síncrono (timeout 5s)       |
+| Atualizar status       | `IGlpiTicketPort` | Assíncrono (job 5min)       |
+| Sincronizar inventário | `IGlpiAssetPort`  | Assíncrono (job diário 02h) |
 
-**Autenticação GLPI:** session token renovado a cada 12 horas via `IGlpiAuthPort`.
+**Autenticação GLPI:** session token renovado a cada 12 horas via
+`IGlpiAuthPort`.
 
 ### 9.4 GitHub
 
-| Operação | Port | Uso |
-|----------|------|-----|
-| Listar commits | `IGithubRepoPort` | Rastreabilidade de entregas em projetos |
-| Status de pipelines CI | `IGithubActionsPort` | Dashboard operacional |
-| Webhook push/merge | Handler direto | Registro automático de mudanças |
+| Operação               | Port                 | Uso                                     |
+| ---------------------- | -------------------- | --------------------------------------- |
+| Listar commits         | `IGithubRepoPort`    | Rastreabilidade de entregas em projetos |
+| Status de pipelines CI | `IGithubActionsPort` | Dashboard operacional                   |
+| Webhook push/merge     | Handler direto       | Registro automático de mudanças         |
 
 ### 9.5 Vercel
 
-| Operação | Port | Uso |
-|----------|------|-----|
-| Status de deployments | `IVercelDeployPort` | Dashboard operacional |
-| Webhook deployment | Handler direto | Registro de mudanças em produção |
+| Operação              | Port                | Uso                              |
+| --------------------- | ------------------- | -------------------------------- |
+| Status de deployments | `IVercelDeployPort` | Dashboard operacional            |
+| Webhook deployment    | Handler direto      | Registro de mudanças em produção |
 
 ### 9.6 Política de Resiliência de Integrações
 
@@ -1319,14 +1419,14 @@ WEBHOOK (ex: GitHub push):
 
 ### 10.2 Configuração JWT
 
-| Parâmetro | Valor |
-|-----------|-------|
-| Algoritmo | RS256 (assimétrico) |
-| Access Token TTL | 1 hora |
-| Refresh Token TTL | 7 dias |
-| Armazenamento | Cookie `HttpOnly`, `Secure`, `SameSite=Strict` |
-| Rotação de Refresh | A cada uso — token antigo revogado |
-| Blacklist | Verificada no JwtAuthGuard para logout e suspensões |
+| Parâmetro          | Valor                                               |
+| ------------------ | --------------------------------------------------- |
+| Algoritmo          | RS256 (assimétrico)                                 |
+| Access Token TTL   | 1 hora                                              |
+| Refresh Token TTL  | 7 dias                                              |
+| Armazenamento      | Cookie `HttpOnly`, `Secure`, `SameSite=Strict`      |
+| Rotação de Refresh | A cada uso — token antigo revogado                  |
+| Blacklist          | Verificada no JwtAuthGuard para logout e suspensões |
 
 ### 10.3 Row Level Security (Supabase)
 
@@ -1354,24 +1454,24 @@ CREATE POLICY "audit_insert_only" ON shared.audit_log
 
 ### 10.4 Headers de Segurança
 
-| Header | Valor |
-|--------|-------|
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` |
-| `X-Content-Type-Options` | `nosniff` |
-| `X-Frame-Options` | `DENY` |
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'nonce-{nonce}'` |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| Header                      | Valor                                                   |
+| --------------------------- | ------------------------------------------------------- |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload`          |
+| `X-Content-Type-Options`    | `nosniff`                                               |
+| `X-Frame-Options`           | `DENY`                                                  |
+| `Content-Security-Policy`   | `default-src 'self'; script-src 'self' 'nonce-{nonce}'` |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`                       |
+| `Permissions-Policy`        | `camera=(), microphone=(), geolocation=()`              |
 
 ### 10.5 Conformidade LGPD
 
-| Requisito | Implementação |
-|-----------|--------------|
-| PII centralizado | Dados pessoais apenas no schema `identity` — outros módulos referenciam `user_id` |
-| Logs sem PII | `AuditLog` registra apenas `user_id` e operação, nunca dados pessoais |
-| Direito ao esquecimento | Anonimização após período de retenção (5 anos) via job programado |
-| Consentimento de acesso | Aprovação registrada em `AccessReview` antes de acesso privilegiado |
-| Retenção de dados | Configurável por tipo de dado; padrão 5 anos para dados de auditoria |
+| Requisito               | Implementação                                                                     |
+| ----------------------- | --------------------------------------------------------------------------------- |
+| PII centralizado        | Dados pessoais apenas no schema `identity` — outros módulos referenciam `user_id` |
+| Logs sem PII            | `AuditLog` registra apenas `user_id` e operação, nunca dados pessoais             |
+| Direito ao esquecimento | Anonimização após período de retenção (5 anos) via job programado                 |
+| Consentimento de acesso | Aprovação registrada em `AccessReview` antes de acesso privilegiado               |
+| Retenção de dados       | Configurável por tipo de dado; padrão 5 anos para dados de auditoria              |
 
 ---
 
@@ -1379,43 +1479,51 @@ CREATE POLICY "audit_insert_only" ON shared.audit_log
 
 ### 11.1 Estratégia Atual (Modular Monolith)
 
-O sistema escala horizontalmente como uma única unidade — múltiplas instâncias do processo NestJS atrás do load balancer da Vercel.
+O sistema escala horizontalmente como uma única unidade — múltiplas instâncias
+do processo NestJS atrás do load balancer da Vercel.
 
 **Pontos de escalabilidade e estratégias:**
 
-| Componente | Estratégia | Gatilho |
-|------------|-----------|---------|
-| Backend NestJS | Escala horizontal (Vercel serverless) | Requests concorrentes |
-| PostgreSQL | Connection pooling via PgBouncer (Supabase) | Conexões > 80% do limite |
-| Dashboard | Projeções desnormalizadas + Supabase Realtime | Queries complexas > 500ms |
-| E-mail | Queue assíncrona com retry | Volume > 100/minuto |
-| Sync GLPI | Workers assíncronos por tipo de operação | Backlog > 1.000 eventos |
+| Componente     | Estratégia                                    | Gatilho                   |
+| -------------- | --------------------------------------------- | ------------------------- |
+| Backend NestJS | Escala horizontal (Vercel serverless)         | Requests concorrentes     |
+| PostgreSQL     | Connection pooling via PgBouncer (Supabase)   | Conexões > 80% do limite  |
+| Dashboard      | Projeções desnormalizadas + Supabase Realtime | Queries complexas > 500ms |
+| E-mail         | Queue assíncrona com retry                    | Volume > 100/minuto       |
+| Sync GLPI      | Workers assíncronos por tipo de operação      | Backlog > 1.000 eventos   |
 
 ### 11.2 Estratégia de Cache
 
 **Cache de aplicação (in-memory, NestJS):**
-- Catálogo de Serviços: TTL 5 minutos (muda raramente, consultado em todo chamado)
+
+- Catálogo de Serviços: TTL 5 minutos (muda raramente, consultado em todo
+  chamado)
 - Configurações de SLA: TTL 10 minutos
 - Usuário autenticado: TTL 1 minuto (evita consulta ao banco por requisição)
 
 **Cache de banco (PostgreSQL):**
-- Índices compostos: `(status, assignee_id)`, `(created_at, category)`, `(module, event_type)`
-- Read models desnormalizados no schema `dashboard` (zero JOINs em queries de KPI)
-- Materialized Views para relatórios de compliance e financeiro (refresh programado)
+
+- Índices compostos: `(status, assignee_id)`, `(created_at, category)`,
+  `(module, event_type)`
+- Read models desnormalizados no schema `dashboard` (zero JOINs em queries de
+  KPI)
+- Materialized Views para relatórios de compliance e financeiro (refresh
+  programado)
 
 **Cache de CDN (Cloudflare):**
+
 - Assets estáticos Next.js: 1 ano (imutáveis com hash)
 - Base de Conhecimento (artigos públicos): 5 minutos
 - Rotas autenticadas: sem cache (dados sensíveis e personalizados)
 
 ### 11.3 Limites de Volume Estimados
 
-| Capacidade | Limite Estimado | Estratégia de Upgrade |
-|------------|----------------|----------------------|
-| Usuários simultâneos | 500 | Vercel escala serverless automaticamente |
-| Incidentes/mês | 10.000 | Particionamento de tabela por mês |
-| Armazenamento de evidências | 1 GB (free) → escala | Upgrade Supabase Storage |
-| E-mails/mês | 1.000 | Limite SMTP Google Workspace |
+| Capacidade                  | Limite Estimado      | Estratégia de Upgrade                    |
+| --------------------------- | -------------------- | ---------------------------------------- |
+| Usuários simultâneos        | 500                  | Vercel escala serverless automaticamente |
+| Incidentes/mês              | 10.000               | Particionamento de tabela por mês        |
+| Armazenamento de evidências | 1 GB (free) → escala | Upgrade Supabase Storage                 |
+| E-mails/mês                 | 1.000                | Limite SMTP Google Workspace             |
 
 ---
 
@@ -1423,25 +1531,26 @@ O sistema escala horizontalmente como uma única unidade — múltiplas instânc
 
 ### 12.1 Critérios de Extração
 
-Extração de um módulo para microserviço autônomo somente quando **dois ou mais** critérios forem atendidos:
+Extração de um módulo para microserviço autônomo somente quando **dois ou mais**
+critérios forem atendidos:
 
-| Critério | Descrição |
-|----------|-----------|
-| **Escala independente** | Módulo com carga desproporcionalmente maior que os demais |
-| **Deploy independente** | Ciclo de release diferente e frequente |
-| **Tecnologia distinta** | Benefício claro de stack diferente (ex: Python para ML, Go para performance) |
-| **Fronteira de segurança** | Requisitos de isolamento mais rigorosos que o restante |
-| **Equipe dedicada** | Time suficientemente grande para operar serviço autônomo |
+| Critério                   | Descrição                                                                    |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| **Escala independente**    | Módulo com carga desproporcionalmente maior que os demais                    |
+| **Deploy independente**    | Ciclo de release diferente e frequente                                       |
+| **Tecnologia distinta**    | Benefício claro de stack diferente (ex: Python para ML, Go para performance) |
+| **Fronteira de segurança** | Requisitos de isolamento mais rigorosos que o restante                       |
+| **Equipe dedicada**        | Time suficientemente grande para operar serviço autônomo                     |
 
 ### 12.2 Candidatos à Extração por Prioridade
 
-| Módulo | Justificativa | Protocolo Futuro |
-|--------|--------------|-----------------|
-| `Notification` + `Email` | Alta frequência, escala independente, fila dedicada | RabbitMQ / SQS |
-| `Dashboard` | Read model com requisitos de cache distintos | Redis + Kafka |
-| `Identity` | Requisitos de segurança mais rígidos | gRPC + eventos |
-| `Asset` | Crescimento para inventário físico completo | Kafka |
-| `Finance` | Integração futura com ERP | REST + eventos |
+| Módulo                   | Justificativa                                       | Protocolo Futuro |
+| ------------------------ | --------------------------------------------------- | ---------------- |
+| `Notification` + `Email` | Alta frequência, escala independente, fila dedicada | RabbitMQ / SQS   |
+| `Dashboard`              | Read model com requisitos de cache distintos        | Redis + Kafka    |
+| `Identity`               | Requisitos de segurança mais rígidos                | gRPC + eventos   |
+| `Asset`                  | Crescimento para inventário físico completo         | Kafka            |
+| `Finance`                | Integração futura com ERP                           | REST + eventos   |
 
 ### 12.3 Roteiro de Extração — Strangler Fig Pattern
 
@@ -1474,7 +1583,7 @@ FASE 4 — LIMPEZA
 
 ```
 HOJE (Monolito Modular)          FUTURO (Híbrido)
-                                 
+
 NestJS Monolith                  ┌─── NestJS Core
 ├── Incident                     │    Incident + Request + Problem
 ├── Request                      │    Asset + Compliance + Finance
@@ -1494,100 +1603,125 @@ NestJS Monolith                  ┌─── NestJS Core
 
 ### 12.5 O Que Permanece no Monolito
 
-| Módulo | Motivo para Permanecer |
-|--------|----------------------|
+| Módulo                           | Motivo para Permanecer                                                           |
+| -------------------------------- | -------------------------------------------------------------------------------- |
 | `Incident`, `Request`, `Problem` | Alta interdependência transacional; operações atômicas cross-context necessárias |
-| `Compliance` | Baixo volume; alta dependência de leitura de dados de outros módulos |
-| `Authentication` | Crítico para disponibilidade; extração exige garantia de 99,99% independente |
-| `Procurement` | Acoplado a Finance e Asset; separação prematura gera sagas desnecessárias |
+| `Compliance`                     | Baixo volume; alta dependência de leitura de dados de outros módulos             |
+| `Authentication`                 | Crítico para disponibilidade; extração exige garantia de 99,99% independente     |
+| `Procurement`                    | Acoplado a Finance e Asset; separação prematura gera sagas desnecessárias        |
 
 ---
 
 ## 13. Decisões Arquiteturais (ADRs)
 
 ### ADR-001 — Modular Monolith em vez de Microserviços
+
 **Status:** Aceito · **Data:** 2026-06-09
 
 **Contexto:** 14 módulos, equipe inicial pequena, custo zero obrigatório.
 
 **Decisão:** Modular Monolith com fronteiras DDD rigorosas desde o início.
 
-**Consequências positivas:** Deploy simples, transações ACID, zero overhead operacional.
-**Consequências negativas:** Escala como unidade única; limite de 500 usuários simultâneos estimado.
-**Critério de revisão:** quando dois dos critérios da seção 12.1 forem atendidos.
+**Consequências positivas:** Deploy simples, transações ACID, zero overhead
+operacional. **Consequências negativas:** Escala como unidade única; limite de
+500 usuários simultâneos estimado. **Critério de revisão:** quando dois dos
+critérios da seção 12.1 forem atendidos.
 
 ---
 
 ### ADR-002 — Comunicação Assíncrona via EventBus
+
 **Status:** Aceito · **Data:** 2026-06-09
 
 **Contexto:** Módulos não podem importar código uns dos outros (fronteiras DDD).
 
-**Decisão:** Toda comunicação assíncrona via `EventEmitter2` (NestJS). Comunicação síncrona necessária via interfaces de Port na camada de aplicação.
+**Decisão:** Toda comunicação assíncrona via `EventEmitter2` (NestJS).
+Comunicação síncrona necessária via interfaces de Port na camada de aplicação.
 
-**Consequências positivas:** Acoplamento mínimo, preparação para message broker futuro.
-**Consequências negativas:** Rastreamento de fluxo mais complexo; requer boa instrumentação de logs.
+**Consequências positivas:** Acoplamento mínimo, preparação para message broker
+futuro. **Consequências negativas:** Rastreamento de fluxo mais complexo; requer
+boa instrumentação de logs.
 
 ---
 
 ### ADR-003 — CQRS Parcial no Dashboard
+
 **Status:** Aceito · **Data:** 2026-06-09
 
-**Contexto:** Queries de KPI com JOINs sobre múltiplos módulos seriam lentas e violam fronteiras DDD.
+**Contexto:** Queries de KPI com JOINs sobre múltiplos módulos seriam lentas e
+violam fronteiras DDD.
 
-**Decisão:** Dashboard mantém read models próprios (projeções) atualizadas por event handlers. CQRS apenas no Dashboard — demais módulos usam o modelo tradicional.
+**Decisão:** Dashboard mantém read models próprios (projeções) atualizadas por
+event handlers. CQRS apenas no Dashboard — demais módulos usam o modelo
+tradicional.
 
-**Consequências positivas:** Queries O(1), desacoplamento total dos módulos de escrita.
-**Consequências negativas:** Eventual consistency (defasagem de segundos); complexidade em event handlers de projeção.
+**Consequências positivas:** Queries O(1), desacoplamento total dos módulos de
+escrita. **Consequências negativas:** Eventual consistency (defasagem de
+segundos); complexidade em event handlers de projeção.
 
 ---
 
 ### ADR-004 — JWT RS256 Assimétrico
+
 **Status:** Aceito · **Data:** 2026-06-09
 
-**Contexto:** Múltiplos módulos e futuro potencial de microserviços precisam verificar tokens.
+**Contexto:** Múltiplos módulos e futuro potencial de microserviços precisam
+verificar tokens.
 
-**Decisão:** JWT RS256 com par de chaves. Módulo Auth assina com chave privada; todos os módulos verificam com chave pública.
+**Decisão:** JWT RS256 com par de chaves. Módulo Auth assina com chave privada;
+todos os módulos verificam com chave pública.
 
-**Consequências positivas:** Chave privada isolada; verificação descentralizada; segurança superior ao HS256.
-**Consequências negativas:** Par de chaves precisa de rotação periódica e armazenamento seguro.
+**Consequências positivas:** Chave privada isolada; verificação descentralizada;
+segurança superior ao HS256. **Consequências negativas:** Par de chaves precisa
+de rotação periódica e armazenamento seguro.
 
 ---
 
 ### ADR-005 — Prisma como Único ORM
+
 **Status:** Aceito · **Data:** 2026-06-09
 
-**Contexto:** Stack TypeScript ponta a ponta exige ORM com tipagem nativa e migrations versionadas.
+**Contexto:** Stack TypeScript ponta a ponta exige ORM com tipagem nativa e
+migrations versionadas.
 
-**Decisão:** Prisma é o único ORM. SQL raw via `prisma.$queryRaw<T>` tipado apenas para otimizações documentadas.
+**Decisão:** Prisma é o único ORM. SQL raw via `prisma.$queryRaw<T>` tipado
+apenas para otimizações documentadas.
 
-**Consequências positivas:** Tipagem total em queries, migrations no repositório, Prisma Studio para desenvolvimento.
-**Consequências negativas:** Alguns recursos avançados do PostgreSQL exigem `$queryRaw`; overhead de geração do client.
+**Consequências positivas:** Tipagem total em queries, migrations no
+repositório, Prisma Studio para desenvolvimento. **Consequências negativas:**
+Alguns recursos avançados do PostgreSQL exigem `$queryRaw`; overhead de geração
+do client.
 
 ---
 
 ### ADR-006 — Schemas de Banco Isolados por Módulo
+
 **Status:** Aceito · **Data:** 2026-06-09
 
-**Contexto:** Preservar fronteiras de bounded context no nível de banco de dados.
+**Contexto:** Preservar fronteiras de bounded context no nível de banco de
+dados.
 
-**Decisão:** Cada módulo possui seu próprio PostgreSQL schema (`incident`, `asset`, `identity`, etc.). JOINs entre schemas são proibidos.
+**Decisão:** Cada módulo possui seu próprio PostgreSQL schema (`incident`,
+`asset`, `identity`, etc.). JOINs entre schemas são proibidos.
 
-**Consequências positivas:** Fronteiras físicas preservadas; extração futura para microserviços simplificada.
-**Consequências negativas:** Dados de outros contextos obtidos via repositórios de leitura (mais verboso que JOIN direto).
+**Consequências positivas:** Fronteiras físicas preservadas; extração futura
+para microserviços simplificada. **Consequências negativas:** Dados de outros
+contextos obtidos via repositórios de leitura (mais verboso que JOIN direto).
 
 ---
 
 ## Controle de Versões do Documento
 
-| Versão | Data | Autor | Descrição da Alteração |
-|--------|------|-------|------------------------|
-| 1.0.0 | 2026-06-09 | Arquitetura Corporativa | Criação do documento |
-| 2.0.0 | 2026-06-09 | Arquitetura Corporativa | Revisão completa: expansão de SOLID, fluxos detalhados por diagrama, ADR-006 adicionado, políticas de resiliência e RLS com exemplos SQL |
+| Versão | Data       | Autor                   | Descrição da Alteração                                                                                                                   |
+| ------ | ---------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0.0  | 2026-06-09 | Arquitetura Corporativa | Criação do documento                                                                                                                     |
+| 2.0.0  | 2026-06-09 | Arquitetura Corporativa | Revisão completa: expansão de SOLID, fluxos detalhados por diagrama, ADR-006 adicionado, políticas de resiliência e RLS com exemplos SQL |
 
 ---
 
 > **Próximos documentos recomendados:**
-> [`Módulos/05_SERVICE_DESK.md`](../Módulos/05_SERVICE_DESK.md) — Especificação funcional detalhada dos módulos Incident e Request
-> [`11_TECH_STACK.md`](../11_TECH_STACK.md) — Stack tecnológica com limites e justificativas
-> [`01_CLAUDE.md`](../01_CLAUDE.md) — Regras permanentes de implementação para o Claude Code
+> [`Módulos/05_SERVICE_DESK.md`](../Módulos/05_SERVICE_DESK.md) — Especificação
+> funcional detalhada dos módulos Incident e Request
+> [`11_TECH_STACK.md`](../11_TECH_STACK.md) — Stack tecnológica com limites e
+> justificativas [`01_CLAUDE.md`](../01_CLAUDE.md) — Regras permanentes de
+> implementação para o Claude Code

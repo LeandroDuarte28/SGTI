@@ -5,7 +5,14 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { ADMIN_ROLES, hasRole } from "@/lib/constants/roles";
-import { formatCurrency, formatHours, formatPercent, getSlaComplianceTone, Section, StatCard } from "@/components/dashboard/kpi";
+import {
+  formatCurrency,
+  formatHours,
+  formatPercent,
+  getSlaComplianceTone,
+  Section,
+  StatCard,
+} from "@/components/dashboard/kpi";
 
 export const metadata: Metadata = { title: "Dashboard Executivo" };
 
@@ -55,30 +62,98 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
     projectsFinancialsResult,
     realizedBenefitsResult,
   ] = await Promise.all([
-    supabase.schema("ticket").from("Incident").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
-    supabase.schema("ticket").from("ServiceRequest").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
-    supabase.schema("ticket").from("Incident").select("id").eq("status", "CLOSED").gte("updated_at", monthStart),
-    supabase.schema("ticket").from("ServiceRequest").select("id").not("fulfilled_at", "is", null).gte("fulfilled_at", monthStart),
-    supabase.schema("ticket").from("Incident").select("id").eq("priority", "CRITICAL").not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("ServiceRequest")
+      .select("id")
+      .not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .eq("status", "CLOSED")
+      .gte("updated_at", monthStart),
+    supabase
+      .schema("ticket")
+      .from("ServiceRequest")
+      .select("id")
+      .not("fulfilled_at", "is", null)
+      .gte("fulfilled_at", monthStart),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .eq("priority", "CRITICAL")
+      .not("status", "in", "(RESOLVED,CLOSED)"),
     supabase.schema("ticket").from("Problem").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
     supabase.schema("ticket").from("Problem").select("id").gte("related_incident_count", 3),
-    supabase.schema("ticket").from("Incident").select("id, sla_breached_at, resolved_at, created_at").not("sla_id", "is", null).not("resolved_at", "is", null),
-    supabase.schema("compliance").from("ComplianceAudit").select("compliance_score_final").not("compliance_score_final", "is", null).order("created_at", { ascending: false }).limit(1).maybeSingle(),
-    supabase.schema("compliance").from("ComplianceFinding").select("id").not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
-    supabase.schema("compliance").from("ComplianceFinding").select("id").lt("due_date", today).not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id, sla_breached_at, resolved_at, created_at")
+      .not("sla_id", "is", null)
+      .not("resolved_at", "is", null),
+    supabase
+      .schema("compliance")
+      .from("ComplianceAudit")
+      .select("compliance_score_final")
+      .not("compliance_score_final", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .schema("compliance")
+      .from("ComplianceFinding")
+      .select("id")
+      .not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
+    supabase
+      .schema("compliance")
+      .from("ComplianceFinding")
+      .select("id")
+      .lt("due_date", today)
+      .not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
     supabase.schema("financial").from("Budget").select("allocated_amount, spent_amount"),
-    supabase.schema("financial").from("Expense").select("amount").gte("expense_date", monthStart.slice(0, 10)),
-    supabase.schema("project").from("Project").select("id").in("status", ["PLANNING", "IN_PROGRESS"]),
-    supabase.schema("project").from("Project").select("id").lt("end_date", today).not("status", "in", "(COMPLETED,CANCELLED)"),
-    supabase.schema("project").from("Project").select("capex_realized, opex_realized").in("status", ["PLANNING", "IN_PROGRESS"]),
-    supabase.schema("project").from("ProjectBenefit").select("realized_value").not("realized_value", "is", null),
+    supabase
+      .schema("financial")
+      .from("Expense")
+      .select("amount")
+      .gte("expense_date", monthStart.slice(0, 10)),
+    supabase
+      .schema("project")
+      .from("Project")
+      .select("id")
+      .in("status", ["PLANNING", "IN_PROGRESS"]),
+    supabase
+      .schema("project")
+      .from("Project")
+      .select("id")
+      .lt("end_date", today)
+      .not("status", "in", "(COMPLETED,CANCELLED)"),
+    supabase
+      .schema("project")
+      .from("Project")
+      .select("capex_realized, opex_realized")
+      .in("status", ["PLANNING", "IN_PROGRESS"]),
+    supabase
+      .schema("project")
+      .from("ProjectBenefit")
+      .select("realized_value")
+      .not("realized_value", "is", null),
   ]);
 
   const slaIncidents = slaIncidentsResult.data ?? [];
   const slaBreachedCount = slaIncidents.filter((i) => i.sla_breached_at !== null).length;
   const slaCompliancePercent =
-    slaIncidents.length > 0 ? ((slaIncidents.length - slaBreachedCount) / slaIncidents.length) * 100 : NaN;
-  const slaViolationPercent = slaIncidents.length > 0 ? (slaBreachedCount / slaIncidents.length) * 100 : NaN;
+    slaIncidents.length > 0
+      ? ((slaIncidents.length - slaBreachedCount) / slaIncidents.length) * 100
+      : NaN;
+  const slaViolationPercent =
+    slaIncidents.length > 0 ? (slaBreachedCount / slaIncidents.length) * 100 : NaN;
   const mttrHours =
     slaIncidents.length > 0
       ? slaIncidents.reduce((sum, i) => {
@@ -91,7 +166,10 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
   const budgets = budgetsResult.data ?? [];
   const totalAllocated = budgets.reduce((sum, b) => sum + Number(b.allocated_amount), 0);
   const totalSpent = budgets.reduce((sum, b) => sum + Number(b.spent_amount), 0);
-  const expensesThisMonth = (expensesThisMonthResult.data ?? []).reduce((sum, e) => sum + Number(e.amount), 0);
+  const expensesThisMonth = (expensesThisMonthResult.data ?? []).reduce(
+    (sum, e) => sum + Number(e.amount),
+    0,
+  );
 
   const complianceScore = complianceAuditResult.data?.compliance_score_final;
 
@@ -103,24 +181,35 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
     (sum, b) => sum + Number(b.realized_value),
     0,
   );
-  const projectRoi = projectInvestment > 0 ? (realizedBenefitsTotal / projectInvestment) * 100 : NaN;
+  const projectRoi =
+    projectInvestment > 0 ? (realizedBenefitsTotal / projectInvestment) * 100 : NaN;
 
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard Executivo</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-foreground text-2xl font-semibold">Dashboard Executivo</h1>
+        <p className="text-muted-foreground text-sm">
           Visão consolidada dos serviços de TI. Calculado ao vivo a cada carregamento da página.
         </p>
       </div>
 
       <Section title="Chamados">
-        <StatCard href="/incidents" label="Incidentes Abertos" value={String(openIncidentsResult.data?.length ?? 0)} />
-        <StatCard href="/requests" label="Requisições Abertas" value={String(openRequestsResult.data?.length ?? 0)} />
+        <StatCard
+          href="/incidents"
+          label="Incidentes Abertos"
+          value={String(openIncidentsResult.data?.length ?? 0)}
+        />
+        <StatCard
+          href="/requests"
+          label="Requisições Abertas"
+          value={String(openRequestsResult.data?.length ?? 0)}
+        />
         <StatCard
           label="Fechados no Mês"
           tone="good"
-          value={String((closedIncidentsResult.data?.length ?? 0) + (fulfilledRequestsResult.data?.length ?? 0))}
+          value={String(
+            (closedIncidentsResult.data?.length ?? 0) + (fulfilledRequestsResult.data?.length ?? 0),
+          )}
         />
         <StatCard
           href="/incidents"
@@ -128,7 +217,11 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
           tone={(criticalIncidentsResult.data?.length ?? 0) > 0 ? "bad" : "neutral"}
           value={String(criticalIncidentsResult.data?.length ?? 0)}
         />
-        <StatCard href="/problems" label="Problemas Abertos" value={String(openProblemsResult.data?.length ?? 0)} />
+        <StatCard
+          href="/problems"
+          label="Problemas Abertos"
+          value={String(openProblemsResult.data?.length ?? 0)}
+        />
         <StatCard
           href="/problems"
           label="Problemas Recorrentes"
@@ -155,10 +248,24 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
         <StatCard
           href="/compliance"
           label="Compliance Score"
-          tone={complianceScore !== undefined && complianceScore !== null && Number(complianceScore) < 80 ? "bad" : "neutral"}
-          value={complianceScore !== undefined && complianceScore !== null ? formatPercent(Number(complianceScore)) : "—"}
+          tone={
+            complianceScore !== undefined &&
+            complianceScore !== null &&
+            Number(complianceScore) < 80
+              ? "bad"
+              : "neutral"
+          }
+          value={
+            complianceScore !== undefined && complianceScore !== null
+              ? formatPercent(Number(complianceScore))
+              : "—"
+          }
         />
-        <StatCard href="/compliance" label="Apontamentos Abertos" value={String(openFindingsResult.data?.length ?? 0)} />
+        <StatCard
+          href="/compliance"
+          label="Apontamentos Abertos"
+          value={String(openFindingsResult.data?.length ?? 0)}
+        />
         <StatCard
           href="/compliance"
           label="Apontamentos em Atraso"
@@ -168,25 +275,41 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
       </Section>
 
       <Section title="Financeiro">
-        <StatCard href="/financial" label="Orçamento Alocado" value={formatCurrency(totalAllocated)} />
+        <StatCard
+          href="/financial"
+          label="Orçamento Alocado"
+          value={formatCurrency(totalAllocated)}
+        />
         <StatCard href="/financial" label="Orçamento Gasto" value={formatCurrency(totalSpent)} />
         <StatCard
           label="% Orçamento Utilizado"
           tone={totalAllocated > 0 && totalSpent / totalAllocated > 1 ? "bad" : "neutral"}
           value={totalAllocated > 0 ? formatPercent((totalSpent / totalAllocated) * 100) : "—"}
         />
-        <StatCard href="/financial" label="Despesas do Mês" value={formatCurrency(expensesThisMonth)} />
+        <StatCard
+          href="/financial"
+          label="Despesas do Mês"
+          value={formatCurrency(expensesThisMonth)}
+        />
       </Section>
 
       <Section title="Projetos">
-        <StatCard href="/projects" label="Projetos Ativos" value={String(activeProjectsResult.data?.length ?? 0)} />
+        <StatCard
+          href="/projects"
+          label="Projetos Ativos"
+          value={String(activeProjectsResult.data?.length ?? 0)}
+        />
         <StatCard
           href="/projects"
           label="Projetos com Prazo Vencido"
           tone={(overdueProjectsResult.data?.length ?? 0) > 0 ? "bad" : "neutral"}
           value={String(overdueProjectsResult.data?.length ?? 0)}
         />
-        <StatCard href="/projects" label="Investimento em Projetos Ativos" value={formatCurrency(projectInvestment)} />
+        <StatCard
+          href="/projects"
+          label="Investimento em Projetos Ativos"
+          value={formatCurrency(projectInvestment)}
+        />
         <StatCard
           label="ROI Realizado"
           tone={!Number.isNaN(projectRoi) && projectRoi >= 100 ? "good" : "neutral"}
@@ -195,11 +318,11 @@ export default async function ExecutiveDashboardPage(): Promise<React.JSX.Elemen
       </Section>
 
       <section>
-        <h2 className="mb-3 font-medium text-foreground">Outros Painéis</h2>
+        <h2 className="text-foreground mb-3 font-medium">Outros Painéis</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {OTHER_DASHBOARDS.map((item) => (
             <Link
-              className="rounded-lg border border-border bg-card p-3 text-center text-sm text-foreground shadow-sm transition-colors hover:bg-muted/50"
+              className="border-border bg-card text-foreground hover:bg-muted/50 rounded-lg border p-3 text-center text-sm shadow-sm transition-colors"
               href={item.href}
               key={item.href}
             >
