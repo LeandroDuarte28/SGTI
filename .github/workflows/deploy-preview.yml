@@ -20,26 +20,45 @@ jobs:
   deploy-preview:
     name: Deploy → Preview
     runs-on: ubuntu-latest
-    # No-op (not a failure) until VERCEL_TOKEN is configured — see Docs/72_
-    # GITHUB_ACTIONS.md and PR #18's description for the full secrets list.
-    if: ${{ secrets.VERCEL_TOKEN != '' }}
     steps:
+      - name: Check required secrets
+        id: check
+        # The `secrets` context can't be used in a job-level `if:` (GitHub
+        # rejects the whole workflow file as invalid) — so gate every
+        # later step on this step's output instead. No-op (not a failure)
+        # until VERCEL_TOKEN is configured — see PR #18's description for
+        # the full secrets list.
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::notice::VERCEL_TOKEN not configured — skipping preview deploy (expected until secrets are set up, see PR #18)."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
       - name: Checkout
+        if: steps.check.outputs.configured == 'true'
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
 
       - name: Setup Node.js
+        if: steps.check.outputs.configured == 'true'
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
 
       - name: Install Vercel CLI
+        if: steps.check.outputs.configured == 'true'
         run: npm install --global vercel@latest
 
       - name: Pull Vercel preview environment
+        if: steps.check.outputs.configured == 'true'
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build for preview
+        if: steps.check.outputs.configured == 'true'
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL_DEV }}
@@ -47,12 +66,14 @@ jobs:
           NEXT_PUBLIC_APP_VERSION: ${{ github.event.pull_request.head.sha }}
 
       - name: Deploy preview
+        if: steps.check.outputs.configured == 'true'
         id: deploy
         run: |
           url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Comment preview URL on PR
+        if: steps.check.outputs.configured == 'true'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.0.1
         with:
           script: |
