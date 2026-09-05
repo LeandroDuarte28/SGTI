@@ -20,14 +20,22 @@ export async function createServiceCatalogItem(formData: FormData): Promise<void
 
   const supabase = await createClient();
 
-  const { error } = await supabase.schema("catalog").from("ServiceCatalogItem").insert({
-    category_id: categoryId,
-    name: name.trim(),
-    description: typeof description === "string" && description.trim().length > 0 ? description.trim() : null,
-    default_sla_id: typeof defaultSlaId === "string" && defaultSlaId !== "" ? defaultSlaId : null,
-    estimated_delivery_days:
-      typeof estimatedDeliveryDays === "string" && estimatedDeliveryDays !== "" ? Number(estimatedDeliveryDays) : null,
-  });
+  const { error } = await supabase
+    .schema("catalog")
+    .from("ServiceCatalogItem")
+    .insert({
+      category_id: categoryId,
+      name: name.trim(),
+      description:
+        typeof description === "string" && description.trim().length > 0
+          ? description.trim()
+          : null,
+      default_sla_id: typeof defaultSlaId === "string" && defaultSlaId !== "" ? defaultSlaId : null,
+      estimated_delivery_days:
+        typeof estimatedDeliveryDays === "string" && estimatedDeliveryDays !== ""
+          ? Number(estimatedDeliveryDays)
+          : null,
+    });
 
   if (error) {
     throw new Error(`Não foi possível criar o item do catálogo: ${error.message}`);

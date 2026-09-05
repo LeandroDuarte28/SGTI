@@ -37,7 +37,9 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
   let itemsQuery = supabase
     .schema("catalog")
     .from("ServiceCatalogItem")
-    .select("id, category_id, name, description, estimated_delivery_days, default_sla_id, is_active");
+    .select(
+      "id, category_id, name, description, estimated_delivery_days, default_sla_id, is_active",
+    );
   if (!isItStaff) {
     categoriesQuery = categoriesQuery.eq("is_active", true);
     itemsQuery = itemsQuery.eq("is_active", true);
@@ -62,8 +64,8 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Catálogo de Serviços</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-foreground text-2xl font-semibold">Catálogo de Serviços</h1>
+          <p className="text-muted-foreground text-sm">
             Solicite serviços de TI disponíveis para sua área.
           </p>
         </div>
@@ -92,14 +94,14 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar o catálogo: {error.message}
         </div>
       )}
 
       {!error && categories.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Nenhuma categoria de serviço cadastrada ainda.
           </p>
         </div>
@@ -113,17 +115,21 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
             return (
               <section key={category.id}>
                 <div className="mb-1 flex items-center justify-between gap-3">
-                  <h2 className="font-medium text-foreground">{category.name}</h2>
+                  <h2 className="text-foreground font-medium">{category.name}</h2>
                   {isItStaff && (
                     <div className="flex items-center gap-2">
                       {!category.is_active && (
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                        <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs font-medium">
                           Inativa
                         </span>
                       )}
                       <form action={toggleCategoryActive}>
                         <input name="category_id" type="hidden" value={category.id} />
-                        <input name="is_active" type="hidden" value={(!category.is_active).toString()} />
+                        <input
+                          name="is_active"
+                          type="hidden"
+                          value={(!category.is_active).toString()}
+                        />
                         <Button size="sm" type="submit" variant="ghost">
                           {category.is_active ? "Desativar" : "Ativar"}
                         </Button>
@@ -132,11 +138,11 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
                   )}
                 </div>
                 {category.description && (
-                  <p className="mb-3 text-sm text-muted-foreground">{category.description}</p>
+                  <p className="text-muted-foreground mb-3 text-sm">{category.description}</p>
                 )}
 
                 {categoryItems.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Nenhum item cadastrado nesta categoria ainda.
                   </p>
                 ) : (
@@ -145,31 +151,29 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
                       const sla = slaRows.find((row) => row.id === item.default_sla_id);
                       return (
                         <div
-                          className="rounded-lg border border-border bg-card p-4 shadow-sm"
+                          className="border-border bg-card rounded-lg border p-4 shadow-sm"
                           key={item.id}
                         >
                           <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-medium text-foreground">{item.name}</h3>
+                            <h3 className="text-foreground font-medium">{item.name}</h3>
                             {isItStaff && !item.is_active && (
-                              <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                              <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-xs font-medium">
                                 Inativo
                               </span>
                             )}
                           </div>
                           {item.description && (
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {item.description}
-                            </p>
+                            <p className="text-muted-foreground mt-1 text-sm">{item.description}</p>
                           )}
-                          <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          <div className="text-muted-foreground mt-3 flex flex-wrap gap-2 text-xs">
                             {sla && (
-                              <span className="rounded-full bg-muted px-2.5 py-0.5">
+                              <span className="bg-muted rounded-full px-2.5 py-0.5">
                                 Resposta em {formatMinutes(sla.response_time_minutes)} · Resolução
                                 em {formatMinutes(sla.resolution_time_minutes)}
                               </span>
                             )}
                             {item.estimated_delivery_days !== null && (
-                              <span className="rounded-full bg-muted px-2.5 py-0.5">
+                              <span className="bg-muted rounded-full px-2.5 py-0.5">
                                 Entrega estimada: {item.estimated_delivery_days}{" "}
                                 {item.estimated_delivery_days === 1 ? "dia" : "dias"}
                               </span>
@@ -182,7 +186,11 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
                             {isItStaff && (
                               <form action={toggleItemActive}>
                                 <input name="item_id" type="hidden" value={item.id} />
-                                <input name="is_active" type="hidden" value={(!item.is_active).toString()} />
+                                <input
+                                  name="is_active"
+                                  type="hidden"
+                                  value={(!item.is_active).toString()}
+                                />
                                 <Button size="sm" type="submit" variant="ghost">
                                   {item.is_active ? "Desativar" : "Ativar"}
                                 </Button>
@@ -202,15 +210,15 @@ export default async function CatalogPage(): Promise<React.JSX.Element> {
 
       {isItStaff && !error && slaRows.length > 0 && (
         <section className="mt-10">
-          <h2 className="mb-3 font-medium text-foreground">Definições de SLA</h2>
+          <h2 className="text-foreground mb-3 font-medium">Definições de SLA</h2>
           <ul className="space-y-2">
             {slaRows.map((sla) => (
               <li
-                className="flex items-center justify-between rounded-lg border border-border bg-card p-3 text-sm shadow-sm"
+                className="border-border bg-card flex items-center justify-between rounded-lg border p-3 text-sm shadow-sm"
                 key={sla.id}
               >
-                <span className="font-medium text-foreground">{sla.name}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-foreground font-medium">{sla.name}</span>
+                <span className="text-muted-foreground text-xs">
                   Resposta em {formatMinutes(sla.response_time_minutes)} · Resolução em{" "}
                   {formatMinutes(sla.resolution_time_minutes)}
                   {!sla.is_active && " · Inativa"}

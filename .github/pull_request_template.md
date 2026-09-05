@@ -34,6 +34,7 @@
 ## Documento de referência
 
 <!-- Link para o documento em Docs/ que autoriza esta implementação -->
+
 Docs/: <!-- ex: Módulos/05_SERVICE_DESK.md -->
 
 ## Checklist
@@ -67,7 +68,8 @@ Docs/: <!-- ex: Módulos/05_SERVICE_DESK.md -->
 ### PR
 
 - [ ] Título segue Conventional Commits (`feat:`, `fix:`, `refactor:`, etc.)
-- [ ] Branch baseada em `develop` (não diretamente em `main` ou `staging`)
+- [ ] Branch de feature aberta a partir de `main` (fluxo atual do projeto:
+      feature branch → PR → `main`)
 - [ ] PR tem no máximo 400 linhas alteradas (splits menores são preferíveis)
 
 ## Screenshots / Evidências

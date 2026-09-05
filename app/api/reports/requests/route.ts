@@ -16,11 +16,15 @@ export async function GET(): Promise<Response> {
   const { data: requests, error } = await supabase
     .schema("ticket")
     .from("ServiceRequest")
-    .select("id, catalog_item_id, requester_id, status, approved_by, approved_at, fulfilled_at, created_at")
+    .select(
+      "id, catalog_item_id, requester_id, status, approved_by, approved_at, fulfilled_at, created_at",
+    )
     .order("created_at", { ascending: false });
 
   if (error || !requests) {
-    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, { status: 500 });
+    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, {
+      status: 500,
+    });
   }
 
   const names = await fetchUserNames(supabase, [
@@ -60,7 +64,12 @@ export async function GET(): Promise<Response> {
   await supabase
     .schema("shared")
     .from("AuditLog")
-    .insert({ user_id: user.id, action: "REPORT_EXPORTED", entity_type: "ServiceRequest", new_values: { format: "csv", rows: rows.length } });
+    .insert({
+      user_id: user.id,
+      action: "REPORT_EXPORTED",
+      entity_type: "ServiceRequest",
+      new_values: { format: "csv", rows: rows.length },
+    });
 
   return csvResponse("requisicoes.csv", csv);
 }

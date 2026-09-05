@@ -16,14 +16,21 @@ export async function GET(): Promise<Response> {
   const { data: projects, error } = await supabase
     .schema("project")
     .from("Project")
-    .select("id, name, status, owner_id, start_date, end_date, capex_approved, opex_approved, capex_realized, opex_realized")
+    .select(
+      "id, name, status, owner_id, start_date, end_date, capex_approved, opex_approved, capex_realized, opex_realized",
+    )
     .order("created_at", { ascending: false });
 
   if (error || !projects) {
-    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, { status: 500 });
+    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, {
+      status: 500,
+    });
   }
 
-  const names = await fetchUserNames(supabase, projects.map((p) => p.owner_id));
+  const names = await fetchUserNames(
+    supabase,
+    projects.map((p) => p.owner_id),
+  );
 
   const rows = projects.map((p) => ({
     name: p.name,
@@ -48,7 +55,12 @@ export async function GET(): Promise<Response> {
   await supabase
     .schema("shared")
     .from("AuditLog")
-    .insert({ user_id: user.id, action: "REPORT_EXPORTED", entity_type: "Project", new_values: { format: "csv", rows: rows.length } });
+    .insert({
+      user_id: user.id,
+      action: "REPORT_EXPORTED",
+      entity_type: "Project",
+      new_values: { format: "csv", rows: rows.length },
+    });
 
   return csvResponse("projetos.csv", csv);
 }

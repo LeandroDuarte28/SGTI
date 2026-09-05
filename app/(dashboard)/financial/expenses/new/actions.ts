@@ -36,17 +36,20 @@ export async function createExpense(formData: FormData): Promise<void> {
 
   const resolvedBudgetId = typeof budgetId === "string" && budgetId !== "" ? budgetId : null;
 
-  const { error } = await supabase.schema("financial").from("Expense").insert({
-    budget_id: resolvedBudgetId,
-    contract_id: typeof contractId === "string" && contractId !== "" ? contractId : null,
-    description: description.trim(),
-    amount: parsedAmount,
-    expense_date:
-      typeof expenseDate === "string" && expenseDate.length > 0
-        ? expenseDate
-        : new Date().toISOString().slice(0, 10),
-    approved_by: user.id,
-  });
+  const { error } = await supabase
+    .schema("financial")
+    .from("Expense")
+    .insert({
+      budget_id: resolvedBudgetId,
+      contract_id: typeof contractId === "string" && contractId !== "" ? contractId : null,
+      description: description.trim(),
+      amount: parsedAmount,
+      expense_date:
+        typeof expenseDate === "string" && expenseDate.length > 0
+          ? expenseDate
+          : new Date().toISOString().slice(0, 10),
+      approved_by: user.id,
+    });
 
   if (error) {
     throw new Error(`Não foi possível registrar a despesa: ${error.message}`);

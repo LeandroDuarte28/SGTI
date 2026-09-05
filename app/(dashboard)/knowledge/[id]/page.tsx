@@ -12,7 +12,11 @@ import { submitFeedback, updateArticleContent, updateArticleStatus } from "./act
 
 export const metadata: Metadata = { title: "Artigo" };
 
-const STATUS_LABEL: Record<string, string> = { DRAFT: "Rascunho", PUBLISHED: "Publicado", ARCHIVED: "Arquivado" };
+const STATUS_LABEL: Record<string, string> = {
+  DRAFT: "Rascunho",
+  PUBLISHED: "Publicado",
+  ARCHIVED: "Arquivado",
+};
 const STATUS_OPTIONS = ["DRAFT", "PUBLISHED", "ARCHIVED"];
 
 export default async function ArticleDetailPage({
@@ -36,11 +40,11 @@ export default async function ArticleDetailPage({
   if (error || !article) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/knowledge">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/knowledge">
           ← Voltar para Base de Conhecimento
         </Link>
-        <div className="mt-4 rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-4 rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Artigo não encontrado, ou você não tem permissão para vê-lo.
           </p>
         </div>
@@ -58,7 +62,13 @@ export default async function ArticleDetailPage({
 
   const [feedbackResult, myFeedbackResult, versionsResult] = await Promise.all([
     supabase.schema("knowledge").from("ArticleFeedback").select("is_helpful").eq("article_id", id),
-    supabase.schema("knowledge").from("ArticleFeedback").select("is_helpful").eq("article_id", id).eq("user_id", user.id).maybeSingle(),
+    supabase
+      .schema("knowledge")
+      .from("ArticleFeedback")
+      .select("is_helpful")
+      .eq("article_id", id)
+      .eq("user_id", user.id)
+      .maybeSingle(),
     isItStaff
       ? supabase
           .schema("knowledge")
@@ -77,40 +87,48 @@ export default async function ArticleDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link className="text-sm text-muted-foreground hover:underline" href="/knowledge">
+      <Link className="text-muted-foreground text-sm hover:underline" href="/knowledge">
         ← Voltar para Base de Conhecimento
       </Link>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
+      <div className="border-border bg-card mt-4 rounded-lg border p-6">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-semibold text-foreground">{article.title}</h1>
+          <h1 className="text-foreground text-xl font-semibold">{article.title}</h1>
           {isItStaff && (
-            <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium">
               {STATUS_LABEL[article.status] ?? article.status}
             </span>
           )}
         </div>
-        <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{article.content}</p>
-        <p className="mt-4 text-xs text-muted-foreground">
-          {article.view_count + 1} {article.view_count === 0 ? "visualização" : "visualizações"} · Publicado
-          em {formatDate(article.created_at)}
+        <p className="text-foreground mt-3 text-sm whitespace-pre-wrap">{article.content}</p>
+        <p className="text-muted-foreground mt-4 text-xs">
+          {article.view_count + 1} {article.view_count === 0 ? "visualização" : "visualizações"} ·
+          Publicado em {formatDate(article.created_at)}
         </p>
       </div>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-4">
-        <p className="mb-2 text-sm text-foreground">Este artigo foi útil?</p>
+      <div className="border-border bg-card mt-4 rounded-lg border p-4">
+        <p className="text-foreground mb-2 text-sm">Este artigo foi útil?</p>
         <div className="flex items-center gap-2">
           <form action={submitFeedback}>
             <input name="article_id" type="hidden" value={article.id} />
             <input name="is_helpful" type="hidden" value="true" />
-            <Button size="sm" type="submit" variant={myFeedback?.is_helpful === true ? "default" : "outline"}>
+            <Button
+              size="sm"
+              type="submit"
+              variant={myFeedback?.is_helpful === true ? "default" : "outline"}
+            >
               Sim ({helpfulCount})
             </Button>
           </form>
           <form action={submitFeedback}>
             <input name="article_id" type="hidden" value={article.id} />
             <input name="is_helpful" type="hidden" value="false" />
-            <Button size="sm" type="submit" variant={myFeedback?.is_helpful === false ? "default" : "outline"}>
+            <Button
+              size="sm"
+              type="submit"
+              variant={myFeedback?.is_helpful === false ? "default" : "outline"}
+            >
               Não ({notHelpfulCount})
             </Button>
           </form>
@@ -120,12 +138,15 @@ export default async function ArticleDetailPage({
       {isItStaff && (
         <>
           <div className="mt-6">
-            <h2 className="mb-3 font-medium text-foreground">Editar Conteúdo</h2>
-            <form action={updateArticleContent} className="space-y-2 rounded-lg border border-border bg-card p-4">
+            <h2 className="text-foreground mb-3 font-medium">Editar Conteúdo</h2>
+            <form
+              action={updateArticleContent}
+              className="border-border bg-card space-y-2 rounded-lg border p-4"
+            >
               <input name="article_id" type="hidden" value={article.id} />
               <textarea
                 required
-                className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+                className="border-input bg-background text-foreground min-h-32 w-full rounded-md border px-3 py-2 text-sm"
                 defaultValue={article.content}
                 name="content"
               />
@@ -137,13 +158,16 @@ export default async function ArticleDetailPage({
             </form>
           </div>
 
-          <form action={updateArticleStatus} className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-card p-4">
+          <form
+            action={updateArticleStatus}
+            className="border-border bg-card mt-4 flex items-center gap-2 rounded-lg border p-4"
+          >
             <input name="article_id" type="hidden" value={article.id} />
             <Label className="text-sm" htmlFor="status">
               Status
             </Label>
             <select
-              className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
               defaultValue={article.status}
               key={article.status}
               name="status"
@@ -161,8 +185,8 @@ export default async function ArticleDetailPage({
 
           {versions.length > 0 && (
             <div className="mt-6">
-              <h2 className="mb-3 font-medium text-foreground">Histórico de Versões</h2>
-              <ul className="space-y-1 text-xs text-muted-foreground">
+              <h2 className="text-foreground mb-3 font-medium">Histórico de Versões</h2>
+              <ul className="text-muted-foreground space-y-1 text-xs">
                 {versions.map((v) => (
                   <li key={v.id}>
                     Versão {v.version_number} · {formatDate(v.created_at)}

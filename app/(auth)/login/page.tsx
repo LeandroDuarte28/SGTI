@@ -19,25 +19,27 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string }>;
 }): Promise<React.JSX.Element> {
   const { error } = await searchParams;
-  const errorMessage = error ? (ERROR_MESSAGES[error] ?? "Ocorreu um erro ao tentar entrar.") : null;
+  const errorMessage = error
+    ? (ERROR_MESSAGES[error] ?? "Ocorreu um erro ao tentar entrar.")
+    : null;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-card p-8 shadow-sm">
-        <h1 className="mb-2 text-2xl font-semibold text-foreground">SGTI</h1>
-        <p className="mb-6 text-sm text-muted-foreground">
+    <main className="bg-background flex min-h-screen items-center justify-center px-4">
+      <div className="border-border bg-card w-full max-w-sm rounded-lg border p-8 shadow-sm">
+        <h1 className="text-foreground mb-2 text-2xl font-semibold">SGTI</h1>
+        <p className="text-muted-foreground mb-6 text-sm">
           Sistema de Gestão de Tecnologia da Informação
         </p>
 
         {errorMessage && (
-          <div className="mb-4 rounded-md bg-destructive/10 p-3 text-center text-sm text-destructive">
+          <div className="bg-destructive/10 text-destructive mb-4 rounded-md p-3 text-center text-sm">
             {errorMessage}
           </div>
         )}
 
         <GoogleSignInButton />
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-6 text-center text-xs">
           Acesso restrito a contas @pinpag.com.br
         </p>
       </div>

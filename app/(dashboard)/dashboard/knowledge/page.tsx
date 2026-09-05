@@ -15,29 +15,55 @@ export default async function KnowledgeDashboardPage(): Promise<React.JSX.Elemen
   }
 
   const supabase = await createClient();
-  const monthStart = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1)).toISOString();
+  const monthStart = new Date(
+    Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1),
+  ).toISOString();
 
   const [publishedResult, draftsResult, newThisMonthResult, feedbackResult] = await Promise.all([
     supabase.schema("knowledge").from("Article").select("id").eq("status", "PUBLISHED"),
     supabase.schema("knowledge").from("Article").select("id").eq("status", "DRAFT"),
-    supabase.schema("knowledge").from("Article").select("id").eq("status", "PUBLISHED").gte("created_at", monthStart),
+    supabase
+      .schema("knowledge")
+      .from("Article")
+      .select("id")
+      .eq("status", "PUBLISHED")
+      .gte("created_at", monthStart),
     supabase.schema("knowledge").from("ArticleFeedback").select("is_helpful"),
   ]);
 
   const feedback = feedbackResult.data ?? [];
-  const helpfulRate = feedback.length > 0 ? (feedback.filter((f) => f.is_helpful).length / feedback.length) * 100 : NaN;
+  const helpfulRate =
+    feedback.length > 0
+      ? (feedback.filter((f) => f.is_helpful).length / feedback.length) * 100
+      : NaN;
 
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard da Base de Conhecimento</h1>
-        <p className="text-sm text-muted-foreground">Cobertura e qualidade dos artigos de autoatendimento.</p>
+        <h1 className="text-foreground text-2xl font-semibold">
+          Dashboard da Base de Conhecimento
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Cobertura e qualidade dos artigos de autoatendimento.
+        </p>
       </div>
 
       <Section title="Conteúdo">
-        <StatCard href="/knowledge" label="Artigos Publicados" value={String(publishedResult.data?.length ?? 0)} />
-        <StatCard href="/knowledge" label="Rascunhos Pendentes" value={String(draftsResult.data?.length ?? 0)} />
-        <StatCard label="Novos no Mês" tone="good" value={String(newThisMonthResult.data?.length ?? 0)} />
+        <StatCard
+          href="/knowledge"
+          label="Artigos Publicados"
+          value={String(publishedResult.data?.length ?? 0)}
+        />
+        <StatCard
+          href="/knowledge"
+          label="Rascunhos Pendentes"
+          value={String(draftsResult.data?.length ?? 0)}
+        />
+        <StatCard
+          label="Novos no Mês"
+          tone="good"
+          value={String(newThisMonthResult.data?.length ?? 0)}
+        />
         <StatCard
           label="Helpful Rate Médio"
           tone={!Number.isNaN(helpfulRate) && helpfulRate < 75 ? "bad" : "neutral"}

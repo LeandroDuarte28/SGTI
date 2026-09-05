@@ -37,24 +37,22 @@ export default async function NewServiceRequestPage({
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/requests">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/requests">
           ← Voltar para Requisições
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-foreground">Nova Requisição</h1>
-        <p className="text-sm text-muted-foreground">
-          Solicite um serviço disponível no Catálogo.
-        </p>
+        <h1 className="text-foreground mt-2 text-2xl font-semibold">Nova Requisição</h1>
+        <p className="text-muted-foreground text-sm">Solicite um serviço disponível no Catálogo.</p>
       </div>
 
       <form
         action={createServiceRequest}
-        className="space-y-5 rounded-lg border border-border bg-card p-6"
+        className="border-border bg-card space-y-5 rounded-lg border p-6"
       >
         <div className="space-y-2">
           <Label htmlFor="catalog_item_id">Serviço</Label>
           <select
             required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             defaultValue={preselectedItemId ?? ""}
             id="catalog_item_id"
             name="catalog_item_id"
@@ -83,7 +81,7 @@ export default async function NewServiceRequestPage({
         <div className="space-y-2">
           <Label htmlFor="justification">Justificativa (opcional)</Label>
           <textarea
-            className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring min-h-24 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             id="justification"
             name="justification"
             placeholder="Explique por que você precisa deste serviço."

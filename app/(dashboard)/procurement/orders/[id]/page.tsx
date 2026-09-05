@@ -23,7 +23,14 @@ const STATUS_LABEL: Record<string, string> = {
   RECEIVED: "Recebido",
   CANCELLED: "Cancelado",
 };
-const STATUS_OPTIONS = ["DRAFT", "PENDING_APPROVAL", "APPROVED", "ORDERED", "RECEIVED", "CANCELLED"];
+const STATUS_OPTIONS = [
+  "DRAFT",
+  "PENDING_APPROVAL",
+  "APPROVED",
+  "ORDERED",
+  "RECEIVED",
+  "CANCELLED",
+];
 
 export default async function PurchaseOrderDetailPage({
   params,
@@ -46,11 +53,11 @@ export default async function PurchaseOrderDetailPage({
   if (error || !order) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/procurement">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/procurement">
           ← Voltar para Compras
         </Link>
-        <div className="mt-4 rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-4 rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Pedido não encontrado, ou você não tem permissão para vê-lo.
           </p>
         </div>
@@ -59,7 +66,12 @@ export default async function PurchaseOrderDetailPage({
   }
 
   const [supplierResult, itemsResult, receivingResult] = await Promise.all([
-    supabase.schema("procurement").from("Supplier").select("name").eq("id", order.supplier_id).single(),
+    supabase
+      .schema("procurement")
+      .from("Supplier")
+      .select("name")
+      .eq("id", order.supplier_id)
+      .single(),
     supabase
       .schema("procurement")
       .from("PurchaseOrderItem")
@@ -76,9 +88,11 @@ export default async function PurchaseOrderDetailPage({
   const items = itemsResult.data ?? [];
   const receivingRecords = receivingResult.data ?? [];
 
-  const profileIds = [order.requested_by, order.approved_by, ...receivingRecords.map((r) => r.received_by)].filter(
-    (v): v is string => v !== null,
-  );
+  const profileIds = [
+    order.requested_by,
+    order.approved_by,
+    ...receivingRecords.map((r) => r.received_by),
+  ].filter((v): v is string => v !== null);
   const { data: profiles } = await supabase
     .schema("shared")
     .from("UserProfile")
@@ -86,32 +100,34 @@ export default async function PurchaseOrderDetailPage({
     .in("id", profileIds.length > 0 ? profileIds : ["00000000-0000-0000-0000-000000000000"]);
 
   function nameFor(userId: string | null): string {
-    if (!userId) {return "—";}
+    if (!userId) {
+      return "—";
+    }
     return profiles?.find((p) => p.id === userId)?.full_name ?? "Usuário desconhecido";
   }
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link className="text-sm text-muted-foreground hover:underline" href="/procurement">
+      <Link className="text-muted-foreground text-sm hover:underline" href="/procurement">
         ← Voltar para Compras
       </Link>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
+      <div className="border-border bg-card mt-4 rounded-lg border p-6">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-semibold text-foreground">
+          <h1 className="text-foreground text-xl font-semibold">
             {supplierResult.data?.name ?? "Fornecedor não encontrado"}
           </h1>
-          <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+          <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium">
             {STATUS_LABEL[order.status] ?? order.status}
           </span>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-xs">
           Solicitado por {nameFor(order.requested_by)} em {formatDate(order.created_at)}
           {order.approved_by && ` · Aprovado por ${nameFor(order.approved_by)}`}
         </p>
-        {order.notes && <p className="mt-3 text-sm text-foreground">{order.notes}</p>}
+        {order.notes && <p className="text-foreground mt-3 text-sm">{order.notes}</p>}
 
-        <ul className="mt-4 space-y-1 border-t border-border pt-3">
+        <ul className="border-border mt-4 space-y-1 border-t pt-3">
           {items.map((item) => (
             <li className="flex items-center justify-between text-sm" key={item.id}>
               <span className="text-foreground">
@@ -123,7 +139,7 @@ export default async function PurchaseOrderDetailPage({
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-right text-sm font-medium text-foreground">
+        <p className="text-foreground mt-3 text-right text-sm font-medium">
           Total: {formatCurrency(order.total_amount)}
         </p>
       </div>
@@ -131,11 +147,11 @@ export default async function PurchaseOrderDetailPage({
       {isManager && !["RECEIVED", "CANCELLED"].includes(order.status) && (
         <form
           action={updatePurchaseOrderStatus}
-          className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-card p-4"
+          className="border-border bg-card mt-4 flex items-center gap-2 rounded-lg border p-4"
         >
           <input name="order_id" type="hidden" value={order.id} />
           <select
-            className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+            className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
             defaultValue={order.status}
             key={order.status}
             name="status"
@@ -154,10 +170,13 @@ export default async function PurchaseOrderDetailPage({
 
       {receivingRecords.length > 0 && (
         <div className="mt-6">
-          <h2 className="mb-3 font-medium text-foreground">Recebimento</h2>
+          <h2 className="text-foreground mb-3 font-medium">Recebimento</h2>
           <ul className="space-y-2">
             {receivingRecords.map((record) => (
-              <li className="rounded-lg border border-border bg-card p-3 text-sm text-foreground" key={record.id}>
+              <li
+                className="border-border bg-card text-foreground rounded-lg border p-3 text-sm"
+                key={record.id}
+              >
                 Recebido por {nameFor(record.received_by)} em {formatDate(record.received_at)}
               </li>
             ))}

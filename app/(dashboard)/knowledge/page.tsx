@@ -32,8 +32,8 @@ export default async function KnowledgePage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Base de Conhecimento</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-foreground text-2xl font-semibold">Base de Conhecimento</h1>
+          <p className="text-muted-foreground text-sm">
             Artigos de autoatendimento para resolver dúvidas comuns.
           </p>
         </div>
@@ -53,16 +53,14 @@ export default async function KnowledgePage(): Promise<React.JSX.Element> {
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar os artigos: {error.message}
         </div>
       )}
 
       {!error && articles && articles.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Nenhum artigo publicado ainda.
-          </p>
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">Nenhum artigo publicado ainda.</p>
         </div>
       )}
 
@@ -71,19 +69,19 @@ export default async function KnowledgePage(): Promise<React.JSX.Element> {
           {articles.map((article) => (
             <li key={article.id}>
               <Link
-                className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+                className="border-border bg-card hover:bg-muted/50 block rounded-lg border p-4 shadow-sm transition-colors"
                 href={`/knowledge/${article.id}`}
               >
                 <div className="flex items-start justify-between gap-4">
-                  <h2 className="font-medium text-foreground">{article.title}</h2>
+                  <h2 className="text-foreground font-medium">{article.title}</h2>
                   {isItStaff && article.status !== "PUBLISHED" && (
-                    <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                    <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium">
                       {article.status === "DRAFT" ? "Rascunho" : "Arquivado"}
                     </span>
                   )}
                 </div>
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{article.content}</p>
-                <p className="mt-2 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">{article.content}</p>
+                <p className="text-muted-foreground mt-2 text-xs">
                   {article.view_count} {article.view_count === 1 ? "visualização" : "visualizações"}{" "}
                   · Publicado em {formatDate(article.created_at)}
                 </p>

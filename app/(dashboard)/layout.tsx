@@ -28,20 +28,23 @@ export default async function DashboardLayout({
     .eq("status", "UNREAD");
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="bg-background flex min-h-screen">
       <Sidebar />
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4">
+        <header className="border-border bg-card flex items-center justify-between border-b px-6 py-4">
           <div>
-            <p className="text-sm font-medium text-foreground">{user.fullName}</p>
-            <p className="text-xs text-muted-foreground">{user.email}</p>
+            <p className="text-foreground text-sm font-medium">{user.fullName}</p>
+            <p className="text-muted-foreground text-xs">{user.email}</p>
           </div>
           <div className="flex items-center gap-4">
-            <Link className="relative text-muted-foreground hover:text-foreground" href="/notifications">
+            <Link
+              className="text-muted-foreground hover:text-foreground relative"
+              href="/notifications"
+            >
               <Bell className="h-5 w-5" />
               {!!unreadCount && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium text-destructive-foreground">
+                <span className="bg-destructive text-destructive-foreground absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}

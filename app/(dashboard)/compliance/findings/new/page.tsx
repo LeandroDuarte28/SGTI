@@ -33,8 +33,8 @@ export default async function NewFindingPage({
   if (!auditId) {
     return (
       <div className="mx-auto max-w-2xl">
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Um apontamento precisa ser criado a partir de uma{" "}
             <Link className="underline" href="/compliance/audits">
               auditoria
@@ -49,8 +49,17 @@ export default async function NewFindingPage({
   const supabase = await createClient();
 
   const [auditResult, auditNormsResult] = await Promise.all([
-    supabase.schema("compliance").from("ComplianceAudit").select("id, name").eq("id", auditId).single(),
-    supabase.schema("compliance").from("ComplianceAuditNorm").select("norm_id").eq("audit_id", auditId),
+    supabase
+      .schema("compliance")
+      .from("ComplianceAudit")
+      .select("id, name")
+      .eq("id", auditId)
+      .single(),
+    supabase
+      .schema("compliance")
+      .from("ComplianceAuditNorm")
+      .select("norm_id")
+      .eq("audit_id", auditId),
   ]);
 
   const audit = auditResult.data;
@@ -79,8 +88,8 @@ export default async function NewFindingPage({
   if (!audit) {
     return (
       <div className="mx-auto max-w-2xl">
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">Auditoria não encontrada.</p>
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">Auditoria não encontrada.</p>
         </div>
       </div>
     );
@@ -89,28 +98,36 @@ export default async function NewFindingPage({
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
-        <Link className="text-sm text-muted-foreground hover:underline" href={`/compliance/audits/${audit.id}`}>
+        <Link
+          className="text-muted-foreground text-sm hover:underline"
+          href={`/compliance/audits/${audit.id}`}
+        >
           ← Voltar para {audit.name}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-foreground">Novo Apontamento</h1>
-        <p className="text-sm text-muted-foreground">Registre uma situação identificada nesta auditoria.</p>
+        <h1 className="text-foreground mt-2 text-2xl font-semibold">Novo Apontamento</h1>
+        <p className="text-muted-foreground text-sm">
+          Registre uma situação identificada nesta auditoria.
+        </p>
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-8 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border rounded-lg border border-dashed p-8 text-center">
+          <p className="text-muted-foreground text-sm">
             Nenhum item normativo aplicável disponível para as normas desta auditoria.
           </p>
         </div>
       ) : (
-        <form action={createFinding} className="space-y-5 rounded-lg border border-border bg-card p-6">
+        <form
+          action={createFinding}
+          className="border-border bg-card space-y-5 rounded-lg border p-6"
+        >
           <input name="audit_id" type="hidden" value={audit.id} />
 
           <div className="space-y-2">
             <Label htmlFor="norm_item_id">Item Normativo</Label>
             <select
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
               defaultValue=""
               id="norm_item_id"
               name="norm_item_id"
@@ -131,7 +148,7 @@ export default async function NewFindingPage({
               <Label htmlFor="finding_type">Tipo de Apontamento</Label>
               <select
                 required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 defaultValue=""
                 id="finding_type"
                 name="finding_type"
@@ -150,7 +167,7 @@ export default async function NewFindingPage({
               <Label htmlFor="criticality">Criticidade</Label>
               <select
                 required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 defaultValue=""
                 id="criticality"
                 name="criticality"
@@ -171,7 +188,7 @@ export default async function NewFindingPage({
             <Label htmlFor="title">Título</Label>
             <input
               required
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
               id="title"
               maxLength={400}
               name="title"
@@ -183,7 +200,7 @@ export default async function NewFindingPage({
             <Label htmlFor="description">Descrição</Label>
             <textarea
               required
-              className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring min-h-24 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
               id="description"
               name="description"
               placeholder="Detalhamento completo da situação encontrada."
@@ -195,7 +212,7 @@ export default async function NewFindingPage({
               <Label htmlFor="analyst_id">Analista Responsável</Label>
               <select
                 required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 defaultValue=""
                 id="analyst_id"
                 name="analyst_id"
@@ -214,7 +231,7 @@ export default async function NewFindingPage({
               <Label htmlFor="due_date">Data Limite</Label>
               <input
                 required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 id="due_date"
                 name="due_date"
                 type="date"
@@ -225,7 +242,7 @@ export default async function NewFindingPage({
           <div className="space-y-2">
             <Label htmlFor="estimated_cost">Custo Estimado (opcional)</Label>
             <input
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
               id="estimated_cost"
               min="0"
               name="estimated_cost"
@@ -236,7 +253,12 @@ export default async function NewFindingPage({
           </div>
 
           <div className="flex items-center gap-2">
-            <input className="h-4 w-4 rounded border-input" id="is_urgent" name="is_urgent" type="checkbox" />
+            <input
+              className="border-input h-4 w-4 rounded"
+              id="is_urgent"
+              name="is_urgent"
+              type="checkbox"
+            />
             <Label className="font-normal" htmlFor="is_urgent">
               Marcar como urgente
             </Label>

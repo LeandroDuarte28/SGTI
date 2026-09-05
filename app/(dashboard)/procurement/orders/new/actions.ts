@@ -23,7 +23,12 @@ function parseItems(formData: FormData): ItemInput[] {
     }
     const quantity = Number(quantities[i]);
     const unitPrice = Number(prices[i]);
-    if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(unitPrice) || unitPrice < 0) {
+    if (
+      !Number.isFinite(quantity) ||
+      quantity <= 0 ||
+      !Number.isFinite(unitPrice) ||
+      unitPrice < 0
+    ) {
       continue;
     }
     items.push({ description: description.trim(), quantity, unitPrice });

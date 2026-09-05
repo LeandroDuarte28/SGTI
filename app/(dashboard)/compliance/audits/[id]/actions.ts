@@ -4,7 +4,14 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 
-const VALID_STATUSES = ["PLANNED", "IN_PROGRESS", "PENDING_RESPONSES", "IN_REVIEW", "COMPLETED", "CANCELLED"] as const;
+const VALID_STATUSES = [
+  "PLANNED",
+  "IN_PROGRESS",
+  "PENDING_RESPONSES",
+  "IN_REVIEW",
+  "COMPLETED",
+  "CANCELLED",
+] as const;
 type AuditStatus = (typeof VALID_STATUSES)[number];
 
 function isValidStatus(value: string): value is AuditStatus {
@@ -52,7 +59,9 @@ export async function updateAuditStatus(formData: FormData): Promise<void> {
     .single();
 
   if (fetchError || !audit) {
-    throw new Error(`Não foi possível encontrar a auditoria: ${fetchError?.message ?? "não encontrada"}`);
+    throw new Error(
+      `Não foi possível encontrar a auditoria: ${fetchError?.message ?? "não encontrada"}`,
+    );
   }
 
   const currentStatus = audit.status as AuditStatus;
@@ -83,7 +92,9 @@ export async function updateAuditStatus(formData: FormData): Promise<void> {
       .not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)");
 
     if (cascadeError) {
-      throw new Error(`Não foi possível cancelar os apontamentos vinculados: ${cascadeError.message}`);
+      throw new Error(
+        `Não foi possível cancelar os apontamentos vinculados: ${cascadeError.message}`,
+      );
     }
   }
 
@@ -158,8 +169,12 @@ async function calculateComplianceScore(auditId: string): Promise<number> {
   }
 
   const numerator = applicable.reduce((sum, item) => {
-    if (item.implementation_status === "IMPLEMENTED") {return sum + 1;}
-    if (item.implementation_status === "PARTIAL") {return sum + 0.5;}
+    if (item.implementation_status === "IMPLEMENTED") {
+      return sum + 1;
+    }
+    if (item.implementation_status === "PARTIAL") {
+      return sum + 0.5;
+    }
     return sum;
   }, 0);
 

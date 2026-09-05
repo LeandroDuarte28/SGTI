@@ -24,21 +24,51 @@ export default async function OperationalDashboardPage(): Promise<React.JSX.Elem
     unassignedResult,
     pendingApprovalResult,
   ] = await Promise.all([
-    supabase.schema("ticket").from("Incident").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
-    supabase.schema("ticket").from("ServiceRequest").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
-    supabase.schema("ticket").from("Incident").select("id").not("sla_breached_at", "is", null).not("status", "in", "(RESOLVED,CLOSED)"),
-    supabase.schema("ticket").from("Incident").select("id").not("sla_at_risk_notified_at", "is", null).is("sla_breached_at", null).not("status", "in", "(RESOLVED,CLOSED)"),
-    supabase.schema("ticket").from("Incident").select("id").is("assignee_id", null).not("status", "in", "(RESOLVED,CLOSED)"),
-    supabase.schema("ticket").from("ServiceRequest").select("id").is("approved_at", null).eq("status", "OPEN"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("ServiceRequest")
+      .select("id")
+      .not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .not("sla_breached_at", "is", null)
+      .not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .not("sla_at_risk_notified_at", "is", null)
+      .is("sla_breached_at", null)
+      .not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .is("assignee_id", null)
+      .not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("ServiceRequest")
+      .select("id")
+      .is("approved_at", null)
+      .eq("status", "OPEN"),
   ]);
 
-  const queueTotal = (openIncidentsResult.data?.length ?? 0) + (openRequestsResult.data?.length ?? 0);
+  const queueTotal =
+    (openIncidentsResult.data?.length ?? 0) + (openRequestsResult.data?.length ?? 0);
 
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard Operacional</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-foreground text-2xl font-semibold">Dashboard Operacional</h1>
+        <p className="text-muted-foreground text-sm">
           Visão do dia a dia da fila de trabalho. Calculado ao vivo a cada carregamento da página.
         </p>
       </div>

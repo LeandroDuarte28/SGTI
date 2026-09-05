@@ -20,10 +20,15 @@ export async function GET(): Promise<Response> {
     .order("created_at", { ascending: false });
 
   if (error || !articles) {
-    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, { status: 500 });
+    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, {
+      status: 500,
+    });
   }
 
-  const names = await fetchUserNames(supabase, articles.map((a) => a.author_id));
+  const names = await fetchUserNames(
+    supabase,
+    articles.map((a) => a.author_id),
+  );
 
   const rows = articles.map((a) => ({
     title: a.title,
@@ -44,7 +49,12 @@ export async function GET(): Promise<Response> {
   await supabase
     .schema("shared")
     .from("AuditLog")
-    .insert({ user_id: user.id, action: "REPORT_EXPORTED", entity_type: "Article", new_values: { format: "csv", rows: rows.length } });
+    .insert({
+      user_id: user.id,
+      action: "REPORT_EXPORTED",
+      entity_type: "Article",
+      new_values: { format: "csv", rows: rows.length },
+    });
 
   return csvResponse("artigos-kb.csv", csv);
 }

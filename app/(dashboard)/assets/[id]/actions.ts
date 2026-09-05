@@ -29,7 +29,11 @@ export async function updateAssetStatus(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.schema("asset").from("Asset").update({ status }).eq("id", assetId);
+  const { error } = await supabase
+    .schema("asset")
+    .from("Asset")
+    .update({ status })
+    .eq("id", assetId);
 
   if (error) {
     throw new Error(`Não foi possível atualizar o status: ${error.message}`);
@@ -54,7 +58,9 @@ export async function reassignAsset(formData: FormData): Promise<void> {
   const { error } = await supabase
     .schema("asset")
     .from("Asset")
-    .update({ assigned_to: typeof assignedTo === "string" && assignedTo !== "" ? assignedTo : null })
+    .update({
+      assigned_to: typeof assignedTo === "string" && assignedTo !== "" ? assignedTo : null,
+    })
     .eq("id", assetId);
 
   if (error) {

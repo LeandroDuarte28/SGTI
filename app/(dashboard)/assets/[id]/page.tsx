@@ -52,11 +52,11 @@ export default async function AssetDetailPage({
   if (error || !asset) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/assets">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/assets">
           ← Voltar para Ativos
         </Link>
-        <div className="mt-4 rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-4 rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Ativo não encontrado, ou você não tem permissão para vê-lo.
           </p>
         </div>
@@ -105,44 +105,46 @@ export default async function AssetDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link className="text-sm text-muted-foreground hover:underline" href="/assets">
+      <Link className="text-muted-foreground text-sm hover:underline" href="/assets">
         ← Voltar para Ativos
       </Link>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
+      <div className="border-border bg-card mt-4 rounded-lg border p-6">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-semibold text-foreground">{asset.name}</h1>
-          <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+          <h1 className="text-foreground text-xl font-semibold">{asset.name}</h1>
+          <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium">
             {TYPE_LABEL[asset.type] ?? asset.type}
           </span>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-xs">
           {asset.asset_tag}
           {asset.manufacturer && ` · ${asset.manufacturer}`}
           {asset.model && ` ${asset.model}`}
           {asset.serial_number && ` · S/N ${asset.serial_number}`}
         </p>
-        <p className="mt-4 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-4 text-xs">
           Atribuído a: {nameFor(asset.assigned_to)}
           {asset.location && ` · Localização: ${asset.location}`}
         </p>
         {(asset.purchase_date || asset.warranty_expires) && (
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-xs">
             {asset.purchase_date &&
               `Comprado em ${new Date(asset.purchase_date).toLocaleDateString("pt-BR")}`}
             {asset.warranty_expires &&
               ` · Garantia até ${new Date(asset.warranty_expires).toLocaleDateString("pt-BR")}`}
           </p>
         )}
-        {asset.notes && <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{asset.notes}</p>}
+        {asset.notes && (
+          <p className="text-foreground mt-3 text-sm whitespace-pre-wrap">{asset.notes}</p>
+        )}
       </div>
 
       {isItStaff && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4">
+        <div className="border-border bg-card mt-4 flex flex-wrap items-center gap-3 rounded-lg border p-4">
           <form action={updateAssetStatus} className="flex items-center gap-2">
             <input name="asset_id" type="hidden" value={asset.id} />
             <select
-              className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
               defaultValue={asset.status}
               key={asset.status}
               name="status"
@@ -161,7 +163,7 @@ export default async function AssetDetailPage({
           <form action={reassignAsset} className="flex items-center gap-2">
             <input name="asset_id" type="hidden" value={asset.id} />
             <select
-              className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
               defaultValue={asset.assigned_to ?? ""}
               key={asset.assigned_to ?? "unassigned"}
               name="assigned_to"
@@ -181,21 +183,21 @@ export default async function AssetDetailPage({
       )}
 
       {!isItStaff && (
-        <div className="mt-4 inline-block rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+        <div className="bg-muted text-muted-foreground mt-4 inline-block rounded-full px-3 py-1 text-xs">
           Status: {STATUS_LABEL[asset.status] ?? asset.status}
         </div>
       )}
 
       {isItStaff && (
         <div className="mt-6">
-          <h2 className="mb-3 font-medium text-foreground">Histórico de Manutenção</h2>
+          <h2 className="text-foreground mb-3 font-medium">Histórico de Manutenção</h2>
 
           {maintenanceRecords.length > 0 && (
             <ul className="mb-4 space-y-3">
               {maintenanceRecords.map((record) => (
-                <li className="rounded-lg border border-border bg-card p-3" key={record.id}>
-                  <p className="text-sm text-foreground">{record.description}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                <li className="border-border bg-card rounded-lg border p-3" key={record.id}>
+                  <p className="text-foreground text-sm">{record.description}</p>
+                  <p className="text-muted-foreground mt-1 text-xs">
                     {nameFor(record.performed_by)} ·{" "}
                     {new Date(record.performed_at).toLocaleDateString("pt-BR")}
                     {record.cost !== null &&
@@ -208,14 +210,14 @@ export default async function AssetDetailPage({
 
           <form
             action={addMaintenanceRecord}
-            className="space-y-2 rounded-lg border border-border bg-card p-4"
+            className="border-border bg-card space-y-2 rounded-lg border p-4"
           >
             <input name="asset_id" type="hidden" value={asset.id} />
             <div className="space-y-2">
               <Label htmlFor="description">Descrição</Label>
               <textarea
                 required
-                className="min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring min-h-20 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 id="description"
                 name="description"
                 placeholder="Ex: Troca de bateria, limpeza interna, atualização de firmware..."
@@ -224,7 +226,7 @@ export default async function AssetDetailPage({
             <div className="space-y-2">
               <Label htmlFor="cost">Custo (opcional)</Label>
               <input
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 id="cost"
                 min="0"
                 name="cost"

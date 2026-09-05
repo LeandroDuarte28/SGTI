@@ -27,7 +27,11 @@ export async function updateProblemStatus(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.schema("ticket").from("Problem").update({ status }).eq("id", problemId);
+  const { error } = await supabase
+    .schema("ticket")
+    .from("Problem")
+    .update({ status })
+    .eq("id", problemId);
 
   if (error) {
     throw new Error(`Não foi possível atualizar o status: ${error.message}`);

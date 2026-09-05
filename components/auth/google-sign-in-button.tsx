@@ -64,7 +64,7 @@ export function GoogleSignInButton(): React.JSX.Element {
       </Button>
 
       {errorMessage && (
-        <p className="mt-3 text-center text-sm text-destructive" role="alert">
+        <p className="text-destructive mt-3 text-center text-sm" role="alert">
           {errorMessage}
         </p>
       )}

@@ -23,7 +23,11 @@ export async function updateProjectStatus(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.schema("project").from("Project").update({ status }).eq("id", projectId);
+  const { error } = await supabase
+    .schema("project")
+    .from("Project")
+    .update({ status })
+    .eq("id", projectId);
 
   if (error) {
     throw new Error(`Não foi possível atualizar o projeto: ${error.message}`);
@@ -46,11 +50,14 @@ export async function addMilestone(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.schema("project").from("Milestone").insert({
-    project_id: projectId,
-    title: title.trim(),
-    due_date: typeof dueDate === "string" && dueDate.length > 0 ? dueDate : null,
-  });
+  const { error } = await supabase
+    .schema("project")
+    .from("Milestone")
+    .insert({
+      project_id: projectId,
+      title: title.trim(),
+      due_date: typeof dueDate === "string" && dueDate.length > 0 ? dueDate : null,
+    });
 
   if (error) {
     throw new Error(`Não foi possível adicionar o marco: ${error.message}`);
@@ -113,13 +120,17 @@ export async function addRisk(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.schema("project").from("Risk").insert({
-    project_id: projectId,
-    description: description.trim(),
-    probability,
-    impact,
-    mitigation: typeof mitigation === "string" && mitigation.trim().length > 0 ? mitigation.trim() : null,
-  });
+  const { error } = await supabase
+    .schema("project")
+    .from("Risk")
+    .insert({
+      project_id: projectId,
+      description: description.trim(),
+      probability,
+      impact,
+      mitigation:
+        typeof mitigation === "string" && mitigation.trim().length > 0 ? mitigation.trim() : null,
+    });
 
   if (error) {
     throw new Error(`Não foi possível adicionar o risco: ${error.message}`);
@@ -177,10 +188,14 @@ export async function updateProjectFinancials(formData: FormData): Promise<void>
     .schema("project")
     .from("Project")
     .update({
-      capex_approved: typeof capexApproved === "string" && capexApproved !== "" ? Number(capexApproved) : null,
-      opex_approved: typeof opexApproved === "string" && opexApproved !== "" ? Number(opexApproved) : null,
-      capex_realized: typeof capexRealized === "string" && capexRealized !== "" ? Number(capexRealized) : 0,
-      opex_realized: typeof opexRealized === "string" && opexRealized !== "" ? Number(opexRealized) : 0,
+      capex_approved:
+        typeof capexApproved === "string" && capexApproved !== "" ? Number(capexApproved) : null,
+      opex_approved:
+        typeof opexApproved === "string" && opexApproved !== "" ? Number(opexApproved) : null,
+      capex_realized:
+        typeof capexRealized === "string" && capexRealized !== "" ? Number(capexRealized) : 0,
+      opex_realized:
+        typeof opexRealized === "string" && opexRealized !== "" ? Number(opexRealized) : 0,
     })
     .eq("id", projectId);
 
@@ -191,7 +206,14 @@ export async function updateProjectFinancials(formData: FormData): Promise<void>
   revalidatePath(`/projects/${projectId}`);
 }
 
-const VALID_BENEFIT_TYPES = ["FINANCIAL", "EFFICIENCY", "RISK_REDUCTION", "COMPLIANCE", "QUALITY", "INNOVATION"] as const;
+const VALID_BENEFIT_TYPES = [
+  "FINANCIAL",
+  "EFFICIENCY",
+  "RISK_REDUCTION",
+  "COMPLIANCE",
+  "QUALITY",
+  "INNOVATION",
+] as const;
 type BenefitType = (typeof VALID_BENEFIT_TYPES)[number];
 function isValidBenefitType(value: string): value is BenefitType {
   return (VALID_BENEFIT_TYPES as readonly string[]).includes(value);
@@ -219,13 +241,17 @@ export async function addProjectBenefit(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.schema("project").from("ProjectBenefit").insert({
-    project_id: projectId,
-    description: description.trim(),
-    benefit_type: benefitType,
-    expected_value: typeof expectedValue === "string" && expectedValue !== "" ? Number(expectedValue) : null,
-    realization_deadline: realizationDeadline,
-  });
+  const { error } = await supabase
+    .schema("project")
+    .from("ProjectBenefit")
+    .insert({
+      project_id: projectId,
+      description: description.trim(),
+      benefit_type: benefitType,
+      expected_value:
+        typeof expectedValue === "string" && expectedValue !== "" ? Number(expectedValue) : null,
+      realization_deadline: realizationDeadline,
+    });
 
   if (error) {
     throw new Error(`Não foi possível registrar o benefício: ${error.message}`);
@@ -234,7 +260,13 @@ export async function addProjectBenefit(formData: FormData): Promise<void> {
   revalidatePath(`/projects/${projectId}`);
 }
 
-const VALID_BENEFIT_STATUSES = ["PLANNED", "PENDING_MEASUREMENT", "REALIZED", "NOT_REALIZED", "PARTIALLY_REALIZED"] as const;
+const VALID_BENEFIT_STATUSES = [
+  "PLANNED",
+  "PENDING_MEASUREMENT",
+  "REALIZED",
+  "NOT_REALIZED",
+  "PARTIALLY_REALIZED",
+] as const;
 type BenefitStatus = (typeof VALID_BENEFIT_STATUSES)[number];
 function isValidBenefitStatus(value: string): value is BenefitStatus {
   return (VALID_BENEFIT_STATUSES as readonly string[]).includes(value);
@@ -266,7 +298,8 @@ export async function measureProjectBenefit(formData: FormData): Promise<void> {
     .schema("project")
     .from("ProjectBenefit")
     .update({
-      realized_value: typeof realizedValue === "string" && realizedValue !== "" ? Number(realizedValue) : null,
+      realized_value:
+        typeof realizedValue === "string" && realizedValue !== "" ? Number(realizedValue) : null,
       status,
       measured_at: new Date().toISOString(),
       measured_by: user?.id ?? null,
@@ -298,12 +331,15 @@ export async function addGithubReference(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.schema("project").from("GithubReference").insert({
-    project_id: projectId,
-    ref_type: refType,
-    url: url.trim(),
-    title: typeof title === "string" && title.trim().length > 0 ? title.trim() : null,
-  });
+  const { error } = await supabase
+    .schema("project")
+    .from("GithubReference")
+    .insert({
+      project_id: projectId,
+      ref_type: refType,
+      url: url.trim(),
+      title: typeof title === "string" && title.trim().length > 0 ? title.trim() : null,
+    });
 
   if (error) {
     throw new Error(`Não foi possível adicionar a referência: ${error.message}`);

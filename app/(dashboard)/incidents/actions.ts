@@ -32,7 +32,9 @@ export async function runSlaMonitor(): Promise<void> {
   const body = (await response.json()) as { error?: string; details?: string };
 
   if (!response.ok) {
-    throw new Error(`Falha ao executar a verificação de SLA: ${body.details ?? body.error ?? "erro desconhecido"}`);
+    throw new Error(
+      `Falha ao executar a verificação de SLA: ${body.details ?? body.error ?? "erro desconhecido"}`,
+    );
   }
 
   revalidatePath("/incidents");

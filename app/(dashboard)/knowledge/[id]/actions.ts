@@ -32,7 +32,9 @@ export async function updateArticleContent(formData: FormData): Promise<void> {
     .single();
 
   if (fetchError || !article) {
-    throw new Error(`Não foi possível encontrar o artigo: ${fetchError?.message ?? "não encontrado"}`);
+    throw new Error(
+      `Não foi possível encontrar o artigo: ${fetchError?.message ?? "não encontrado"}`,
+    );
   }
 
   const { count } = await supabase
@@ -41,12 +43,15 @@ export async function updateArticleContent(formData: FormData): Promise<void> {
     .select("id", { count: "exact", head: true })
     .eq("article_id", articleId);
 
-  const { error: versionError } = await supabase.schema("knowledge").from("ArticleVersion").insert({
-    article_id: articleId,
-    content: article.content,
-    version_number: (count ?? 0) + 1,
-    edited_by: user.id,
-  });
+  const { error: versionError } = await supabase
+    .schema("knowledge")
+    .from("ArticleVersion")
+    .insert({
+      article_id: articleId,
+      content: article.content,
+      version_number: (count ?? 0) + 1,
+      edited_by: user.id,
+    });
 
   if (versionError) {
     throw new Error(`Não foi possível salvar o histórico de versão: ${versionError.message}`);
@@ -84,7 +89,11 @@ export async function updateArticleStatus(formData: FormData): Promise<void> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.schema("knowledge").from("Article").update({ status }).eq("id", articleId);
+  const { error } = await supabase
+    .schema("knowledge")
+    .from("Article")
+    .update({ status })
+    .eq("id", articleId);
 
   if (error) {
     throw new Error(`Não foi possível atualizar o status: ${error.message}`);
@@ -113,15 +122,18 @@ export async function submitFeedback(formData: FormData): Promise<void> {
   const user = await getAuthUser();
   const supabase = await createClient();
 
-  const { error } = await supabase.schema("knowledge").from("ArticleFeedback").upsert(
-    {
-      article_id: articleId,
-      user_id: user.id,
-      is_helpful: isHelpful === "true",
-      comment: typeof comment === "string" && comment.trim().length > 0 ? comment.trim() : null,
-    },
-    { onConflict: "article_id,user_id" },
-  );
+  const { error } = await supabase
+    .schema("knowledge")
+    .from("ArticleFeedback")
+    .upsert(
+      {
+        article_id: articleId,
+        user_id: user.id,
+        is_helpful: isHelpful === "true",
+        comment: typeof comment === "string" && comment.trim().length > 0 ? comment.trim() : null,
+      },
+      { onConflict: "article_id,user_id" },
+    );
 
   if (error) {
     throw new Error(`Não foi possível registrar o feedback: ${error.message}`);

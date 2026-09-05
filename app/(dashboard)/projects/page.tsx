@@ -52,8 +52,8 @@ export default async function ProjectsPage(): Promise<React.JSX.Element> {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Projetos</h1>
-          <p className="text-sm text-muted-foreground">Projetos de TI em andamento e planejados.</p>
+          <h1 className="text-foreground text-2xl font-semibold">Projetos</h1>
+          <p className="text-muted-foreground text-sm">Projetos de TI em andamento e planejados.</p>
         </div>
         <div className="flex gap-2">
           <Button asChild size="sm" variant="outline">
@@ -69,14 +69,14 @@ export default async function ProjectsPage(): Promise<React.JSX.Element> {
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border p-4 text-sm">
           Não foi possível carregar os projetos: {error.message}
         </div>
       )}
 
       {!error && projects.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">Nenhum projeto cadastrado ainda.</p>
+        <div className="border-border rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">Nenhum projeto cadastrado ainda.</p>
         </div>
       )}
 
@@ -87,20 +87,20 @@ export default async function ProjectsPage(): Promise<React.JSX.Element> {
             return (
               <li key={project.id}>
                 <Link
-                  className="block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:bg-muted/50"
+                  className="border-border bg-card hover:bg-muted/50 block rounded-lg border p-4 shadow-sm transition-colors"
                   href={`/projects/${project.id}`}
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <h2 className="font-medium text-foreground">{project.name}</h2>
+                    <h2 className="text-foreground font-medium">{project.name}</h2>
                     <Pill
                       className={STATUS_CLASS[project.status] ?? ""}
                       label={STATUS_LABEL[project.status] ?? project.status}
                     />
                   </div>
                   {project.description && (
-                    <p className="mt-1 text-sm text-muted-foreground">{project.description}</p>
+                    <p className="text-muted-foreground mt-1 text-sm">{project.description}</p>
                   )}
-                  <p className="mt-2 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-2 text-xs">
                     {owner && `Responsável: ${owner.full_name}`}
                     {project.start_date && ` · Início: ${formatDateOnly(project.start_date)}`}
                     {project.github_repo && ` · ${project.github_repo}`}

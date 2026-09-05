@@ -62,7 +62,9 @@ Deno.serve(async (request: Request): Promise<Response> => {
     const { data: incidents, error: incidentsError } = await supabase
       .schema("ticket")
       .from("Incident")
-      .select("id, title, status, priority, assignee_id, created_at, sla_at_risk_notified_at, sla_breached_at, sla_id")
+      .select(
+        "id, title, status, priority, assignee_id, created_at, sla_at_risk_notified_at, sla_breached_at, sla_id",
+      )
       .not("status", "in", "(RESOLVED,CLOSED)")
       .not("sla_id", "is", null);
 
@@ -71,7 +73,9 @@ Deno.serve(async (request: Request): Promise<Response> => {
     }
 
     const rows = (incidents ?? []) as IncidentRow[];
-    const slaIds = [...new Set(rows.map((row) => row.sla_id).filter((id): id is string => id !== null))];
+    const slaIds = [
+      ...new Set(rows.map((row) => row.sla_id).filter((id): id is string => id !== null)),
+    ];
 
     const { data: slaDefinitions, error: slaError } = await supabase
       .schema("catalog")
@@ -83,7 +87,9 @@ Deno.serve(async (request: Request): Promise<Response> => {
       throw new Error(`Failed to load SLA definitions: ${slaError.message}`);
     }
 
-    const slaById = new Map<string, SlaDefinitionRow>((slaDefinitions ?? []).map((sla) => [sla.id, sla]));
+    const slaById = new Map<string, SlaDefinitionRow>(
+      (slaDefinitions ?? []).map((sla) => [sla.id, sla]),
+    );
 
     const { data: managers, error: managersError } = await supabase
       .schema("shared")
@@ -117,48 +123,65 @@ Deno.serve(async (request: Request): Promise<Response> => {
         now,
       });
 
-      const recipientIds = [...new Set([incident.assignee_id, ...managerIds].filter((id): id is string => id !== null))];
+      const recipientIds = [
+        ...new Set([incident.assignee_id, ...managerIds].filter((id): id is string => id !== null)),
+      ];
 
       if (evaluation.status === "breached") {
-        const { error: historyError } = await supabase.schema("catalog").from("SLAHistory").insert({
-          incident_id: incident.id,
-          event: "BREACHED",
-          priority: incident.priority,
-          technician_id: incident.assignee_id,
-          elapsed_minutes: Math.round(evaluation.elapsedMinutes),
-          deadline_minutes: evaluation.deadlineMinutes,
-        });
+        const { error: historyError } = await supabase
+          .schema("catalog")
+          .from("SLAHistory")
+          .insert({
+            incident_id: incident.id,
+            event: "BREACHED",
+            priority: incident.priority,
+            technician_id: incident.assignee_id,
+            elapsed_minutes: Math.round(evaluation.elapsedMinutes),
+            deadline_minutes: evaluation.deadlineMinutes,
+          });
         if (historyError) {
-          console.error(`[sla-monitor] Failed to record breach for incident ${incident.id}: ${historyError.message}`);
+          console.error(
+            `[sla-monitor] Failed to record breach for incident ${incident.id}: ${historyError.message}`,
+          );
           continue;
         }
 
-        await supabase.schema("ticket").from("Incident").update({ sla_breached_at: now.toISOString() }).eq("id", incident.id);
+        await supabase
+          .schema("ticket")
+          .from("Incident")
+          .update({ sla_breached_at: now.toISOString() })
+          .eq("id", incident.id);
 
         if (recipientIds.length > 0) {
-          await supabase.schema("shared").from("Notification").insert(
-            recipientIds.map((userId) => ({
-              user_id: userId,
-              title: "SLA Violado",
-              body: `O incidente "${incident.title}" ultrapassou o prazo de resolução do SLA.`,
-              link: `/incidents/${incident.id}`,
-              entity_type: "Incident",
-              entity_id: incident.id,
-            })),
-          );
+          await supabase
+            .schema("shared")
+            .from("Notification")
+            .insert(
+              recipientIds.map((userId) => ({
+                user_id: userId,
+                title: "SLA Violado",
+                body: `O incidente "${incident.title}" ultrapassou o prazo de resolução do SLA.`,
+                link: `/incidents/${incident.id}`,
+                entity_type: "Incident",
+                entity_id: incident.id,
+              })),
+            );
         }
 
-        await supabase.schema("shared").from("AuditLog").insert({
-          action: "SLA_BREACHED",
-          entity_type: "Incident",
-          entity_id: incident.id,
-          new_values: {
-            priority: incident.priority,
-            elapsed_minutes: Math.round(evaluation.elapsedMinutes),
-            deadline_minutes: evaluation.deadlineMinutes,
-            technician_id: incident.assignee_id,
-          },
-        });
+        await supabase
+          .schema("shared")
+          .from("AuditLog")
+          .insert({
+            action: "SLA_BREACHED",
+            entity_type: "Incident",
+            entity_id: incident.id,
+            new_values: {
+              priority: incident.priority,
+              elapsed_minutes: Math.round(evaluation.elapsedMinutes),
+              deadline_minutes: evaluation.deadlineMinutes,
+              technician_id: incident.assignee_id,
+            },
+          });
 
         breached += 1;
       } else if (evaluation.status === "at_risk" && incident.sla_at_risk_notified_at === null) {
@@ -169,16 +192,19 @@ Deno.serve(async (request: Request): Promise<Response> => {
           .eq("id", incident.id);
 
         if (recipientIds.length > 0) {
-          await supabase.schema("shared").from("Notification").insert(
-            recipientIds.map((userId) => ({
-              user_id: userId,
-              title: "SLA em Risco",
-              body: `O incidente "${incident.title}" já consumiu ${Math.round(evaluation.percentConsumed * 100)}% do prazo de resolução do SLA.`,
-              link: `/incidents/${incident.id}`,
-              entity_type: "Incident",
-              entity_id: incident.id,
-            })),
-          );
+          await supabase
+            .schema("shared")
+            .from("Notification")
+            .insert(
+              recipientIds.map((userId) => ({
+                user_id: userId,
+                title: "SLA em Risco",
+                body: `O incidente "${incident.title}" já consumiu ${Math.round(evaluation.percentConsumed * 100)}% do prazo de resolução do SLA.`,
+                link: `/incidents/${incident.id}`,
+                entity_type: "Incident",
+                entity_id: incident.id,
+              })),
+            );
         }
 
         atRiskNotified += 1;
@@ -202,12 +228,9 @@ Deno.serve(async (request: Request): Promise<Response> => {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[sla-monitor] Error:", message);
 
-    return new Response(
-      JSON.stringify({ error: "Internal server error", details: message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
+    return new Response(JSON.stringify({ error: "Internal server error", details: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

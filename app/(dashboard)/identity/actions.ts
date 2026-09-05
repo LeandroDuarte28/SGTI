@@ -28,23 +28,22 @@ export async function approveAccessRequest(formData: FormData): Promise<void> {
     .single();
 
   if (fetchError || !request) {
-    throw new Error(`Não foi possível encontrar a solicitação: ${fetchError?.message ?? "não encontrada"}`);
+    throw new Error(
+      `Não foi possível encontrar a solicitação: ${fetchError?.message ?? "não encontrada"}`,
+    );
   }
 
-  const { error: grantError } = await supabase
-    .schema("identity")
-    .from("SystemAccess")
-    .upsert(
-      {
-        user_id: request.requester_id,
-        system_name: request.system_name,
-        access_level: request.access_level,
-        granted_by: user.id,
-        granted_at: new Date().toISOString(),
-        revoked_at: null,
-      },
-      { onConflict: "user_id,system_name" },
-    );
+  const { error: grantError } = await supabase.schema("identity").from("SystemAccess").upsert(
+    {
+      user_id: request.requester_id,
+      system_name: request.system_name,
+      access_level: request.access_level,
+      granted_by: user.id,
+      granted_at: new Date().toISOString(),
+      revoked_at: null,
+    },
+    { onConflict: "user_id,system_name" },
+  );
 
   if (grantError) {
     throw new Error(`Não foi possível conceder o acesso: ${grantError.message}`);

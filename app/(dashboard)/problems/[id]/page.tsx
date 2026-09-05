@@ -31,18 +31,20 @@ export default async function ProblemDetailPage({
   const { data: problem, error } = await supabase
     .schema("ticket")
     .from("Problem")
-    .select("id, title, description, root_cause, is_known_error, status, related_incident_count, owner_id, created_at")
+    .select(
+      "id, title, description, root_cause, is_known_error, status, related_incident_count, owner_id, created_at",
+    )
     .eq("id", id)
     .single();
 
   if (error || !problem) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/problems">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/problems">
           ← Voltar para Problemas
         </Link>
-        <div className="mt-4 rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-4 rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground text-sm">
             Problema não encontrado, ou você não tem permissão para vê-lo.
           </p>
         </div>
@@ -51,8 +53,16 @@ export default async function ProblemDetailPage({
   }
 
   const [linksResult, allIncidentsResult] = await Promise.all([
-    supabase.schema("ticket").from("IncidentProblemLink").select("incident_id").eq("problem_id", id),
-    supabase.schema("ticket").from("Incident").select("id, title, status").order("created_at", { ascending: false }),
+    supabase
+      .schema("ticket")
+      .from("IncidentProblemLink")
+      .select("incident_id")
+      .eq("problem_id", id),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id, title, status")
+      .order("created_at", { ascending: false }),
   ]);
 
   const linkedIncidentIds = new Set((linksResult.data ?? []).map((link) => link.incident_id));
@@ -62,36 +72,36 @@ export default async function ProblemDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <Link className="text-sm text-muted-foreground hover:underline" href="/problems">
+      <Link className="text-muted-foreground text-sm hover:underline" href="/problems">
         ← Voltar para Problemas
       </Link>
 
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
+      <div className="border-border bg-card mt-4 rounded-lg border p-6">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-xl font-semibold text-foreground">{problem.title}</h1>
+          <h1 className="text-foreground text-xl font-semibold">{problem.title}</h1>
           {problem.is_known_error && (
-            <span className="shrink-0 rounded-full bg-priority-medium/10 px-2.5 py-0.5 text-xs font-medium text-priority-medium">
+            <span className="bg-priority-medium/10 text-priority-medium shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium">
               Erro Conhecido
             </span>
           )}
         </div>
-        <p className="mt-3 whitespace-pre-wrap text-sm text-foreground">{problem.description}</p>
+        <p className="text-foreground mt-3 text-sm whitespace-pre-wrap">{problem.description}</p>
         {problem.root_cause && (
-          <div className="mt-3 rounded-md bg-muted p-3">
-            <p className="text-xs font-medium text-muted-foreground">Causa raiz</p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{problem.root_cause}</p>
+          <div className="bg-muted mt-3 rounded-md p-3">
+            <p className="text-muted-foreground text-xs font-medium">Causa raiz</p>
+            <p className="text-foreground mt-1 text-sm whitespace-pre-wrap">{problem.root_cause}</p>
           </div>
         )}
-        <p className="mt-4 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-4 text-xs">
           Aberto em {new Date(problem.created_at).toLocaleDateString("pt-BR")}
         </p>
       </div>
 
-      <div className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-card p-4">
+      <div className="border-border bg-card mt-4 flex items-center gap-3 rounded-lg border p-4">
         <form action={updateProblemStatus} className="flex items-center gap-2">
           <input name="problem_id" type="hidden" value={problem.id} />
           <select
-            className="rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+            className="border-input bg-background text-foreground rounded-md border px-2 py-1.5 text-sm"
             defaultValue={problem.status}
             key={problem.status}
             name="status"
@@ -109,7 +119,7 @@ export default async function ProblemDetailPage({
       </div>
 
       <div className="mt-6">
-        <h2 className="mb-3 font-medium text-foreground">
+        <h2 className="text-foreground mb-3 font-medium">
           Incidentes Relacionados ({linkedIncidents.length})
         </h2>
 
@@ -117,10 +127,13 @@ export default async function ProblemDetailPage({
           <ul className="mb-4 space-y-3">
             {linkedIncidents.map((incident) => (
               <li
-                className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-3"
+                className="border-border bg-card flex items-center justify-between gap-4 rounded-lg border p-3"
                 key={incident.id}
               >
-                <Link className="text-sm text-foreground hover:underline" href={`/incidents/${incident.id}`}>
+                <Link
+                  className="text-foreground text-sm hover:underline"
+                  href={`/incidents/${incident.id}`}
+                >
                   {incident.title}
                 </Link>
                 <form action={unlinkIncident}>
@@ -136,11 +149,14 @@ export default async function ProblemDetailPage({
         )}
 
         {linkableIncidents.length > 0 && (
-          <form action={linkIncident} className="flex items-center gap-2 rounded-lg border border-border bg-card p-4">
+          <form
+            action={linkIncident}
+            className="border-border bg-card flex items-center gap-2 rounded-lg border p-4"
+          >
             <input name="problem_id" type="hidden" value={problem.id} />
             <select
               required
-              className="flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+              className="border-input bg-background text-foreground flex-1 rounded-md border px-2 py-1.5 text-sm"
               defaultValue=""
               name="incident_id"
             >

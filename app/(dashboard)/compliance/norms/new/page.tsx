@@ -19,19 +19,19 @@ export default function NewNormPage(): React.JSX.Element {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/compliance/norms">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/compliance/norms">
           ← Voltar para Normas
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-foreground">Nova Norma</h1>
-        <p className="text-sm text-muted-foreground">Cadastre uma norma, framework ou política.</p>
+        <h1 className="text-foreground mt-2 text-2xl font-semibold">Nova Norma</h1>
+        <p className="text-muted-foreground text-sm">Cadastre uma norma, framework ou política.</p>
       </div>
 
-      <form action={createNorm} className="space-y-5 rounded-lg border border-border bg-card p-6">
+      <form action={createNorm} className="border-border bg-card space-y-5 rounded-lg border p-6">
         <div className="space-y-2">
           <Label htmlFor="code">Código</Label>
           <input
             required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             id="code"
             name="code"
             placeholder="Ex: NIST_CSF"
@@ -43,7 +43,7 @@ export default function NewNormPage(): React.JSX.Element {
           <Label htmlFor="full_name">Nome Completo</Label>
           <input
             required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             id="full_name"
             name="full_name"
             type="text"
@@ -54,7 +54,7 @@ export default function NewNormPage(): React.JSX.Element {
           <Label htmlFor="issuing_body">Órgão Emissor</Label>
           <input
             required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             id="issuing_body"
             name="issuing_body"
             placeholder="Ex: NIST, ISO, ANPD"
@@ -66,7 +66,7 @@ export default function NewNormPage(): React.JSX.Element {
           <Label htmlFor="type">Tipo</Label>
           <select
             required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             defaultValue=""
             id="type"
             name="type"

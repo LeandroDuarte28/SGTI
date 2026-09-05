@@ -20,10 +20,15 @@ export async function GET(): Promise<Response> {
     .order("asset_tag");
 
   if (error || !assets) {
-    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, { status: 500 });
+    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, {
+      status: 500,
+    });
   }
 
-  const names = await fetchUserNames(supabase, assets.map((a) => a.assigned_to));
+  const names = await fetchUserNames(
+    supabase,
+    assets.map((a) => a.assigned_to),
+  );
 
   const rows = assets.map((a) => ({
     asset_tag: a.asset_tag,
@@ -48,7 +53,12 @@ export async function GET(): Promise<Response> {
   await supabase
     .schema("shared")
     .from("AuditLog")
-    .insert({ user_id: user.id, action: "REPORT_EXPORTED", entity_type: "Asset", new_values: { format: "csv", rows: rows.length } });
+    .insert({
+      user_id: user.id,
+      action: "REPORT_EXPORTED",
+      entity_type: "Asset",
+      new_values: { format: "csv", rows: rows.length },
+    });
 
   return csvResponse("ativos.csv", csv);
 }

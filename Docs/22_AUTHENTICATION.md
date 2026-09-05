@@ -1,20 +1,29 @@
 # SGTI — Sistema de Gestão de Tecnologia da Informação
+
 ## Estratégia de Autenticação e Autorização
 
-> **Classificação:** Interno — Confidencial
-> **Versão:** 1.0.0
-> **Status:** Aprovado para Desenvolvimento
-> **Última Atualização:** 2026-06-09
+> **Classificação:** Interno — Confidencial **Versão:** 1.0.0 **Status:**
+> Aprovado para Desenvolvimento **Última Atualização:** 2026-06-09
 > **Responsável:** Arquitetura Corporativa de TI · Segurança da Informação
-> **Documentos Relacionados:** [14_SECURITY_REQUIREMENTS.md](./14_SECURITY_REQUIREMENTS.md) · [12_ARCHITECTURE.md](./12_ARCHITECTURE.md) · [21_API_SPEC.md](./21_API_SPEC.md) · [20_DATABASE.md](./20_DATABASE.md)
+> **Documentos Relacionados:**
+> [14_SECURITY_REQUIREMENTS.md](./14_SECURITY_REQUIREMENTS.md) ·
+> [12_ARCHITECTURE.md](./12_ARCHITECTURE.md) ·
+> [21_API_SPEC.md](./21_API_SPEC.md) · [20_DATABASE.md](./20_DATABASE.md)
 
 ---
 
 ## Sobre este Documento
 
-Este documento define a **estratégia completa de autenticação e autorização do SGTI** — cobrindo fluxos de login, gestão de sessões, tokens JWT, controle de acesso baseado em papéis (RBAC), autenticação multifator, integração com Google Workspace, auditoria de acessos e controles de segurança. É a referência normativa que guia a implementação dos módulos `AuthModule` e `IdentityModule`.
+Este documento define a **estratégia completa de autenticação e autorização do
+SGTI** — cobrindo fluxos de login, gestão de sessões, tokens JWT, controle de
+acesso baseado em papéis (RBAC), autenticação multifator, integração com Google
+Workspace, auditoria de acessos e controles de segurança. É a referência
+normativa que guia a implementação dos módulos `AuthModule` e `IdentityModule`.
 
-**Premissa fundamental:** o SGTI não armazena senhas. Toda autenticação de usuários humanos é federada ao **Google Workspace via OAuth 2.0**. O **Supabase Auth** gerencia sessões e tokens de forma complementar à lógica de autenticação customizada do NestJS.
+**Premissa fundamental:** o SGTI não armazena senhas. Toda autenticação de
+usuários humanos é federada ao **Google Workspace via OAuth 2.0**. O **Supabase
+Auth** gerencia sessões e tokens de forma complementar à lógica de autenticação
+customizada do NestJS.
 
 ---
 
@@ -63,27 +72,27 @@ Este documento define a **estratégia completa de autenticação e autorização
 
 ### 1.2 Componentes da Autenticação
 
-| Componente | Tecnologia | Responsabilidade |
-|------------|-----------|-----------------|
-| **Identity Provider** | Google Workspace | Autenticação primária, MFA, diretório de usuários |
-| **OAuth Client** | NestJS + Passport.js | Gerenciar o fluxo OAuth 2.0 com PKCE |
-| **Token Issuer** | NestJS (JWT RS256) | Emitir e validar tokens SGTI com claims de negócio |
-| **Session Store** | Supabase PostgreSQL | Persistir refresh tokens e metadados de sessão |
-| **API Gateway** | NestJS Guards | Validar tokens e enforçar RBAC em cada endpoint |
-| **RLS Layer** | Supabase PostgreSQL | Segunda camada de autorização no nível do banco |
-| **Frontend Guard** | Next.js Middleware | Proteger rotas do frontend; redirecionar para login |
-| **Audit Trail** | Supabase PostgreSQL | Registrar todos os eventos de autenticação |
+| Componente            | Tecnologia           | Responsabilidade                                    |
+| --------------------- | -------------------- | --------------------------------------------------- |
+| **Identity Provider** | Google Workspace     | Autenticação primária, MFA, diretório de usuários   |
+| **OAuth Client**      | NestJS + Passport.js | Gerenciar o fluxo OAuth 2.0 com PKCE                |
+| **Token Issuer**      | NestJS (JWT RS256)   | Emitir e validar tokens SGTI com claims de negócio  |
+| **Session Store**     | Supabase PostgreSQL  | Persistir refresh tokens e metadados de sessão      |
+| **API Gateway**       | NestJS Guards        | Validar tokens e enforçar RBAC em cada endpoint     |
+| **RLS Layer**         | Supabase PostgreSQL  | Segunda camada de autorização no nível do banco     |
+| **Frontend Guard**    | Next.js Middleware   | Proteger rotas do frontend; redirecionar para login |
+| **Audit Trail**       | Supabase PostgreSQL  | Registrar todos os eventos de autenticação          |
 
 ### 1.3 Princípios de Design
 
-| Princípio | Implementação |
-|-----------|--------------|
-| **Zero senha local** | Nenhuma senha armazenada no SGTI — autenticação 100% via Google |
-| **Defense in depth** | Autenticação em 3 camadas: OAuth → JWT Guard → RLS |
-| **Stateless API** | JWT stateless — sem estado de sessão na memória da aplicação |
-| **Token binding** | Refresh token vinculado ao device fingerprint e IP para detecção de anomalias |
-| **Principle of least privilege** | Cada papel tem apenas as permissões mínimas necessárias |
-| **Fail secure** | Na ausência de permissão explícita, acesso é negado |
+| Princípio                        | Implementação                                                                 |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| **Zero senha local**             | Nenhuma senha armazenada no SGTI — autenticação 100% via Google               |
+| **Defense in depth**             | Autenticação em 3 camadas: OAuth → JWT Guard → RLS                            |
+| **Stateless API**                | JWT stateless — sem estado de sessão na memória da aplicação                  |
+| **Token binding**                | Refresh token vinculado ao device fingerprint e IP para detecção de anomalias |
+| **Principle of least privilege** | Cada papel tem apenas as permissões mínimas necessárias                       |
+| **Fail secure**                  | Na ausência de permissão explícita, acesso é negado                           |
 
 ---
 
@@ -91,7 +100,9 @@ Este documento define a **estratégia completa de autenticação e autorização
 
 ### 2.1 Login via Google OAuth 2.0 com PKCE
 
-O fluxo padrão de autenticação do SGTI. Utiliza **PKCE (Proof Key for Code Exchange)** para prevenir ataques de interceptação de authorization code, especialmente em aplicações SPA e mobile.
+O fluxo padrão de autenticação do SGTI. Utiliza **PKCE (Proof Key for Code
+Exchange)** para prevenir ataques de interceptação de authorization code,
+especialmente em aplicações SPA e mobile.
 
 #### 2.1.1 Fluxo Completo
 
@@ -234,9 +245,12 @@ Browser          Frontend          Backend           Google OAuth
 
 ### 2.2 Login por E-mail (Supabase Auth como fallback)
 
-**Quando usar:** Contas de serviço, usuários de ambiente de desenvolvimento, situações de emergência onde o Google Workspace esteja indisponível.
+**Quando usar:** Contas de serviço, usuários de ambiente de desenvolvimento,
+situações de emergência onde o Google Workspace esteja indisponível.
 
-**Importante:** O login por e-mail/senha **não é habilitado por padrão em produção**. Requer habilitação explícita pelo `SUPER_ADMIN` para cada usuário específico.
+**Importante:** O login por e-mail/senha **não é habilitado por padrão em
+produção**. Requer habilitação explícita pelo `SUPER_ADMIN` para cada usuário
+específico.
 
 #### 2.2.1 Fluxo com Magic Link (preferido sobre senha)
 
@@ -288,8 +302,9 @@ PROIBIÇÕES:
 
 ### 2.3 Recuperação de Senha
 
-**Aplicável apenas para:** usuários com login por e-mail habilitado (contas de serviço).
-**Não aplicável para:** usuários Google Workspace (redefinição de senha é feita no Google Admin Console).
+**Aplicável apenas para:** usuários com login por e-mail habilitado (contas de
+serviço). **Não aplicável para:** usuários Google Workspace (redefinição de
+senha é feita no Google Admin Console).
 
 ```
 FLUXO DE RECUPERAÇÃO
@@ -348,7 +363,8 @@ REGRAS DE COMPLEXIDADE:
 
 ### 2.5 Convite de Usuários
 
-O fluxo de convite permite que administradores adicionem usuários ao SGTI antes de seu primeiro login.
+O fluxo de convite permite que administradores adicionem usuários ao SGTI antes
+de seu primeiro login.
 
 ```
 FLUXO DE CONVITE
@@ -429,7 +445,9 @@ CONFIGURAÇÃO DE NOTIFICAÇÕES (passo opcional):
 
 ### 3.1 Modelo de Sessão
 
-O SGTI implementa **sessões stateless com refresh token stateful**. O Access Token JWT é stateless (validado localmente). O Refresh Token é stateful (persistido no banco para controle de revogação).
+O SGTI implementa **sessões stateless com refresh token stateful**. O Access
+Token JWT é stateless (validado localmente). O Refresh Token é stateful
+(persistido no banco para controle de revogação).
 
 ```
 ESTRUTURA DE SESSÃO (auth.Session)
@@ -451,18 +469,18 @@ created_at       TIMESTAMPTZ  Criação (login)
 
 ### 3.2 Políticas de Sessão por Papel
 
-| Papel | Sessões Simultâneas | Timeout de Inatividade | TTL do Refresh Token |
-|-------|:-------------------:|:----------------------:|:-------------------:|
-| `END_USER` | 5 | 8 horas | 7 dias |
-| `IT_TECHNICIAN` | 3 | 8 horas | 7 dias |
-| `IT_SPECIALIST` | 3 | 8 horas | 7 dias |
-| `ANALISTA` / `COORDENADOR` | 3 | 8 horas | 7 dias |
-| `COMPLIANCE_OFFICER` | 2 | 4 horas | 3 dias |
-| `FINANCIAL_ANALYST` | 2 | 4 horas | 3 dias |
-| `IT_MANAGER` / `GESTOR` | 2 | 4 horas | 3 dias |
-| `AUDITOR` | 2 | 2 horas | 1 dia |
-| `EXECUTIVE` | 3 | 8 horas | 7 dias |
-| `SUPER_ADMIN` | **1** | **30 minutos** | **1 dia** |
+| Papel                      | Sessões Simultâneas | Timeout de Inatividade | TTL do Refresh Token |
+| -------------------------- | :-----------------: | :--------------------: | :------------------: |
+| `END_USER`                 |          5          |        8 horas         |        7 dias        |
+| `IT_TECHNICIAN`            |          3          |        8 horas         |        7 dias        |
+| `IT_SPECIALIST`            |          3          |        8 horas         |        7 dias        |
+| `ANALISTA` / `COORDENADOR` |          3          |        8 horas         |        7 dias        |
+| `COMPLIANCE_OFFICER`       |          2          |        4 horas         |        3 dias        |
+| `FINANCIAL_ANALYST`        |          2          |        4 horas         |        3 dias        |
+| `IT_MANAGER` / `GESTOR`    |          2          |        4 horas         |        3 dias        |
+| `AUDITOR`                  |          2          |        2 horas         |        1 dia         |
+| `EXECUTIVE`                |          3          |        8 horas         |        7 dias        |
+| `SUPER_ADMIN`              |        **1**        |     **30 minutos**     |      **1 dia**       |
 
 ### 3.3 Ciclo de Vida da Sessão
 
@@ -577,49 +595,53 @@ do Access Token mesmo antes de sua expiração natural.
 
 ### 4.1 Configuração do Token
 
-| Parâmetro | Valor |
-|-----------|-------|
-| Algoritmo | **RS256** (RSA + SHA-256, assimétrico) |
-| Tamanho da chave RSA | 4096 bits |
-| Access Token TTL | **1 hora** |
-| Issuer (`iss`) | `https://sgti.[dominio]` |
-| Audience (`aud`) | `sgti-api` |
+| Parâmetro                | Valor                                      |
+| ------------------------ | ------------------------------------------ |
+| Algoritmo                | **RS256** (RSA + SHA-256, assimétrico)     |
+| Tamanho da chave RSA     | 4096 bits                                  |
+| Access Token TTL         | **1 hora**                                 |
+| Issuer (`iss`)           | `https://sgti.[dominio]`                   |
+| Audience (`aud`)         | `sgti-api`                                 |
 | Armazenamento no cliente | Cookie `HttpOnly; Secure; SameSite=Strict` |
 
 **Por que RS256 em vez de HS256:**
+
 - Chave privada isolada exclusivamente no AuthModule do backend.
-- Chave pública disponível em `GET /.well-known/jwks.json` para verificação distribuída.
-- Preparado para microserviços futuros: cada serviço valida independentemente sem compartilhar segredo simétrico.
-- Auditabilidade: comprometimento de um serviço não compromete a capacidade de emissão de novos tokens.
+- Chave pública disponível em `GET /.well-known/jwks.json` para verificação
+  distribuída.
+- Preparado para microserviços futuros: cada serviço valida independentemente
+  sem compartilhar segredo simétrico.
+- Auditabilidade: comprometimento de um serviço não compromete a capacidade de
+  emissão de novos tokens.
 
 ### 4.2 Claims do JWT SGTI
 
 #### 4.2.1 Claims Padrão (Registered Claims — RFC 7519)
 
-| Claim | Tipo | Descrição | Exemplo |
-|-------|------|-----------|---------|
-| `iss` | string | Emissor | `"https://sgti.empresa.com"` |
-| `aud` | string | Audiência | `"sgti-api"` |
-| `sub` | UUID | Subject — user_id do SGTI | `"550e8400-e29b..."` |
-| `iat` | unix | Emitido em | `1749506400` |
-| `exp` | unix | Expira em | `1749510000` (iat + 3600) |
-| `jti` | UUID | JWT ID único (rastreabilidade) | `"f47ac10b-..."` |
+| Claim | Tipo   | Descrição                      | Exemplo                      |
+| ----- | ------ | ------------------------------ | ---------------------------- |
+| `iss` | string | Emissor                        | `"https://sgti.empresa.com"` |
+| `aud` | string | Audiência                      | `"sgti-api"`                 |
+| `sub` | UUID   | Subject — user_id do SGTI      | `"550e8400-e29b..."`         |
+| `iat` | unix   | Emitido em                     | `1749506400`                 |
+| `exp` | unix   | Expira em                      | `1749510000` (iat + 3600)    |
+| `jti` | UUID   | JWT ID único (rastreabilidade) | `"f47ac10b-..."`             |
 
 #### 4.2.2 Claims Customizados (SGTI Claims)
 
-| Claim | Tipo | Descrição | Exemplo |
-|-------|------|-----------|---------|
-| `email` | string | E-mail corporativo | `"joao@empresa.com"` |
-| `name` | string | Nome de exibição | `"João Silva"` |
-| `roles` | string[] | Papéis atribuídos ao usuário | `["IT_TECHNICIAN"]` |
-| `modules` | string[] | Módulos acessíveis | `["INCIDENTS","ASSETS","KNOWLEDGE"]` |
-| `orgUnit` | string | Unidade organizacional Google | `"/TI/Suporte"` |
-| `tenantId` | UUID | Identificador do tenant | `"org-uuid"` |
-| `sessionId` | UUID | ID da sessão ativa | `"session-uuid"` |
-| `locale` | string | Locale do usuário | `"pt-BR"` |
-| `avatarUrl` | string | URL do avatar (para UI) | `"https://..."` |
-| `mfaVerified` | boolean | MFA verificado na sessão | `true` |
-| `loginMethod` | string | Método de autenticação usado | `"google_oauth"` |
+| Claim         | Tipo     | Descrição                     | Exemplo                              |
+| ------------- | -------- | ----------------------------- | ------------------------------------ |
+| `email`       | string   | E-mail corporativo            | `"joao@empresa.com"`                 |
+| `name`        | string   | Nome de exibição              | `"João Silva"`                       |
+| `roles`       | string[] | Papéis atribuídos ao usuário  | `["IT_TECHNICIAN"]`                  |
+| `modules`     | string[] | Módulos acessíveis            | `["INCIDENTS","ASSETS","KNOWLEDGE"]` |
+| `orgUnit`     | string   | Unidade organizacional Google | `"/TI/Suporte"`                      |
+| `tenantId`    | UUID     | Identificador do tenant       | `"org-uuid"`                         |
+| `sessionId`   | UUID     | ID da sessão ativa            | `"session-uuid"`                     |
+| `locale`      | string   | Locale do usuário             | `"pt-BR"`                            |
+| `avatarUrl`   | string   | URL do avatar (para UI)       | `"https://..."`                      |
+| `mfaVerified` | boolean  | MFA verificado na sessão      | `true`                               |
+| `loginMethod` | string   | Método de autenticação usado  | `"google_oauth"`                     |
 
 #### 4.2.3 Exemplo de Payload JWT
 
@@ -715,30 +737,35 @@ Rotação de Emergência (comprometimento):
 
 ### 5.1 Mapeamento de Papéis do Sistema
 
-O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura de negócio exibida na interface:
+O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
+de negócio exibida na interface:
 
-| Role Code (Sistema) | Nome de Negócio | Hierarquia |
-|--------------------|----------------|:---------:|
-| `SUPER_ADMIN` | Super Administrador | 1 (mais alto) |
-| `IT_MANAGER` | Gestor de TI | 2 |
-| `IT_SPECIALIST` | Coordenador / Especialista de TI | 3 |
-| `COMPLIANCE_OFFICER` | Analista de Compliance | 3 |
-| `FINANCIAL_ANALYST` | Analista Financeiro | 3 |
-| `PROJECT_MANAGER` | Gestor de Projetos | 3 |
-| `IT_TECHNICIAN` | Analista de TI / Técnico | 4 |
-| `AUDITOR` | Auditor | 4 (transversal — leitura ampla) |
-| `EXECUTIVE` | Executivo / Diretor | 4 (transversal — dashboards) |
-| `END_USER` | Usuário | 5 (mais restrito) |
+| Role Code (Sistema)  | Nome de Negócio                  |           Hierarquia            |
+| -------------------- | -------------------------------- | :-----------------------------: |
+| `SUPER_ADMIN`        | Super Administrador              |          1 (mais alto)          |
+| `IT_MANAGER`         | Gestor de TI                     |                2                |
+| `IT_SPECIALIST`      | Coordenador / Especialista de TI |                3                |
+| `COMPLIANCE_OFFICER` | Analista de Compliance           |                3                |
+| `FINANCIAL_ANALYST`  | Analista Financeiro              |                3                |
+| `PROJECT_MANAGER`    | Gestor de Projetos               |                3                |
+| `IT_TECHNICIAN`      | Analista de TI / Técnico         |                4                |
+| `AUDITOR`            | Auditor                          | 4 (transversal — leitura ampla) |
+| `EXECUTIVE`          | Executivo / Diretor              |  4 (transversal — dashboards)   |
+| `END_USER`           | Usuário                          |        5 (mais restrito)        |
 
-**Herança:** Papéis de hierarquia mais alta NÃO herdam automaticamente os papéis inferiores — permissões são explícitas por papel. Um `IT_MANAGER` tem permissões definidas para o papel `IT_MANAGER`, não a soma de todos os papéis abaixo dele.
+**Herança:** Papéis de hierarquia mais alta NÃO herdam automaticamente os papéis
+inferiores — permissões são explícitas por papel. Um `IT_MANAGER` tem permissões
+definidas para o papel `IT_MANAGER`, não a soma de todos os papéis abaixo dele.
 
 ### 5.2 Perfis Detalhados
 
 #### Perfil: Usuário (END_USER)
 
-**Contexto:** Colaborador que consome serviços de TI sem responsabilidade técnica.
+**Contexto:** Colaborador que consome serviços de TI sem responsabilidade
+técnica.
 
 **Pode:**
+
 - Abrir chamados de incidente e requisição para si mesmo.
 - Consultar o status de seus próprios chamados.
 - Adicionar comentários públicos em seus chamados.
@@ -748,6 +775,7 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 - Consultar e atualizar seu próprio perfil.
 
 **Não pode:**
+
 - Ver chamados de outros usuários.
 - Acessar módulos de gestão (Assets, Compliance, Finance, etc.).
 - Atribuir chamados a técnicos.
@@ -758,9 +786,11 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 
 #### Perfil: Analista de TI / Técnico (IT_TECHNICIAN)
 
-**Contexto:** Profissional responsável pelo atendimento de chamados, gestão de ativos e suporte operacional.
+**Contexto:** Profissional responsável pelo atendimento de chamados, gestão de
+ativos e suporte operacional.
 
 **Pode:**
+
 - Tudo que END_USER pode, mais:
 - Ver e gerenciar todos os chamados atribuídos ao seu grupo.
 - Criar e resolver incidentes e requisições.
@@ -771,6 +801,7 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 - Acessar Dashboard Operacional.
 
 **Não pode:**
+
 - Publicar artigos na KB (requer IT_MANAGER).
 - Acessar módulos de Compliance, Financeiro ou Projetos.
 - Criar ou modificar definições de SLA.
@@ -780,9 +811,11 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 
 #### Perfil: Coordenador / Especialista de TI (IT_SPECIALIST)
 
-**Contexto:** Profissional sênior com conhecimento especializado em domínios específicos (Infraestrutura, Segurança, Sistemas).
+**Contexto:** Profissional sênior com conhecimento especializado em domínios
+específicos (Infraestrutura, Segurança, Sistemas).
 
 **Pode:**
+
 - Tudo que IT_TECHNICIAN pode, mais:
 - Criar e gerenciar Problemas (investigação de causa raiz).
 - Publicar Workarounds.
@@ -792,6 +825,7 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 - Aprovar requisições dentro de seu escopo.
 
 **Não pode:**
+
 - Aprovar pedidos de compra acima do threshold.
 - Acessar dados financeiros detalhados.
 - Modificar configurações de RBAC.
@@ -801,11 +835,14 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 
 #### Perfil: Analista de Compliance (COMPLIANCE_OFFICER)
 
-**Contexto:** Profissional responsável por conformidade regulatória, auditorias e gestão de evidências.
+**Contexto:** Profissional responsável por conformidade regulatória, auditorias
+e gestão de evidências.
 
 **Pode:**
+
 - Tudo que IT_TECHNICIAN pode (módulos básicos), mais:
-- Acesso completo ao módulo de Compliance (auditorias, achados, evidências, planos de ação).
+- Acesso completo ao módulo de Compliance (auditorias, achados, evidências,
+  planos de ação).
 - Criar e gerenciar ciclos de auditoria.
 - Coletar e aprovar evidências.
 - Registrar e tratar não-conformidades.
@@ -814,6 +851,7 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 - Acessar Dashboard de Compliance.
 
 **Não pode:**
+
 - Criar ou aprovar achados criados por si mesmo (segregação de funções).
 - Acessar dados financeiros detalhados.
 - Provisionar ou desprovisionar usuários.
@@ -822,9 +860,11 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 
 #### Perfil: Analista Financeiro (FINANCIAL_ANALYST)
 
-**Contexto:** Profissional responsável pelo controle financeiro de TI, orçamento e contratos.
+**Contexto:** Profissional responsável pelo controle financeiro de TI, orçamento
+e contratos.
 
 **Pode:**
+
 - Tudo que IT_TECHNICIAN pode (módulos básicos), mais:
 - Acesso completo ao módulo Financeiro (OPEX, CAPEX, Budget, Contratos).
 - Cadastrar e gerenciar fornecedores.
@@ -834,6 +874,7 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 - Acessar Dashboard Financeiro.
 
 **Não pode:**
+
 - Aprovar seus próprios lançamentos financeiros (segregação de funções).
 - Acessar dados de compliance.
 - Provisionar usuários.
@@ -845,7 +886,9 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 **Contexto:** Responsável pela gestão operacional e estratégica da equipe de TI.
 
 **Pode:**
-- Acesso a todos os módulos operacionais (Incidentes, Requisições, Problemas, Ativos, SLA).
+
+- Acesso a todos os módulos operacionais (Incidentes, Requisições, Problemas,
+  Ativos, SLA).
 - Aprovar requisições e pedidos de compra dentro de seu threshold.
 - Provisionar e desprovisionar usuários (com validação de identidade).
 - Publicar artigos na Base de Conhecimento.
@@ -856,6 +899,7 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 - Atribuir papéis até IT_SPECIALIST.
 
 **Não pode:**
+
 - Criar ou atribuir papel SUPER_ADMIN.
 - Acessar diretamente a tabela audit_log (apenas via endpoints filtrados).
 - Aprovar pedidos de compra acima de R$10.000 (requer SUPER_ADMIN ou EXECUTIVE).
@@ -865,9 +909,11 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 
 #### Perfil: Super Administrador (SUPER_ADMIN)
 
-**Contexto:** Acesso irrestrito ao sistema. Máximo de 2 titulares. Uso reservado para operações críticas.
+**Contexto:** Acesso irrestrito ao sistema. Máximo de 2 titulares. Uso reservado
+para operações críticas.
 
 **Pode:**
+
 - Tudo no sistema, incluindo:
 - Criar e atribuir qualquer papel.
 - Anonimizar dados pessoais (LGPD).
@@ -879,6 +925,7 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 - Configurar integrações (Google Workspace, GLPI).
 
 **Restrições especiais:**
+
 - Máximo de 1 sessão simultânea.
 - Timeout de inatividade de 30 minutos.
 - Todo acesso gera notificação por e-mail para equipe de segurança.
@@ -888,26 +935,27 @@ O SGTI usa nomenclatura técnica interna (`role_code`) mapeada para nomenclatura
 
 ### 5.3 Matriz de Permissões por Módulo
 
-| Módulo | END_USER | IT_TECH | IT_SPEC | COMP_OFF | FIN_ANA | IT_MGR | AUDITOR | EXEC | SUPER |
-|--------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Incidentes** | C/R¹ | CRUD | CRUD | R | — | CRUD+ | R | R | CRUD |
-| **Requisições** | C/R¹ | CRUD | CRUD | R | — | CRUD+ | R | R | CRUD |
-| **Problemas** | R (KB) | R | CRUD | R | — | CRUD | R | R | CRUD |
-| **Ativos** | R¹ | CRUD | CRUD | R | R | CRUD+ | R | R | CRUD |
-| **Identidades** | R¹ | R | R+ | R | — | CRUD | R | — | CRUD |
-| **Compliance** | — | — | — | CRUD | — | R+ | R | R | CRUD |
-| **Financeiro** | — | — | — | — | CRUD | R+ | R | R | CRUD |
-| **Compras** | — | C | R | — | R | CRUD+ | R | R | CRUD |
-| **Projetos** | — | R | R+ | R | R | CRUD | R | R | CRUD |
-| **Base KB** | R | CRUD | CRUD+ | R | R | CRUD+P | R | R | CRUD |
-| **SLA** | — | R | R | R | — | CRUD | R | R | CRUD |
-| **Catálogo** | R | R | R | R | R | CRUD | R | R | CRUD |
-| **Notificações** | R/W¹ | R/W | R/W | R/W | R/W | R/W | R/W | R/W | CRUD |
-| **Dashboard** | — | Oper. | Oper. | Comp. | Fin. | Todos | Todos | Exec. | Todos |
-| **Relatórios** | — | Op. | Op. | Comp. | Fin. | Todos | Todos | Exec. | Todos |
-| **Audit Log** | — | — | — | — | — | Limitado | FULL | — | FULL |
+| Módulo           | END_USER | IT_TECH | IT_SPEC | COMP_OFF | FIN_ANA |  IT_MGR  | AUDITOR | EXEC  | SUPER |
+| ---------------- | :------: | :-----: | :-----: | :------: | :-----: | :------: | :-----: | :---: | :---: |
+| **Incidentes**   |   C/R¹   |  CRUD   |  CRUD   |    R     |    —    |  CRUD+   |    R    |   R   | CRUD  |
+| **Requisições**  |   C/R¹   |  CRUD   |  CRUD   |    R     |    —    |  CRUD+   |    R    |   R   | CRUD  |
+| **Problemas**    |  R (KB)  |    R    |  CRUD   |    R     |    —    |   CRUD   |    R    |   R   | CRUD  |
+| **Ativos**       |    R¹    |  CRUD   |  CRUD   |    R     |    R    |  CRUD+   |    R    |   R   | CRUD  |
+| **Identidades**  |    R¹    |    R    |   R+    |    R     |    —    |   CRUD   |    R    |   —   | CRUD  |
+| **Compliance**   |    —     |    —    |    —    |   CRUD   |    —    |    R+    |    R    |   R   | CRUD  |
+| **Financeiro**   |    —     |    —    |    —    |    —     |  CRUD   |    R+    |    R    |   R   | CRUD  |
+| **Compras**      |    —     |    C    |    R    |    —     |    R    |  CRUD+   |    R    |   R   | CRUD  |
+| **Projetos**     |    —     |    R    |   R+    |    R     |    R    |   CRUD   |    R    |   R   | CRUD  |
+| **Base KB**      |    R     |  CRUD   |  CRUD+  |    R     |    R    |  CRUD+P  |    R    |   R   | CRUD  |
+| **SLA**          |    —     |    R    |    R    |    R     |    —    |   CRUD   |    R    |   R   | CRUD  |
+| **Catálogo**     |    R     |    R    |    R    |    R     |    R    |   CRUD   |    R    |   R   | CRUD  |
+| **Notificações** |   R/W¹   |   R/W   |   R/W   |   R/W    |   R/W   |   R/W    |   R/W   |  R/W  | CRUD  |
+| **Dashboard**    |    —     |  Oper.  |  Oper.  |  Comp.   |  Fin.   |  Todos   |  Todos  | Exec. | Todos |
+| **Relatórios**   |    —     |   Op.   |   Op.   |  Comp.   |  Fin.   |  Todos   |  Todos  | Exec. | Todos |
+| **Audit Log**    |    —     |    —    |    —    |    —     |    —    | Limitado |  FULL   |   —   | FULL  |
 
 **Legenda:**
+
 - CRUD: Create, Read, Update, Delete (lógico)
 - C/R¹: Apenas próprios registros
 - R: Somente leitura
@@ -951,9 +999,13 @@ Nível 5 — Supabase RLS (no banco de dados):
 
 ### 6.1 Estratégia de MFA
 
-O SGTI **não implementa MFA próprio**. O MFA é aplicado pelo Google Workspace e o SGTI herda essa proteção automaticamente via OAuth 2.0. Quando um usuário autentica via Google com MFA habilitado, o `id_token` retornado carrega evidência da verificação MFA.
+O SGTI **não implementa MFA próprio**. O MFA é aplicado pelo Google Workspace e
+o SGTI herda essa proteção automaticamente via OAuth 2.0. Quando um usuário
+autentica via Google com MFA habilitado, o `id_token` retornado carrega
+evidência da verificação MFA.
 
 **Vantagem desta abordagem:**
+
 - Zero gestão de códigos TOTP, tokens hardware ou SMS pelo SGTI.
 - MFA corporativo gerenciado centralmente no Google Admin Console.
 - Novos métodos de MFA (passkeys, FIDO2) disponíveis automaticamente.
@@ -961,18 +1013,18 @@ O SGTI **não implementa MFA próprio**. O MFA é aplicado pelo Google Workspace
 
 ### 6.2 Regras de MFA por Papel
 
-| Papel | MFA Obrigatório | Método Recomendado | Método Mínimo |
-|-------|:--------------:|-------------------|:-------------:|
-| `SUPER_ADMIN` | **Sim** | Chave de segurança FIDO2 (YubiKey) | FIDO2 |
-| `IT_MANAGER` | **Sim** | Google Authenticator ou FIDO2 | TOTP |
-| `IT_SPECIALIST` | **Sim** | Google Authenticator | TOTP |
-| `COMPLIANCE_OFFICER` | **Sim** | Google Authenticator | TOTP |
-| `FINANCIAL_ANALYST` | **Sim** | Google Authenticator | TOTP |
-| `PROJECT_MANAGER` | **Sim** | Google Authenticator | TOTP |
-| `AUDITOR` | **Sim** | Google Authenticator | TOTP |
-| `IT_TECHNICIAN` | **Sim** | Google Authenticator | TOTP |
-| `END_USER` | Recomendado | Google Authenticator | — |
-| `EXECUTIVE` | **Sim** | Google Authenticator ou FIDO2 | TOTP |
+| Papel                | MFA Obrigatório | Método Recomendado                 | Método Mínimo |
+| -------------------- | :-------------: | ---------------------------------- | :-----------: |
+| `SUPER_ADMIN`        |     **Sim**     | Chave de segurança FIDO2 (YubiKey) |     FIDO2     |
+| `IT_MANAGER`         |     **Sim**     | Google Authenticator ou FIDO2      |     TOTP      |
+| `IT_SPECIALIST`      |     **Sim**     | Google Authenticator               |     TOTP      |
+| `COMPLIANCE_OFFICER` |     **Sim**     | Google Authenticator               |     TOTP      |
+| `FINANCIAL_ANALYST`  |     **Sim**     | Google Authenticator               |     TOTP      |
+| `PROJECT_MANAGER`    |     **Sim**     | Google Authenticator               |     TOTP      |
+| `AUDITOR`            |     **Sim**     | Google Authenticator               |     TOTP      |
+| `IT_TECHNICIAN`      |     **Sim**     | Google Authenticator               |     TOTP      |
+| `END_USER`           |   Recomendado   | Google Authenticator               |       —       |
+| `EXECUTIVE`          |     **Sim**     | Google Authenticator ou FIDO2      |     TOTP      |
 
 ### 6.3 Verificação de MFA no Callback
 
@@ -1051,12 +1103,15 @@ SGTI Backend (NestJS)
 ```
 
 **Credenciais de serviço:**
-- **Service Account** com Domain-Wide Delegation configurada no Google Admin Console.
+
+- **Service Account** com Domain-Wide Delegation configurada no Google Admin
+  Console.
 - Scopes necessários:
   - `https://www.googleapis.com/auth/admin.directory.user` (gerenciar usuários)
   - `https://www.googleapis.com/auth/admin.directory.group` (gerenciar grupos)
   - `https://www.googleapis.com/auth/gmail.send` (envio de e-mails)
-- Scopes solicitados **não incluem** acesso a e-mails, Drive, Calendar ou outros dados pessoais dos usuários.
+- Scopes solicitados **não incluem** acesso a e-mails, Drive, Calendar ou outros
+  dados pessoais dos usuários.
 
 ### 7.2 Sincronização de Usuários
 
@@ -1064,7 +1119,7 @@ SGTI Backend (NestJS)
 SINCRONIZAÇÃO INCREMENTAL (job diário — 02h00)
 ───────────────────────────────────────────────
 1. Buscar usuários modificados após last_sync_at no Google:
-   Admin SDK: users.list(customer=my_customer, orderBy=email, 
+   Admin SDK: users.list(customer=my_customer, orderBy=email,
                          showDeleted=false, query="updatedMin:{last_sync}")
 
 2. Para cada usuário Google:
@@ -1179,7 +1234,7 @@ Meta: Concluir em até 2 horas
 EXCLUSÃO DA CONTA GOOGLE (opcional, pós 30 dias):
    Admin SDK: users.delete(google_user_id)
    OU transferência para conta de arquivo: users.update({ orgUnitPath: "/Desligados" })
-   
+
 DADOS NO SGTI PÓS-DESLIGAMENTO:
    Dados de negócio (tickets, ativos) preservados com user_id pseudônimo.
    Dados pessoais (PII): preservados pelo período de retenção (5 anos).
@@ -1213,52 +1268,53 @@ CRIAÇÃO DE GRUPO SGTI NO GOOGLE (opcional):
 
 ### 8.1 Eventos Auditados Obrigatoriamente
 
-Todos os eventos abaixo são registrados em `shared.audit_log` com imutabilidade garantida por RLS INSERT-only:
+Todos os eventos abaixo são registrados em `shared.audit_log` com imutabilidade
+garantida por RLS INSERT-only:
 
 #### 8.1.1 Eventos de Autenticação
 
-| Evento | action | Dados Adicionais |
-|--------|--------|-----------------|
-| Login bem-sucedido | `LOGIN` | `method`, `mfa_verified`, `is_first_login` |
-| Login falho | `FAILED_LOGIN` | `reason` (ACCOUNT_SUSPENDED, INVALID_DOMAIN, GOOGLE_AUTH_FAILED) |
-| Logout voluntário | `LOGOUT` | — |
-| Logout forçado (admin) | `FORCED_LOGOUT` | `performed_by` |
-| Logout de todas as sessões | `LOGOUT_ALL_SESSIONS` | — |
-| Token renovado | `SESSION_RENEWED` | — |
-| Token reutilizado (ataque) | `TOKEN_REUSE_DETECTED` | `severity=CRITICAL`, `all_sessions_revoked=true` |
-| Acesso negado (403) | `ACCESS_DENIED` | `endpoint`, `required_role` |
-| Step-up autenticado | `STEP_UP_AUTHENTICATED` | `operation` |
-| Aceite dos termos | `TERMS_ACCEPTED` | `terms_version` |
-| Primeiro login concluído | `FIRST_LOGIN_COMPLETED` | — |
+| Evento                     | action                  | Dados Adicionais                                                 |
+| -------------------------- | ----------------------- | ---------------------------------------------------------------- |
+| Login bem-sucedido         | `LOGIN`                 | `method`, `mfa_verified`, `is_first_login`                       |
+| Login falho                | `FAILED_LOGIN`          | `reason` (ACCOUNT_SUSPENDED, INVALID_DOMAIN, GOOGLE_AUTH_FAILED) |
+| Logout voluntário          | `LOGOUT`                | —                                                                |
+| Logout forçado (admin)     | `FORCED_LOGOUT`         | `performed_by`                                                   |
+| Logout de todas as sessões | `LOGOUT_ALL_SESSIONS`   | —                                                                |
+| Token renovado             | `SESSION_RENEWED`       | —                                                                |
+| Token reutilizado (ataque) | `TOKEN_REUSE_DETECTED`  | `severity=CRITICAL`, `all_sessions_revoked=true`                 |
+| Acesso negado (403)        | `ACCESS_DENIED`         | `endpoint`, `required_role`                                      |
+| Step-up autenticado        | `STEP_UP_AUTHENTICATED` | `operation`                                                      |
+| Aceite dos termos          | `TERMS_ACCEPTED`        | `terms_version`                                                  |
+| Primeiro login concluído   | `FIRST_LOGIN_COMPLETED` | —                                                                |
 
 #### 8.1.2 Eventos Administrativos de Acesso
 
-| Evento | action | Dados Adicionais |
-|--------|--------|-----------------|
-| Usuário provisionado | `USER_PROVISIONED` | `provisioned_by`, `roles_assigned` |
-| Usuário desprovisionado | `USER_DEPROVISIONED` | `deprovisioned_by`, `reason` |
-| Usuário suspenso | `USER_SUSPENDED` | `suspended_by`, `reason` |
-| Usuário reativado | `USER_REACTIVATED` | `reactivated_by` |
-| Papel atribuído | `ROLE_ASSIGNED` | `role`, `assigned_by`, `reason` |
-| Papel revogado | `ROLE_REVOKED` | `role`, `revoked_by`, `reason` |
-| Permissão individual concedida | `PERMISSION_GRANTED` | `module`, `resource`, `action` |
-| Permissão individual revogada | `PERMISSION_REVOKED` | `module`, `resource`, `action` |
-| Revisão de acesso iniciada | `ACCESS_REVIEW_STARTED` | `scope` |
-| Revisão de acesso concluída | `ACCESS_REVIEW_COMPLETED` | `outcome` |
-| Usuário convidado | `USER_INVITED` | `invited_by`, `roles` |
-| Convite aceito | `INVITE_ACCEPTED` | — |
-| Exportação de dados pessoais | `PERSONAL_DATA_EXPORTED` | `exported_by`, `user_subject` |
-| Anonimização de dados | `PERSONAL_DATA_ANONYMIZED` | `anonymized_by`, `reason` |
+| Evento                         | action                     | Dados Adicionais                   |
+| ------------------------------ | -------------------------- | ---------------------------------- |
+| Usuário provisionado           | `USER_PROVISIONED`         | `provisioned_by`, `roles_assigned` |
+| Usuário desprovisionado        | `USER_DEPROVISIONED`       | `deprovisioned_by`, `reason`       |
+| Usuário suspenso               | `USER_SUSPENDED`           | `suspended_by`, `reason`           |
+| Usuário reativado              | `USER_REACTIVATED`         | `reactivated_by`                   |
+| Papel atribuído                | `ROLE_ASSIGNED`            | `role`, `assigned_by`, `reason`    |
+| Papel revogado                 | `ROLE_REVOKED`             | `role`, `revoked_by`, `reason`     |
+| Permissão individual concedida | `PERMISSION_GRANTED`       | `module`, `resource`, `action`     |
+| Permissão individual revogada  | `PERMISSION_REVOKED`       | `module`, `resource`, `action`     |
+| Revisão de acesso iniciada     | `ACCESS_REVIEW_STARTED`    | `scope`                            |
+| Revisão de acesso concluída    | `ACCESS_REVIEW_COMPLETED`  | `outcome`                          |
+| Usuário convidado              | `USER_INVITED`             | `invited_by`, `roles`              |
+| Convite aceito                 | `INVITE_ACCEPTED`          | —                                  |
+| Exportação de dados pessoais   | `PERSONAL_DATA_EXPORTED`   | `exported_by`, `user_subject`      |
+| Anonimização de dados          | `PERSONAL_DATA_ANONYMIZED` | `anonymized_by`, `reason`          |
 
 #### 8.1.3 Eventos de Sincronização Google
 
-| Evento | action | Dados Adicionais |
-|--------|--------|-----------------|
-| Usuário sincronizado do Google | `USER_SYNCED_FROM_GOOGLE` | `changes` |
-| Usuário suspenso pela sync | `USER_SUSPENDED_BY_GOOGLE_SYNC` | — |
-| Conta Google provisionada | `GOOGLE_ACCOUNT_PROVISIONED` | `google_user_id` |
-| Conta Google suspensa | `GOOGLE_ACCOUNT_SUSPENDED` | `google_user_id` |
-| Falha de provisionamento | `PROVISIONING_FAILED` | `error`, `retry_at` |
+| Evento                         | action                          | Dados Adicionais    |
+| ------------------------------ | ------------------------------- | ------------------- |
+| Usuário sincronizado do Google | `USER_SYNCED_FROM_GOOGLE`       | `changes`           |
+| Usuário suspenso pela sync     | `USER_SUSPENDED_BY_GOOGLE_SYNC` | —                   |
+| Conta Google provisionada      | `GOOGLE_ACCOUNT_PROVISIONED`    | `google_user_id`    |
+| Conta Google suspensa          | `GOOGLE_ACCOUNT_SUSPENDED`      | `google_user_id`    |
+| Falha de provisionamento       | `PROVISIONING_FAILED`           | `error`, `retry_at` |
 
 ### 8.2 Estrutura do Registro de Auditoria de Acesso
 
@@ -1294,28 +1350,29 @@ Todos os eventos abaixo são registrados em `shared.audit_log` com imutabilidade
 
 ### 8.3 Acesso aos Logs de Auditoria
 
-| Papel | Acesso | Escopo |
-|-------|--------|--------|
-| `AUDITOR` | Leitura completa | Todos os logs |
-| `SUPER_ADMIN` | Leitura completa + exportação | Todos os logs |
-| `IT_MANAGER` | Leitura filtrada | Apenas ações de LOGIN, FAILED_LOGIN, ROLE_ASSIGNED/REVOKED |
-| `COMPLIANCE_OFFICER` | Leitura filtrada | Ações de compliance, acesso a dados sensíveis |
-| Demais papéis | Sem acesso | — |
+| Papel                | Acesso                        | Escopo                                                     |
+| -------------------- | ----------------------------- | ---------------------------------------------------------- |
+| `AUDITOR`            | Leitura completa              | Todos os logs                                              |
+| `SUPER_ADMIN`        | Leitura completa + exportação | Todos os logs                                              |
+| `IT_MANAGER`         | Leitura filtrada              | Apenas ações de LOGIN, FAILED_LOGIN, ROLE_ASSIGNED/REVOKED |
+| `COMPLIANCE_OFFICER` | Leitura filtrada              | Ações de compliance, acesso a dados sensíveis              |
+| Demais papéis        | Sem acesso                    | —                                                          |
 
 ### 8.4 Alertas de Segurança Automáticos
 
-Os seguintes eventos disparam alertas automáticos para o IT_MANAGER e/ou SUPER_ADMIN:
+Os seguintes eventos disparam alertas automáticos para o IT_MANAGER e/ou
+SUPER_ADMIN:
 
-| Evento | Destinatário | Canal | Urgência |
-|--------|-------------|-------|---------|
-| `TOKEN_REUSE_DETECTED` | SUPER_ADMIN + IT_MANAGER | E-mail imediato | Crítico |
-| `FAILED_LOGIN` > 5 em 5 minutos (mesmo IP) | IT_MANAGER | E-mail | Alto |
-| `FAILED_LOGIN` de conta `SUPER_ADMIN` | SUPER_ADMIN | E-mail imediato | Crítico |
-| Login de `SUPER_ADMIN` fora do horário comercial | SUPER_ADMIN | E-mail imediato | Alto |
-| `PROVISIONING_FAILED` após 3 tentativas | IT_MANAGER | E-mail | Médio |
-| `USER_SUSPENDED_BY_GOOGLE_SYNC` | IT_MANAGER | E-mail | Alto |
-| Usuário com papel privilegiado sem MFA | IT_MANAGER | E-mail diário | Médio |
-| Revisão de acesso atrasada > 30 dias | IT_MANAGER | E-mail semanal | Médio |
+| Evento                                           | Destinatário             | Canal           | Urgência |
+| ------------------------------------------------ | ------------------------ | --------------- | -------- |
+| `TOKEN_REUSE_DETECTED`                           | SUPER_ADMIN + IT_MANAGER | E-mail imediato | Crítico  |
+| `FAILED_LOGIN` > 5 em 5 minutos (mesmo IP)       | IT_MANAGER               | E-mail          | Alto     |
+| `FAILED_LOGIN` de conta `SUPER_ADMIN`            | SUPER_ADMIN              | E-mail imediato | Crítico  |
+| Login de `SUPER_ADMIN` fora do horário comercial | SUPER_ADMIN              | E-mail imediato | Alto     |
+| `PROVISIONING_FAILED` após 3 tentativas          | IT_MANAGER               | E-mail          | Médio    |
+| `USER_SUSPENDED_BY_GOOGLE_SYNC`                  | IT_MANAGER               | E-mail          | Alto     |
+| Usuário com papel privilegiado sem MFA           | IT_MANAGER               | E-mail diário   | Médio    |
+| Revisão de acesso atrasada > 30 dias             | IT_MANAGER               | E-mail semanal  | Médio    |
 
 ---
 
@@ -1323,23 +1380,24 @@ Os seguintes eventos disparam alertas automáticos para o IT_MANAGER e/ou SUPER_
 
 ### 9.1 Controles OWASP ASVS Aplicados à Autenticação
 
-Referência: OWASP ASVS v4.0 Capítulo V2 (Authentication) e V3 (Session Management)
+Referência: OWASP ASVS v4.0 Capítulo V2 (Authentication) e V3 (Session
+Management)
 
-| Controle ASVS | Requisito | Implementação |
-|---------------|-----------|--------------|
-| V2.1.1 | Sem senhas em texto claro | Delegado ao Supabase Auth (bcrypt/argon2) |
-| V2.1.7 | Verificar senhas contra lista de senhas comprometidas | Supabase Auth verifica HaveIBeenPwned |
-| V2.1.9 | Sem regras de composição arbitrárias (exceto complexidade mínima) | Regras claramente documentadas |
-| V2.2.1 | MFA para contas privilegiadas | Google Workspace MFA obrigatório |
-| V2.5.6 | Tokens de recuperação são únicos e de uso único | Magic Link de uso único, TTL 15min |
-| V2.6.1 | Credenciais de look-up não devem ser geradas por PRNG fraco | UUID v4 criptograficamente seguro |
-| V3.2.1 | Novo token de sessão após login bem-sucedido | Gerado no callback; nunca reutilizado |
-| V3.3.1 | Logout invalida o token de sessão no servidor | refresh_token marcado REVOKED |
-| V3.3.2 | Timeout de inatividade configurado | Por papel: 30min (SUPER_ADMIN) a 8h (END_USER) |
-| V3.4.1 | Cookies com atributos Secure, HttpOnly, SameSite | Todos os cookies de sessão |
-| V3.5.2 | OAuth state parameter para CSRF | Implementado em todos os flows OAuth |
-| V3.6.1 | Reautenticação para operações sensíveis | Step-up auth implementado |
-| V3.7.1 | Sessões completas revogadas ao deslogar | Refresh token revogado no banco |
+| Controle ASVS | Requisito                                                         | Implementação                                  |
+| ------------- | ----------------------------------------------------------------- | ---------------------------------------------- |
+| V2.1.1        | Sem senhas em texto claro                                         | Delegado ao Supabase Auth (bcrypt/argon2)      |
+| V2.1.7        | Verificar senhas contra lista de senhas comprometidas             | Supabase Auth verifica HaveIBeenPwned          |
+| V2.1.9        | Sem regras de composição arbitrárias (exceto complexidade mínima) | Regras claramente documentadas                 |
+| V2.2.1        | MFA para contas privilegiadas                                     | Google Workspace MFA obrigatório               |
+| V2.5.6        | Tokens de recuperação são únicos e de uso único                   | Magic Link de uso único, TTL 15min             |
+| V2.6.1        | Credenciais de look-up não devem ser geradas por PRNG fraco       | UUID v4 criptograficamente seguro              |
+| V3.2.1        | Novo token de sessão após login bem-sucedido                      | Gerado no callback; nunca reutilizado          |
+| V3.3.1        | Logout invalida o token de sessão no servidor                     | refresh_token marcado REVOKED                  |
+| V3.3.2        | Timeout de inatividade configurado                                | Por papel: 30min (SUPER_ADMIN) a 8h (END_USER) |
+| V3.4.1        | Cookies com atributos Secure, HttpOnly, SameSite                  | Todos os cookies de sessão                     |
+| V3.5.2        | OAuth state parameter para CSRF                                   | Implementado em todos os flows OAuth           |
+| V3.6.1        | Reautenticação para operações sensíveis                           | Step-up auth implementado                      |
+| V3.7.1        | Sessões completas revogadas ao deslogar                           | Refresh token revogado no banco                |
 
 ### 9.2 Proteção contra Ataques Específicos de Autenticação
 
@@ -1404,35 +1462,35 @@ PROTEÇÃO CONTRA ATAQUES OAUTH:
 
 #### 9.3.1 Dados Pessoais Processados na Autenticação
 
-| Dado | Finalidade | Base Legal | Retenção |
-|------|-----------|------------|---------|
-| E-mail corporativo | Identificação e autenticação | Legítimo interesse (Art. 7º, IX) | Vigência do contrato + 5 anos |
-| Nome completo | Exibição e identificação | Legítimo interesse | Vigência + 5 anos |
-| IP de acesso | Segurança da informação | Legítimo interesse | 1 ano |
-| User-Agent | Segurança (detecção de anomalias) | Legítimo interesse | 1 ano |
-| google_sub | Vínculo de identidade (pseudônimo) | Legítimo interesse | Vigência + 5 anos |
-| Logs de login | Auditoria de segurança | Obrigação legal (ISO 27001, Art. 37 LGPD) | 5 anos |
-| MFA status | Garantia de segurança | Legítimo interesse | Vigência |
+| Dado               | Finalidade                         | Base Legal                                | Retenção                      |
+| ------------------ | ---------------------------------- | ----------------------------------------- | ----------------------------- |
+| E-mail corporativo | Identificação e autenticação       | Legítimo interesse (Art. 7º, IX)          | Vigência do contrato + 5 anos |
+| Nome completo      | Exibição e identificação           | Legítimo interesse                        | Vigência + 5 anos             |
+| IP de acesso       | Segurança da informação            | Legítimo interesse                        | 1 ano                         |
+| User-Agent         | Segurança (detecção de anomalias)  | Legítimo interesse                        | 1 ano                         |
+| google_sub         | Vínculo de identidade (pseudônimo) | Legítimo interesse                        | Vigência + 5 anos             |
+| Logs de login      | Auditoria de segurança             | Obrigação legal (ISO 27001, Art. 37 LGPD) | 5 anos                        |
+| MFA status         | Garantia de segurança              | Legítimo interesse                        | Vigência                      |
 
 #### 9.3.2 Direitos dos Titulares no Contexto de Autenticação
 
-| Direito (Art. 18) | Implementação |
-|-------------------|--------------|
-| **Acesso** | `GET /api/v1/users/me/auth-history` retorna histórico de logins e sessões ativas |
-| **Correção** | Nome e e-mail corrigidos via Google Admin Console (fonte autoritativa) |
-| **Portabilidade** | Incluído no export geral de dados pessoais `GET /api/v1/users/:id/personal-data` |
-| **Eliminação** | Sessões revogadas + logs de login anonimizados após período de retenção |
-| **Informação** | Política de privacidade disponível em `/privacy` descrevendo todos os dados coletados |
+| Direito (Art. 18) | Implementação                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| **Acesso**        | `GET /api/v1/users/me/auth-history` retorna histórico de logins e sessões ativas      |
+| **Correção**      | Nome e e-mail corrigidos via Google Admin Console (fonte autoritativa)                |
+| **Portabilidade** | Incluído no export geral de dados pessoais `GET /api/v1/users/:id/personal-data`      |
+| **Eliminação**    | Sessões revogadas + logs de login anonimizados após período de retenção               |
+| **Informação**    | Política de privacidade disponível em `/privacy` descrevendo todos os dados coletados |
 
 #### 9.3.3 Transferência Internacional
 
 Dados de autenticação passam pelos seguintes servidores externos:
 
-| Serviço | País | Dado Transferido | Base Legal LGPD |
-|---------|------|-----------------|----------------|
-| Google OAuth | EUA | E-mail, google_sub, nome | Art. 33, VII (consentimento via autenticação) |
-| Cloudflare | EUA | IP, headers | Art. 33, II (cláusulas contratuais — DPA assinado) |
-| Vercel | EUA | Requisições de autenticação | Art. 33, II (cláusulas contratuais — DPA assinado) |
+| Serviço      | País | Dado Transferido            | Base Legal LGPD                                    |
+| ------------ | ---- | --------------------------- | -------------------------------------------------- |
+| Google OAuth | EUA  | E-mail, google_sub, nome    | Art. 33, VII (consentimento via autenticação)      |
+| Cloudflare   | EUA  | IP, headers                 | Art. 33, II (cláusulas contratuais — DPA assinado) |
+| Vercel       | EUA  | Requisições de autenticação | Art. 33, II (cláusulas contratuais — DPA assinado) |
 
 ### 9.4 Proteção de APIs de Autenticação
 
@@ -1474,15 +1532,15 @@ VERIFICAÇÃO DE INTEGRIDADE DO FLUXO:
 
 ### 10.1 Qual fluxo usar em cada cenário
 
-| Cenário | Fluxo Recomendado | Notas |
-|---------|:-----------------:|-------|
-| Acesso normal de colaborador | Google OAuth 2.0 com PKCE | Padrão |
-| Colaborador novo (primeiro acesso) | Convite + Google OAuth | IT_MANAGER envia convite |
-| Colaborador sem conta Google ainda | Convite → provisionar Google → OAuth | Provisionamento via SGTI |
-| Conta de serviço / automação | API Key (M2M) | Sem MFA; escopo limitado |
-| Integração GLPI (backend-to-backend) | API Key | Rotação semestral |
-| Acesso emergencial (Google indisponível) | Magic Link + Supabase Auth | Apenas para contas explicitamente habilitadas |
-| Desenvolvedor local | E-mail + senha (Supabase Auth) | Apenas em ambiente de desenvolvimento |
+| Cenário                                  |          Fluxo Recomendado           | Notas                                         |
+| ---------------------------------------- | :----------------------------------: | --------------------------------------------- |
+| Acesso normal de colaborador             |      Google OAuth 2.0 com PKCE       | Padrão                                        |
+| Colaborador novo (primeiro acesso)       |        Convite + Google OAuth        | IT_MANAGER envia convite                      |
+| Colaborador sem conta Google ainda       | Convite → provisionar Google → OAuth | Provisionamento via SGTI                      |
+| Conta de serviço / automação             |            API Key (M2M)             | Sem MFA; escopo limitado                      |
+| Integração GLPI (backend-to-backend)     |               API Key                | Rotação semestral                             |
+| Acesso emergencial (Google indisponível) |      Magic Link + Supabase Auth      | Apenas para contas explicitamente habilitadas |
+| Desenvolvedor local                      |    E-mail + senha (Supabase Auth)    | Apenas em ambiente de desenvolvimento         |
 
 ### 10.2 Decisão de Bloqueio de Acesso
 
@@ -1527,13 +1585,15 @@ Token presente no cookie?
 
 ## Controle de Versões do Documento
 
-| Versão | Data | Autor | Descrição da Alteração |
-|--------|------|-------|------------------------|
-| 1.0.0 | 2026-06-09 | Arquitetura Corporativa de TI · Segurança da Informação | Criação do documento |
+| Versão | Data       | Autor                                                   | Descrição da Alteração |
+| ------ | ---------- | ------------------------------------------------------- | ---------------------- |
+| 1.0.0  | 2026-06-09 | Arquitetura Corporativa de TI · Segurança da Informação | Criação do documento   |
 
 ---
 
 > **Próximos documentos recomendados:**
-> [`14_SECURITY_REQUIREMENTS.md`](./14_SECURITY_REQUIREMENTS.md) — Requisitos de segurança completos (OWASP ASVS, LGPD)
-> [`21_API_SPEC.md`](./21_API_SPEC.md) — Especificação dos endpoints de autenticação
-> [`20_DATABASE.md`](./20_DATABASE.md) — Modelo de dados para auth, identity e sessions
+> [`14_SECURITY_REQUIREMENTS.md`](./14_SECURITY_REQUIREMENTS.md) — Requisitos de
+> segurança completos (OWASP ASVS, LGPD) [`21_API_SPEC.md`](./21_API_SPEC.md) —
+> Especificação dos endpoints de autenticação
+> [`20_DATABASE.md`](./20_DATABASE.md) — Modelo de dados para auth, identity e
+> sessions

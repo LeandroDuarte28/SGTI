@@ -13,8 +13,18 @@ export default async function NewServiceCatalogItemPage(): Promise<React.JSX.Ele
   const supabase = await createClient();
 
   const [categoriesResult, slaResult] = await Promise.all([
-    supabase.schema("catalog").from("ServiceCategory").select("id, name").eq("is_active", true).order("sort_order"),
-    supabase.schema("catalog").from("SLADefinition").select("id, name").eq("is_active", true).order("name"),
+    supabase
+      .schema("catalog")
+      .from("ServiceCategory")
+      .select("id, name")
+      .eq("is_active", true)
+      .order("sort_order"),
+    supabase
+      .schema("catalog")
+      .from("SLADefinition")
+      .select("id, name")
+      .eq("is_active", true)
+      .order("name"),
   ]);
 
   const categories = categoriesResult.data ?? [];
@@ -23,18 +33,21 @@ export default async function NewServiceCatalogItemPage(): Promise<React.JSX.Ele
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
-        <Link className="text-sm text-muted-foreground hover:underline" href="/catalog">
+        <Link className="text-muted-foreground text-sm hover:underline" href="/catalog">
           ← Voltar para o Catálogo
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-foreground">Novo Item do Catálogo</h1>
+        <h1 className="text-foreground mt-2 text-2xl font-semibold">Novo Item do Catálogo</h1>
       </div>
 
-      <form action={createServiceCatalogItem} className="space-y-5 rounded-lg border border-border bg-card p-6">
+      <form
+        action={createServiceCatalogItem}
+        className="border-border bg-card space-y-5 rounded-lg border p-6"
+      >
         <div className="space-y-2">
           <Label htmlFor="category_id">Categoria</Label>
           <select
             required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             defaultValue=""
             id="category_id"
             name="category_id"
@@ -54,7 +67,7 @@ export default async function NewServiceCatalogItemPage(): Promise<React.JSX.Ele
           <Label htmlFor="name">Nome</Label>
           <input
             required
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             id="name"
             name="name"
             type="text"
@@ -64,7 +77,7 @@ export default async function NewServiceCatalogItemPage(): Promise<React.JSX.Ele
         <div className="space-y-2">
           <Label htmlFor="description">Descrição (opcional)</Label>
           <textarea
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             id="description"
             name="description"
           />
@@ -74,7 +87,7 @@ export default async function NewServiceCatalogItemPage(): Promise<React.JSX.Ele
           <div className="space-y-2">
             <Label htmlFor="default_sla_id">SLA Padrão (opcional)</Label>
             <select
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
               defaultValue=""
               id="default_sla_id"
               name="default_sla_id"
@@ -90,7 +103,7 @@ export default async function NewServiceCatalogItemPage(): Promise<React.JSX.Ele
           <div className="space-y-2">
             <Label htmlFor="estimated_delivery_days">Entrega Estimada (dias, opcional)</Label>
             <input
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background text-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
               id="estimated_delivery_days"
               min="0"
               name="estimated_delivery_days"

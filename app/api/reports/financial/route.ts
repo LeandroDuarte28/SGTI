@@ -19,7 +19,9 @@ export async function GET(): Promise<Response> {
     .order("expense_date", { ascending: false });
 
   if (error || !expenses) {
-    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, { status: 500 });
+    return new Response(`Erro ao gerar relatório: ${error?.message ?? "desconhecido"}`, {
+      status: 500,
+    });
   }
 
   const { data: budgets } = await supabase
@@ -46,7 +48,12 @@ export async function GET(): Promise<Response> {
   await supabase
     .schema("shared")
     .from("AuditLog")
-    .insert({ user_id: user.id, action: "REPORT_EXPORTED", entity_type: "Expense", new_values: { format: "csv", rows: rows.length } });
+    .insert({
+      user_id: user.id,
+      action: "REPORT_EXPORTED",
+      entity_type: "Expense",
+      new_values: { format: "csv", rows: rows.length },
+    });
 
   return csvResponse("despesas.csv", csv);
 }

@@ -17,7 +17,13 @@ export default async function ComplianceDashboardPage(): Promise<React.JSX.Eleme
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
 
-  const [latestAuditResult, openFindingsResult, overdueFindingsResult, criticalOpenResult, overdueActionsResult] = await Promise.all([
+  const [
+    latestAuditResult,
+    openFindingsResult,
+    overdueFindingsResult,
+    criticalOpenResult,
+    overdueActionsResult,
+  ] = await Promise.all([
     supabase
       .schema("compliance")
       .from("ComplianceAudit")
@@ -26,9 +32,23 @@ export default async function ComplianceDashboardPage(): Promise<React.JSX.Eleme
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
-    supabase.schema("compliance").from("ComplianceFinding").select("id").not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
-    supabase.schema("compliance").from("ComplianceFinding").select("id").lt("due_date", today).not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
-    supabase.schema("compliance").from("ComplianceFinding").select("id").eq("criticality", "CRITICAL").not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
+    supabase
+      .schema("compliance")
+      .from("ComplianceFinding")
+      .select("id")
+      .not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
+    supabase
+      .schema("compliance")
+      .from("ComplianceFinding")
+      .select("id")
+      .lt("due_date", today)
+      .not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
+    supabase
+      .schema("compliance")
+      .from("ComplianceFinding")
+      .select("id")
+      .eq("criticality", "CRITICAL")
+      .not("status", "in", "(CONCLUDED,CANCELLED,NOT_APPLICABLE)"),
     supabase.schema("compliance").from("ActionItem").select("id").eq("status", "OVERDUE"),
   ]);
 
@@ -37,8 +57,10 @@ export default async function ComplianceDashboardPage(): Promise<React.JSX.Eleme
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard de Compliance</h1>
-        <p className="text-sm text-muted-foreground">Programa de compliance de TI — apontamentos e planos de ação.</p>
+        <h1 className="text-foreground text-2xl font-semibold">Dashboard de Compliance</h1>
+        <p className="text-muted-foreground text-sm">
+          Programa de compliance de TI — apontamentos e planos de ação.
+        </p>
       </div>
 
       <Section title="Visão Geral">
@@ -48,7 +70,11 @@ export default async function ComplianceDashboardPage(): Promise<React.JSX.Eleme
           tone={score !== undefined && score !== null && Number(score) < 80 ? "bad" : "neutral"}
           value={score !== undefined && score !== null ? formatPercent(Number(score)) : "—"}
         />
-        <StatCard href="/compliance" label="Apontamentos Abertos" value={String(openFindingsResult.data?.length ?? 0)} />
+        <StatCard
+          href="/compliance"
+          label="Apontamentos Abertos"
+          value={String(openFindingsResult.data?.length ?? 0)}
+        />
         <StatCard
           href="/compliance"
           label="Apontamentos em Atraso"

@@ -4,7 +4,13 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthUser } from "@/lib/auth/get-user";
 import { hasRole, IT_STAFF_ROLES } from "@/lib/constants/roles";
-import { formatHours, formatPercent, getSlaComplianceTone, Section, StatCard } from "@/components/dashboard/kpi";
+import {
+  formatHours,
+  formatPercent,
+  getSlaComplianceTone,
+  Section,
+  StatCard,
+} from "@/components/dashboard/kpi";
 
 export const metadata: Metadata = { title: "Dashboard de Incidentes" };
 
@@ -15,13 +21,29 @@ export default async function IncidentsDashboardPage(): Promise<React.JSX.Elemen
   }
 
   const supabase = await createClient();
-  const monthStart = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1)).toISOString();
+  const monthStart = new Date(
+    Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1),
+  ).toISOString();
 
   const [totalResult, openResult, closedResult, criticalResult, slaRowsResult] = await Promise.all([
     supabase.schema("ticket").from("Incident").select("id").gte("created_at", monthStart),
-    supabase.schema("ticket").from("Incident").select("id").not("status", "in", "(RESOLVED,CLOSED)"),
-    supabase.schema("ticket").from("Incident").select("id").eq("status", "CLOSED").gte("updated_at", monthStart),
-    supabase.schema("ticket").from("Incident").select("id").eq("priority", "CRITICAL").not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .not("status", "in", "(RESOLVED,CLOSED)"),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .eq("status", "CLOSED")
+      .gte("updated_at", monthStart),
+    supabase
+      .schema("ticket")
+      .from("Incident")
+      .select("id")
+      .eq("priority", "CRITICAL")
+      .not("status", "in", "(RESOLVED,CLOSED)"),
     supabase
       .schema("ticket")
       .from("Incident")
@@ -32,26 +54,40 @@ export default async function IncidentsDashboardPage(): Promise<React.JSX.Elemen
 
   const slaRows = slaRowsResult.data ?? [];
   const breachedCount = slaRows.filter((r) => r.sla_breached_at !== null).length;
-  const slaCompliance = slaRows.length > 0 ? ((slaRows.length - breachedCount) / slaRows.length) * 100 : NaN;
+  const slaCompliance =
+    slaRows.length > 0 ? ((slaRows.length - breachedCount) / slaRows.length) * 100 : NaN;
   const mttrHours =
     slaRows.length > 0
-      ? slaRows.reduce((sum, r) => sum + (new Date(r.resolved_at as string).getTime() - new Date(r.created_at).getTime()) / 3_600_000, 0) /
-        slaRows.length
+      ? slaRows.reduce(
+          (sum, r) =>
+            sum +
+            (new Date(r.resolved_at as string).getTime() - new Date(r.created_at).getTime()) /
+              3_600_000,
+          0,
+        ) / slaRows.length
       : NaN;
 
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard de Incidentes</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-foreground text-2xl font-semibold">Dashboard de Incidentes</h1>
+        <p className="text-muted-foreground text-sm">
           Desempenho do processo de gestão de incidentes nos últimos 30 dias.
         </p>
       </div>
 
       <Section title="Volume">
-        <StatCard href="/incidents" label="Total no Período" value={String(totalResult.data?.length ?? 0)} />
+        <StatCard
+          href="/incidents"
+          label="Total no Período"
+          value={String(totalResult.data?.length ?? 0)}
+        />
         <StatCard href="/incidents" label="Abertos" value={String(openResult.data?.length ?? 0)} />
-        <StatCard label="Fechados no Período" tone="good" value={String(closedResult.data?.length ?? 0)} />
+        <StatCard
+          label="Fechados no Período"
+          tone="good"
+          value={String(closedResult.data?.length ?? 0)}
+        />
         <StatCard
           href="/incidents"
           label="Críticos Abertos"
@@ -61,7 +97,11 @@ export default async function IncidentsDashboardPage(): Promise<React.JSX.Elemen
       </Section>
 
       <Section title="SLA e Performance">
-        <StatCard label="SLA Cumprido" tone={getSlaComplianceTone(slaCompliance)} value={formatPercent(slaCompliance)} />
+        <StatCard
+          label="SLA Cumprido"
+          tone={getSlaComplianceTone(slaCompliance)}
+          value={formatPercent(slaCompliance)}
+        />
         <StatCard label="MTTR" value={formatHours(mttrHours)} />
       </Section>
     </div>

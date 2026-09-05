@@ -39,10 +39,10 @@ export function Sidebar(): React.JSX.Element {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-border bg-card">
-      <div className="flex items-center gap-2 border-b border-border px-6 py-5">
-        <LayoutDashboard className="h-5 w-5 text-primary" />
-        <span className="text-lg font-semibold text-foreground">SGTI</span>
+    <aside className="border-border bg-card flex h-screen w-64 flex-col border-r">
+      <div className="border-border flex items-center gap-2 border-b px-6 py-5">
+        <LayoutDashboard className="text-primary h-5 w-5" />
+        <span className="text-foreground text-lg font-semibold">SGTI</span>
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">

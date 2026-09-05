@@ -1,31 +1,36 @@
 # SGTI — Sistema de Gestão de Tecnologia da Informação
+
 ## Arquitetura Cloudflare — DNS, CDN, Segurança e Proteção — Documentação Técnica
 
-> **Classificação:** Interno — Restrito
-> **Versão:** 1.0.0
-> **Status:** Aprovado para Desenvolvimento
-> **Última Atualização:** 2026-06-09
-> **Responsável:** Arquitetura Corporativa de TI
-> **Documentos Relacionados:** [70_DEPLOYMENT.md](./70_DEPLOYMENT.md) · [71_SUPABASE.md](./71_SUPABASE.md) · [72_GITHUB_ACTIONS.md](./72_GITHUB_ACTIONS.md) · [73_VERCEL.md](./73_VERCEL.md) · [50_INTEGRATIONS.md](./50_INTEGRATIONS.md)
+> **Classificação:** Interno — Restrito **Versão:** 1.0.0 **Status:** Aprovado
+> para Desenvolvimento **Última Atualização:** 2026-06-09 **Responsável:**
+> Arquitetura Corporativa de TI **Documentos Relacionados:**
+> [70_DEPLOYMENT.md](./70_DEPLOYMENT.md) · [71_SUPABASE.md](./71_SUPABASE.md) ·
+> [72_GITHUB_ACTIONS.md](./72_GITHUB_ACTIONS.md) ·
+> [73_VERCEL.md](./73_VERCEL.md) · [50_INTEGRATIONS.md](./50_INTEGRATIONS.md)
 
 ---
 
 ## Sobre este Documento
 
-Este documento define a **arquitetura oficial do Cloudflare no SGTI**, cobrindo DNS, SSL/TLS, CDN, WAF, segurança, performance, monitoramento e estratégias de contingência e disaster recovery.
+Este documento define a **arquitetura oficial do Cloudflare no SGTI**, cobrindo
+DNS, SSL/TLS, CDN, WAF, segurança, performance, monitoramento e estratégias de
+contingência e disaster recovery.
 
-**Premissa obrigatória:** Utilizar preferencialmente recursos gratuitos do Cloudflare (plano Free), migrando para planos pagos apenas quando os limites ou funcionalidades exigirem.
+**Premissa obrigatória:** Utilizar preferencialmente recursos gratuitos do
+Cloudflare (plano Free), migrando para planos pagos apenas quando os limites ou
+funcionalidades exigirem.
 
 ---
 
 ## Stack e Posicionamento do Cloudflare
 
-| Tecnologia | Papel no SGTI |
-|:----------:|:-------------|
-| **Cloudflare** | DNS autoritativo, CDN, WAF, DDoS, rate limiting, SSL/TLS |
-| **Vercel** | Hospedagem do frontend Next.js (origem dos dados) |
-| **Supabase** | Backend-as-a-service (banco, auth, storage, realtime) |
-| **GitHub/Actions** | Versionamento e CI/CD (sem envolvimento do Cloudflare) |
+|     Tecnologia     | Papel no SGTI                                            |
+| :----------------: | :------------------------------------------------------- |
+|   **Cloudflare**   | DNS autoritativo, CDN, WAF, DDoS, rate limiting, SSL/TLS |
+|     **Vercel**     | Hospedagem do frontend Next.js (origem dos dados)        |
+|    **Supabase**    | Backend-as-a-service (banco, auth, storage, realtime)    |
+| **GitHub/Actions** | Versionamento e CI/CD (sem envolvimento do Cloudflare)   |
 
 ---
 
@@ -58,31 +63,31 @@ Este documento define a **arquitetura oficial do Cloudflare no SGTI**, cobrindo 
 
 ### 1.1 Por que Cloudflare no SGTI
 
-| Critério | Justificativa |
-|:--------:|:-------------|
-| **DNS autoritativo gratuito** | DNS de alta performance e disponibilidade global sem custo |
-| **CDN global** | 300+ PoPs (Points of Presence) — assets chegam mais rápido aos usuários brasileiros |
-| **WAF sem custo** | OWASP Core Rule Set gratuito no plano Free |
-| **DDoS mitigation** | Proteção automática contra ataques volumétricos sem configuração |
-| **SSL/TLS automático** | Certificados gratuitos com renovação automática |
-| **Ocultar IP de origem** | Vercel fica invisível; usuários maliciosos não encontram a origem |
-| **Bot Protection** | Bloqueio automático de bots maliciosos (Bot Fight Mode) |
-| **Rate Limiting** | Proteção contra abuso de API (5 regras gratuitas no Free) |
+|           Critério            | Justificativa                                                                       |
+| :---------------------------: | :---------------------------------------------------------------------------------- |
+| **DNS autoritativo gratuito** | DNS de alta performance e disponibilidade global sem custo                          |
+|        **CDN global**         | 300+ PoPs (Points of Presence) — assets chegam mais rápido aos usuários brasileiros |
+|       **WAF sem custo**       | OWASP Core Rule Set gratuito no plano Free                                          |
+|      **DDoS mitigation**      | Proteção automática contra ataques volumétricos sem configuração                    |
+|    **SSL/TLS automático**     | Certificados gratuitos com renovação automática                                     |
+|   **Ocultar IP de origem**    | Vercel fica invisível; usuários maliciosos não encontram a origem                   |
+|      **Bot Protection**       | Bloqueio automático de bots maliciosos (Bot Fight Mode)                             |
+|       **Rate Limiting**       | Proteção contra abuso de API (5 regras gratuitas no Free)                           |
 
 ### 1.2 O que o Cloudflare Faz e Não Faz no SGTI
 
-| Função | Cloudflare | Alternativa |
-|:------:|:----------:|:-----------:|
-| DNS autoritativo | ✅ Principal | — |
-| CDN para assets estáticos | ✅ Principal | Vercel Edge Network (complementar) |
-| WAF (Web Application Firewall) | ✅ Principal | — |
-| DDoS Protection | ✅ Principal | — |
-| SSL/TLS (usuário → Cloudflare) | ✅ Principal | — |
-| SSL/TLS (Cloudflare → Vercel) | ✅ Valida certificado Vercel | Vercel (emite) |
-| Compressão Brotli | ✅ Principal | Vercel (Gzip como fallback) |
-| Execução de código (Workers) | ❌ Não usado | Vercel Edge Functions |
-| Roteamento de banco de dados | ❌ Não passa pelo Cloudflare | Supabase direto |
-| WebSocket Realtime | ❌ Não proxia WebSocket estável | Supabase direto |
+|             Função             |           Cloudflare            |            Alternativa             |
+| :----------------------------: | :-----------------------------: | :--------------------------------: |
+|        DNS autoritativo        |          ✅ Principal           |                 —                  |
+|   CDN para assets estáticos    |          ✅ Principal           | Vercel Edge Network (complementar) |
+| WAF (Web Application Firewall) |          ✅ Principal           |                 —                  |
+|        DDoS Protection         |          ✅ Principal           |                 —                  |
+| SSL/TLS (usuário → Cloudflare) |          ✅ Principal           |                 —                  |
+| SSL/TLS (Cloudflare → Vercel)  |  ✅ Valida certificado Vercel   |           Vercel (emite)           |
+|       Compressão Brotli        |          ✅ Principal           |    Vercel (Gzip como fallback)     |
+|  Execução de código (Workers)  |          ❌ Não usado           |       Vercel Edge Functions        |
+|  Roteamento de banco de dados  |  ❌ Não passa pelo Cloudflare   |          Supabase direto           |
+|       WebSocket Realtime       | ❌ Não proxia WebSocket estável |          Supabase direto           |
 
 ---
 
@@ -158,10 +163,10 @@ ORDEM DE PROCESSAMENTO DE UMA REQUEST NO CLOUDFLARE
 
 1. DDoS Detection (automático, sempre ativo)
    → Request volumétrica? Bloquear/desafiar
-   
+
 2. IP Reputation Check
    → IP em lista negra conhecida? Bloquear/desafiar
-   
+
 3. Bot Fight Mode
    → Comportamento de bot? Bloquear/CAPTCHA
 
@@ -195,43 +200,46 @@ ORDEM DE PROCESSAMENTO DE UMA REQUEST NO CLOUDFLARE
 
 ### 3.1 Estrutura de DNS do SGTI
 
-O domínio `empresa.com.br` (substituir pelo domínio real) é gerenciado pelo Cloudflare como DNS autoritativo.
+O domínio `empresa.com.br` (substituir pelo domínio real) é gerenciado pelo
+Cloudflare como DNS autoritativo.
 
-| Registro | Tipo | Nome | Valor | Proxy (TTL) | Ambiente |
-|:--------:|:----:|:----:|:-----:|:-----------:|:--------:|
-| Frontend prod | CNAME | `sgti` | `cname.vercel-dns.com` | ✅ Proxy ativo | Produção |
-| Frontend homolog | CNAME | `homolog.sgti` | `cname.vercel-dns.com` | ✅ Proxy ativo | Homologação |
-| Frontend dev | CNAME | `dev.sgti` | `cname.vercel-dns.com` | 🔘 DNS only | Desenvolvimento |
-| E-mail | MX | `@` | Google Workspace MX | — | Corporativo |
-| SPF | TXT | `@` | `v=spf1 include:_spf.google.com ~all` | — | E-mail |
-| DKIM | TXT | `google._domainkey` | Google Workspace DKIM | — | E-mail |
-| DMARC | TXT | `_dmarc` | `v=DMARC1; p=quarantine; ...` | — | E-mail |
-| Verificação Google | TXT | `@` | `google-site-verification=...` | — | Google Workspace |
+|      Registro      | Tipo  |        Nome         |                 Valor                 |  Proxy (TTL)   |     Ambiente     |
+| :----------------: | :---: | :-----------------: | :-----------------------------------: | :------------: | :--------------: |
+|   Frontend prod    | CNAME |       `sgti`        |        `cname.vercel-dns.com`         | ✅ Proxy ativo |     Produção     |
+|  Frontend homolog  | CNAME |   `homolog.sgti`    |        `cname.vercel-dns.com`         | ✅ Proxy ativo |   Homologação    |
+|    Frontend dev    | CNAME |     `dev.sgti`      |        `cname.vercel-dns.com`         |  🔘 DNS only   | Desenvolvimento  |
+|       E-mail       |  MX   |         `@`         |          Google Workspace MX          |       —        |   Corporativo    |
+|        SPF         |  TXT  |         `@`         | `v=spf1 include:_spf.google.com ~all` |       —        |      E-mail      |
+|        DKIM        |  TXT  | `google._domainkey` |         Google Workspace DKIM         |       —        |      E-mail      |
+|       DMARC        |  TXT  |      `_dmarc`       |     `v=DMARC1; p=quarantine; ...`     |       —        |      E-mail      |
+| Verificação Google |  TXT  |         `@`         |    `google-site-verification=...`     |       —        | Google Workspace |
 
 ### 3.2 Diferença entre Proxy Ativo (🟠) e DNS Only (⚪)
 
-| Modo | Ícone | Comportamento | Quando Usar |
-|:----:|:-----:|:-------------|:-----------:|
-| **Proxy Ativo** | 🟠 Nuvem laranja | Tráfego passa pelo Cloudflare; IP de origem oculto; WAF e CDN ativos | Produção e homologação |
-| **DNS Only** | ⚪ Nuvem cinza | DNS apenas; tráfego vai diretamente à origem; sem WAF ou CDN | Desenvolvimento (agilidade) |
+|      Modo       |      Ícone       | Comportamento                                                        |         Quando Usar         |
+| :-------------: | :--------------: | :------------------------------------------------------------------- | :-------------------------: |
+| **Proxy Ativo** | 🟠 Nuvem laranja | Tráfego passa pelo Cloudflare; IP de origem oculto; WAF e CDN ativos |   Produção e homologação    |
+|  **DNS Only**   |  ⚪ Nuvem cinza  | DNS apenas; tráfego vai diretamente à origem; sem WAF ou CDN         | Desenvolvimento (agilidade) |
 
 ### 3.3 TTL e Propagação
 
-| Tipo | TTL em Proxy Mode | TTL em DNS Only |
-|:----:|:-----------------:|:---------------:|
-| Registros com proxy ativo | Automático (Cloudflare define ~300s) | N/A |
-| Registros DNS Only | Configurável (mínimo 60s no free) | Configurável |
+|           Tipo            |          TTL em Proxy Mode           | TTL em DNS Only |
+| :-----------------------: | :----------------------------------: | :-------------: |
+| Registros com proxy ativo | Automático (Cloudflare define ~300s) |       N/A       |
+|    Registros DNS Only     |  Configurável (mínimo 60s no free)   |  Configurável   |
 
-**Propagação global:** Com Cloudflare como DNS autoritativo, alterações de registro se propagam em segundos (TTL controlado pelo Cloudflare, sem depender dos 24–48h tradicionais).
+**Propagação global:** Com Cloudflare como DNS autoritativo, alterações de
+registro se propagam em segundos (TTL controlado pelo Cloudflare, sem depender
+dos 24–48h tradicionais).
 
 ### 3.4 Proteção de Registro de Domínio
 
-| Proteção | Status |
-|:--------:|:------:|
-| DNSSEC | ✅ Habilitado (Cloudflare assina o DNS) |
-| Registry Lock | Configurar no registrador do domínio |
-| Transfer Lock | Configurar no registrador do domínio |
-| Renovação automática | Configurar no registrador do domínio |
+|       Proteção       |                 Status                  |
+| :------------------: | :-------------------------------------: |
+|        DNSSEC        | ✅ Habilitado (Cloudflare assina o DNS) |
+|    Registry Lock     |  Configurar no registrador do domínio   |
+|    Transfer Lock     |  Configurar no registrador do domínio   |
+| Renovação automática |  Configurar no registrador do domínio   |
 
 ---
 
@@ -261,25 +269,26 @@ Full (Strict): ← ESTE É O MODO CORRETO
 
 ### 4.2 Certificados Cloudflare
 
-| Certificado | Tipo | Renovação | Onde Usado |
-|:-----------:|:----:|:---------:|:----------:|
-| **Universal SSL** | Wildcard `*.empresa.com.br` | Automática (Cloudflare) | Usuário → Cloudflare |
-| **Vercel Managed Cert** | `sgti.empresa.com.br` (Let's Encrypt) | Automática (Vercel) | Cloudflare → Vercel |
+|       Certificado       |                 Tipo                  |        Renovação        |      Onde Usado      |
+| :---------------------: | :-----------------------------------: | :---------------------: | :------------------: |
+|    **Universal SSL**    |      Wildcard `*.empresa.com.br`      | Automática (Cloudflare) | Usuário → Cloudflare |
+| **Vercel Managed Cert** | `sgti.empresa.com.br` (Let's Encrypt) |   Automática (Vercel)   | Cloudflare → Vercel  |
 
-O Cloudflare emite automaticamente o certificado Universal SSL para o domínio. Não é necessário adquirir ou renovar manualmente.
+O Cloudflare emite automaticamente o certificado Universal SSL para o domínio.
+Não é necessário adquirir ou renovar manualmente.
 
 ### 4.3 Configurações SSL/TLS
 
-| Configuração | Valor | Justificativa |
-|:------------:|:-----:|:-------------:|
-| **TLS mínimo** | TLS 1.2 (recomendado: TLS 1.3) | TLS 1.0 e 1.1 têm vulnerabilidades conhecidas |
-| **TLS máximo** | TLS 1.3 | Versão mais segura e performática |
-| **HSTS** | Habilitado | `max-age=63072000; includeSubDomains; preload` |
-| **HSTS Preload** | Sim (submeter ao HSTS Preload List) | Browser nunca tenta HTTP |
-| **Automatic HTTPS Rewrites** | ✅ Habilitado | Converte links HTTP mistos para HTTPS |
-| **Always Use HTTPS** | ✅ Habilitado | Redireciona HTTP → HTTPS com 301 |
-| **Opportunistic Encryption** | ✅ Habilitado | Anuncia HTTPS via DNS |
-| **Cipher Suites** | Padrão Cloudflare (moderno) | Apenas suites seguras habilitadas |
+|         Configuração         |                Valor                |                 Justificativa                  |
+| :--------------------------: | :---------------------------------: | :--------------------------------------------: |
+|        **TLS mínimo**        |   TLS 1.2 (recomendado: TLS 1.3)    | TLS 1.0 e 1.1 têm vulnerabilidades conhecidas  |
+|        **TLS máximo**        |               TLS 1.3               |       Versão mais segura e performática        |
+|           **HSTS**           |             Habilitado              | `max-age=63072000; includeSubDomains; preload` |
+|       **HSTS Preload**       | Sim (submeter ao HSTS Preload List) |            Browser nunca tenta HTTP            |
+| **Automatic HTTPS Rewrites** |            ✅ Habilitado            |     Converte links HTTP mistos para HTTPS      |
+|     **Always Use HTTPS**     |            ✅ Habilitado            |        Redireciona HTTP → HTTPS com 301        |
+| **Opportunistic Encryption** |            ✅ Habilitado            |             Anuncia HTTPS via DNS              |
+|      **Cipher Suites**       |     Padrão Cloudflare (moderno)     |       Apenas suites seguras habilitadas        |
 
 ### 4.4 HSTS (HTTP Strict Transport Security)
 
@@ -303,7 +312,8 @@ SIGNIFICADO:
 
 ### 5.1 Como o Cache do Cloudflare Funciona
 
-O Cloudflare serve assets do PoP (Point of Presence) mais próximo ao usuário, sem precisar chegar à Vercel:
+O Cloudflare serve assets do PoP (Point of Presence) mais próximo ao usuário,
+sem precisar chegar à Vercel:
 
 ```
 FLUXO DE CACHE
@@ -322,36 +332,42 @@ Usuário BR → Cloudflare PoP São Paulo → HIT → resposta instantânea
 
 ### 5.2 Regras de Cache por Tipo de Conteúdo
 
-| Tipo de Conteúdo | Cache no Cloudflare | Cache-Control Esperado | Exemplo |
-|:----------------:|:-------------------:|:----------------------:|---------|
-| **JS/CSS com hash no nome** | ✅ 1 ano | `public, max-age=31536000, immutable` | `/_next/static/chunks/main-abc123.js` |
-| **Imagens otimizadas next/image** | ✅ 1 dia | `public, max-age=86400` | `/_next/image?url=...` |
-| **Fonts** | ✅ 1 ano | `public, max-age=31536000` | Google Fonts |
-| **Assets públicos (/public/)** | ✅ Configurável | Conforme `Cache-Control` da Vercel | `/icons/logo.svg` |
-| **Páginas HTML (SSR)** | ❌ Bypass | `no-store, no-cache` | `/dashboard`, `/incidents/*` |
-| **API Routes (/api/)** | ❌ Bypass | `no-store` | `/api/incidents`, `/api/health` |
-| **Auth endpoints** | ❌ Bypass + Sem cache | `private, no-cache` | `/api/auth/*` |
+|         Tipo de Conteúdo          |  Cache no Cloudflare  |        Cache-Control Esperado         | Exemplo                               |
+| :-------------------------------: | :-------------------: | :-----------------------------------: | ------------------------------------- |
+|    **JS/CSS com hash no nome**    |       ✅ 1 ano        | `public, max-age=31536000, immutable` | `/_next/static/chunks/main-abc123.js` |
+| **Imagens otimizadas next/image** |       ✅ 1 dia        |        `public, max-age=86400`        | `/_next/image?url=...`                |
+|             **Fonts**             |       ✅ 1 ano        |      `public, max-age=31536000`       | Google Fonts                          |
+|  **Assets públicos (/public/)**   |    ✅ Configurável    |  Conforme `Cache-Control` da Vercel   | `/icons/logo.svg`                     |
+|      **Páginas HTML (SSR)**       |       ❌ Bypass       |         `no-store, no-cache`          | `/dashboard`, `/incidents/*`          |
+|      **API Routes (/api/)**       |       ❌ Bypass       |              `no-store`               | `/api/incidents`, `/api/health`       |
+|        **Auth endpoints**         | ❌ Bypass + Sem cache |          `private, no-cache`          | `/api/auth/*`                         |
 
 ### 5.3 Page Rules de Cache (Free: 3 regras)
 
 As 3 Page Rules gratuitas são usadas para casos especiais:
 
-| Regra | URL Pattern | Configuração | Prioridade |
-|:-----:|:-----------:|:------------:|:----------:|
-| 1 | `sgti.empresa.com.br/_next/static/*` | Cache Level: Cache Everything, Edge TTL: 1 year | Alta |
-| 2 | `sgti.empresa.com.br/api/*` | Cache Level: Bypass, Security Level: High | Alta |
-| 3 | `sgti.empresa.com.br/auth/*` | Cache Level: Bypass, Security Level: High | Alta |
+| Regra |             URL Pattern              |                  Configuração                   | Prioridade |
+| :---: | :----------------------------------: | :---------------------------------------------: | :--------: |
+|   1   | `sgti.empresa.com.br/_next/static/*` | Cache Level: Cache Everything, Edge TTL: 1 year |    Alta    |
+|   2   |     `sgti.empresa.com.br/api/*`      |    Cache Level: Bypass, Security Level: High    |    Alta    |
+|   3   |     `sgti.empresa.com.br/auth/*`     |    Cache Level: Bypass, Security Level: High    |    Alta    |
 
-**Nota:** Com apenas 3 Page Rules no plano Free, priorizar as regras de maior impacto. Expandir para Cache Rules (plano Pro) quando necessário.
+**Nota:** Com apenas 3 Page Rules no plano Free, priorizar as regras de maior
+impacto. Expandir para Cache Rules (plano Pro) quando necessário.
 
 ### 5.4 Tiered Cache
 
-O Cloudflare usa Tiered Cache automaticamente: assets são cacheados em datacenters "Upper Tier" (regiões maiores) antes de ir à origem. Isso reduz requisições à Vercel mesmo quando um PoP pequeno não tem o asset.
+O Cloudflare usa Tiered Cache automaticamente: assets são cacheados em
+datacenters "Upper Tier" (regiões maiores) antes de ir à origem. Isso reduz
+requisições à Vercel mesmo quando um PoP pequeno não tem o asset.
 
 ### 5.5 Cache para Conteúdo Dinâmico
 
-Conteúdo dinâmico (páginas do SGTI que dependem do usuário) **não é cacheado** no Cloudflare:
-- Todas as páginas protegidas por autenticação têm `Cache-Control: private, no-store`.
+Conteúdo dinâmico (páginas do SGTI que dependem do usuário) **não é cacheado**
+no Cloudflare:
+
+- Todas as páginas protegidas por autenticação têm
+  `Cache-Control: private, no-store`.
 - O Cloudflare identifica esses headers e não armazena o conteúdo.
 - Isso garante que um usuário nunca veja dados de outro usuário via cache.
 
@@ -388,13 +404,13 @@ Proteções principais do OWASP CRS:
 
 As 5 regras customizadas gratuitas são usadas estrategicamente:
 
-| Regra | Condição | Ação | Justificativa |
-|:-----:|:--------:|:----:|:-------------:|
-| 1 | Método != GET\|POST\|OPTIONS\|HEAD para `/api/*` | BLOCK | Bloqueia métodos não utilizados (TRACE, CONNECT, etc.) |
-| 2 | `cf.threat_score > 30` | CHALLENGE | IPs com reputação suspeita devem resolver CAPTCHA |
-| 3 | URI contém `../` ou `..%2F` | BLOCK | Path traversal explícito |
-| 4 | User-Agent = vazio para `/api/*` | BLOCK | Bots simples sem User-Agent |
-| 5 | ASN de país não esperado + `/api/auth/*` | CHALLENGE | Login de países sem histórico no SGTI |
+| Regra |                     Condição                     |   Ação    |                     Justificativa                      |
+| :---: | :----------------------------------------------: | :-------: | :----------------------------------------------------: |
+|   1   | Método != GET\|POST\|OPTIONS\|HEAD para `/api/*` |   BLOCK   | Bloqueia métodos não utilizados (TRACE, CONNECT, etc.) |
+|   2   |              `cf.threat_score > 30`              | CHALLENGE |   IPs com reputação suspeita devem resolver CAPTCHA    |
+|   3   |           URI contém `../` ou `..%2F`            |   BLOCK   |                Path traversal explícito                |
+|   4   |         User-Agent = vazio para `/api/*`         |   BLOCK   |              Bots simples sem User-Agent               |
+|   5   |     ASN de país não esperado + `/api/auth/*`     | CHALLENGE |         Login de países sem histórico no SGTI          |
 
 ### 6.3 Rate Limiting (Free: 1 regra)
 
@@ -418,7 +434,7 @@ Rate Limiting adicional (via WAF Custom Rule — sem custo extra):
 ```
 BOT FIGHT MODE (gratuito no plano Free):
   ✅ Habilitado em produção
-  
+
   O que faz:
   → Detecta bots conhecidos (scrapers, scanners, spiders maliciosos)
   → Serve "honeypot" ou CAPTCHA em vez de bloquear diretamente
@@ -469,7 +485,7 @@ GEO-BLOCKING (opcional — via WAF Custom Rule):
   Opção: bloquear requests de países sem histórico de usuários
   Implementação: WAF Custom Rule com cf.ip.geoip.country
   Exceção: IPs do time de TI devem estar na allowlist
-  
+
   ATENÇÃO: Usar com cautela — bloquear países pode afetar VPNs/viagens
   Recomendação: Apenas CHALLENGE (CAPTCHA), nunca BLOCK total por país
 ```
@@ -480,7 +496,8 @@ GEO-BLOCKING (opcional — via WAF Custom Rule):
 
 ### 7.1 Headers Adicionados pelo Cloudflare
 
-O Cloudflare adiciona automaticamente alguns headers e permite configurar outros:
+O Cloudflare adiciona automaticamente alguns headers e permite configurar
+outros:
 
 ```
 HEADERS AUTOMÁTICOS DO CLOUDFLARE (toda response):
@@ -494,9 +511,11 @@ Server: cloudflare
 
 ### 7.2 Headers de Segurança via Transform Rules
 
-O Cloudflare permite adicionar headers via **Transform Rules** (Response Headers):
+O Cloudflare permite adicionar headers via **Transform Rules** (Response
+Headers):
 
-**Configuração no Dashboard:** Security → Transform Rules → Modify Response Header
+**Configuração no Dashboard:** Security → Transform Rules → Modify Response
+Header
 
 ```
 HEADERS DE SEGURANÇA VIA CLOUDFLARE TRANSFORM RULES
@@ -529,7 +548,8 @@ Permissions-Policy:
 
 ### 7.3 Content Security Policy (CSP)
 
-O CSP é configurado pelo Next.js (via `next.config.js`) e não pelo Cloudflare, pois precisa de valores dinâmicos (nonces):
+O CSP é configurado pelo Next.js (via `next.config.js`) e não pelo Cloudflare,
+pois precisa de valores dinâmicos (nonces):
 
 ```
 Content-Security-Policy (configurado no Next.js):
@@ -571,6 +591,7 @@ NOTA IMPORTANTE:
 ### 7.4 Verificação de Headers com Security Headers
 
 Após o deploy, verificar os headers em:
+
 - `securityheaders.com` — análise completa dos headers de segurança.
 - `observatory.mozilla.org` — avaliação Mozilla de segurança.
 
@@ -582,13 +603,14 @@ Após o deploy, verificar os headers em:
 
 ### 8.1 Compressão Brotli
 
-O Cloudflare usa **Brotli** como algoritmo de compressão principal (melhor que Gzip):
+O Cloudflare usa **Brotli** como algoritmo de compressão principal (melhor que
+Gzip):
 
-| Arquivo | Tamanho Original | Após Gzip | Após Brotli | Economia |
-|:-------:|:----------------:|:---------:|:-----------:|:--------:|
-| HTML típico | 100 KB | 35 KB | 28 KB | 72% |
-| JavaScript bundle | 500 KB | 175 KB | 140 KB | 72% |
-| CSS | 50 KB | 15 KB | 12 KB | 76% |
+|      Arquivo      | Tamanho Original | Após Gzip | Após Brotli | Economia |
+| :---------------: | :--------------: | :-------: | :---------: | :------: |
+|    HTML típico    |      100 KB      |   35 KB   |    28 KB    |   72%    |
+| JavaScript bundle |      500 KB      |  175 KB   |   140 KB    |   72%    |
+|        CSS        |      50 KB       |   15 KB   |    12 KB    |   76%    |
 
 **Configuração:** Cloudflare → Speed → Optimization → Compression → Brotli: ON.
 
@@ -596,17 +618,19 @@ O Cloudflare usa **Brotli** como algoritmo de compressão principal (melhor que 
 
 O Cloudflare pode minificar HTML, CSS e JavaScript na borda:
 
-| Tipo | Minificação Cloudflare | Minificação Next.js |
-|:----:|:----------------------:|:-------------------:|
+|    Tipo    |   Minificação Cloudflare   |  Minificação Next.js  |
+| :--------: | :------------------------: | :-------------------: |
 | JavaScript | ✅ Habilitado (Cloudflare) | ✅ Habilitado (build) |
-| CSS | ✅ Habilitado (Cloudflare) | ✅ Habilitado (build) |
-| HTML | ✅ Habilitado (Cloudflare) | Parcial |
+|    CSS     | ✅ Habilitado (Cloudflare) | ✅ Habilitado (build) |
+|    HTML    | ✅ Habilitado (Cloudflare) |        Parcial        |
 
-**Observação:** Como o Next.js já minifica JS e CSS no build, a minificação do Cloudflare é complementar (principalmente para HTML).
+**Observação:** Como o Next.js já minifica JS e CSS no build, a minificação do
+Cloudflare é complementar (principalmente para HTML).
 
 ### 8.3 Early Hints (HTTP 103)
 
-O Cloudflare suporta **Early Hints** (HTTP 103), que permite ao browser iniciar o download de recursos críticos antes de receber o HTML completo:
+O Cloudflare suporta **Early Hints** (HTTP 103), que permite ao browser iniciar
+o download de recursos críticos antes de receber o HTML completo:
 
 ```
 Early Hints envia antes do HTML:
@@ -621,12 +645,13 @@ Resultado: browser carrega CSS e JS em paralelo com o HTML
 
 ### 8.4 HTTP/2 e HTTP/3 (QUIC)
 
-| Protocolo | Status | Benefício |
-|:---------:|:------:|:---------:|
-| **HTTP/2** | ✅ Automático | Multiplexação de requests; sem head-of-line blocking |
+|     Protocolo     |    Status     |                        Benefício                        |
+| :---------------: | :-----------: | :-----------------------------------------------------: |
+|    **HTTP/2**     | ✅ Automático |  Multiplexação de requests; sem head-of-line blocking   |
 | **HTTP/3 (QUIC)** | ✅ Habilitado | Menor latência em redes congestionadas; 0-RTT reconnect |
 
-O Cloudflare anuncia HTTP/3 para todos os clientes que suportam. O browser negocia automaticamente o melhor protocolo.
+O Cloudflare anuncia HTTP/3 para todos os clientes que suportam. O browser
+negocia automaticamente o melhor protocolo.
 
 ### 8.5 Polish — Otimização de Imagens
 
@@ -652,7 +677,7 @@ NOTA: Next.js Image Optimization já otimiza imagens para WebP/AVIF.
 ROCKET LOADER (Cloudflare):
   O que faz: Adia carregamento de JavaScript para após o conteúdo visível
   Potencial problema: Pode conflitar com Next.js App Router
-  
+
   Recomendação: DESABILITADO para o SGTI
   Razão: Next.js já tem otimização de carregamento de scripts integrada.
          Rocket Loader pode causar comportamentos inesperados com React Hydration.
@@ -685,30 +710,36 @@ No Cloudflare:
 
 ### 9.2 Headers Propagados do Cloudflare para a Vercel
 
-| Header | Valor | Uso na Vercel/Next.js |
-|:------:|:-----:|:---------------------:|
-| `CF-Connecting-IP` | IP real do usuário | Logs de auditoria, rate limiting customizado |
-| `CF-IPCountry` | País (código ISO) | Alertas de acesso geográfico incomum |
-| `CF-Ray` | ID único do edge | Correlação de logs Cloudflare ↔ Vercel |
-| `CF-Visitor` | `{"scheme":"https"}` | Confirmar que chegou via HTTPS |
-| `X-Forwarded-For` | Cadeia de IPs | O Next.js prefere `CF-Connecting-IP` |
-| `X-Real-IP` | IP do proxy Cloudflare | Ignorado; usar `CF-Connecting-IP` |
+|       Header       |         Valor          |            Uso na Vercel/Next.js             |
+| :----------------: | :--------------------: | :------------------------------------------: |
+| `CF-Connecting-IP` |   IP real do usuário   | Logs de auditoria, rate limiting customizado |
+|   `CF-IPCountry`   |   País (código ISO)    |     Alertas de acesso geográfico incomum     |
+|      `CF-Ray`      |    ID único do edge    |    Correlação de logs Cloudflare ↔ Vercel    |
+|    `CF-Visitor`    |  `{"scheme":"https"}`  |        Confirmar que chegou via HTTPS        |
+| `X-Forwarded-For`  |     Cadeia de IPs      |     O Next.js prefere `CF-Connecting-IP`     |
+|    `X-Real-IP`     | IP do proxy Cloudflare |      Ignorado; usar `CF-Connecting-IP`       |
 
-**Configuração no Next.js:** O middleware lê `CF-Connecting-IP` para obter o IP real do usuário (não o IP do Cloudflare que aparece em `X-Forwarded-For`).
+**Configuração no Next.js:** O middleware lê `CF-Connecting-IP` para obter o IP
+real do usuário (não o IP do Cloudflare que aparece em `X-Forwarded-For`).
 
 ### 9.3 Certificado SSL no Modo Full (Strict)
 
-Para que o modo Full (Strict) funcione, a Vercel precisa ter um certificado válido:
+Para que o modo Full (Strict) funcione, a Vercel precisa ter um certificado
+válido:
 
-1. **Vercel emite automaticamente** via Let's Encrypt ao adicionar o domínio customizado.
+1. **Vercel emite automaticamente** via Let's Encrypt ao adicionar o domínio
+   customizado.
 2. O Cloudflare **valida** este certificado antes de proxiar a request.
-3. Se o certificado Vercel expirar, o Cloudflare recusa a conexão (proteção automática).
+3. Se o certificado Vercel expirar, o Cloudflare recusa a conexão (proteção
+   automática).
 
-**Renovação automática:** Vercel renova Let's Encrypt antes do vencimento (90 dias). Nenhuma ação manual necessária.
+**Renovação automática:** Vercel renova Let's Encrypt antes do vencimento (90
+dias). Nenhuma ação manual necessária.
 
 ### 9.4 Evitar Loop Infinito de Redirecionamento
 
-Um erro comum ao combinar Cloudflare + Vercel é o loop de redirecionamento quando ambos tentam forçar HTTPS:
+Um erro comum ao combinar Cloudflare + Vercel é o loop de redirecionamento
+quando ambos tentam forçar HTTPS:
 
 ```
 PROBLEMA: Loop de redirecionamento
@@ -720,9 +751,9 @@ Vercel: HTTP → HTTPS redirect (301)
 SOLUÇÃO: Apenas o Cloudflare faz o redirect HTTP→HTTPS
   Cloudflare: "Always Use HTTPS" → ON
   Vercel: sem redirect HTTP→HTTPS (Cloudflare já faz isso)
-  
+
   OU:
-  
+
   Definir SSL mode no Cloudflare como Full (strict)
   → Cloudflare só envia HTTPS para a Vercel, sem conflito
 ```
@@ -733,7 +764,8 @@ SOLUÇÃO: Apenas o Cloudflare faz o redirect HTTP→HTTPS
 
 ### 10.1 Tráfego Supabase NÃO Passa pelo Cloudflare
 
-As conexões do browser para o Supabase (banco, auth, storage, realtime) são diretas e **não passam pelo proxy do Cloudflare**:
+As conexões do browser para o Supabase (banco, auth, storage, realtime) são
+diretas e **não passam pelo proxy do Cloudflare**:
 
 ```
 CONEXÕES DIRETAS (bypass Cloudflare):
@@ -745,7 +777,7 @@ Rest API: browser → https://[ref].supabase.co/rest/v1/
 
 MOTIVO: O Cloudflare é configurado apenas para o domínio empresa.com.br.
         O domínio supabase.co não está no Cloudflare do SGTI.
-        
+
 IMPLICAÇÃO: Supabase tem sua própria proteção (SSL, rate limiting).
             O WAF do Cloudflare NÃO protege as chamadas diretas ao Supabase.
 ```
@@ -788,28 +820,28 @@ DECISÃO: Deixar para fase de crescimento (v2)
 
 O Cloudflare Free provê analytics básicos disponíveis em tempo real:
 
-| Métrica | Granularidade | Retenção |
-|:-------:|:-------------:|:--------:|
-| Requests totais | Por minuto | 24 horas |
-| Requests cacheadas vs. não-cacheadas | Diária | 30 dias |
-| Bandwidth economizado pelo cache | Diária | 30 dias |
-| Threats blocked | Por minuto | 24 horas |
-| Unique visitors | Diária | 30 dias |
-| HTTP status codes | Diária | 30 dias |
-| Top Countries | Diária | 30 dias |
-| Top URLs | Diária | 24 horas |
+|               Métrica                | Granularidade | Retenção |
+| :----------------------------------: | :-----------: | :------: |
+|           Requests totais            |  Por minuto   | 24 horas |
+| Requests cacheadas vs. não-cacheadas |    Diária     | 30 dias  |
+|   Bandwidth economizado pelo cache   |    Diária     | 30 dias  |
+|           Threats blocked            |  Por minuto   | 24 horas |
+|           Unique visitors            |    Diária     | 30 dias  |
+|          HTTP status codes           |    Diária     | 30 dias  |
+|            Top Countries             |    Diária     | 30 dias  |
+|               Top URLs               |    Diária     | 24 horas |
 
 ### 11.2 Security Analytics
 
 O Cloudflare Free provê visibilidade de ameaças:
 
-| Informação | Disponível |
-|:----------:|:----------:|
-| WAF rules triggered | ✅ Sim |
-| Blocked IPs | ✅ Sim |
-| Bot traffic | ✅ Básico |
-| Rate limiting events | ✅ Sim |
-| Top threats por tipo | ✅ Sim |
+|      Informação      | Disponível |
+| :------------------: | :--------: |
+| WAF rules triggered  |   ✅ Sim   |
+|     Blocked IPs      |   ✅ Sim   |
+|     Bot traffic      | ✅ Básico  |
+| Rate limiting events |   ✅ Sim   |
+| Top threats por tipo |   ✅ Sim   |
 
 ### 11.3 Health Checks Cloudflare
 
@@ -853,20 +885,21 @@ ALTERNATIVAS NO FREE:
 
 O Cloudflare registra eventos de firewall (bloqueios e challenges) com detalhes:
 
-| Campo | Descrição |
-|:-----:|-----------|
-| Timestamp | Data e hora do evento |
-| Action | BLOCK, CHALLENGE, LOG |
-| Rule ID | Qual regra foi acionada |
-| IP | IP do visitante |
-| Country | País de origem |
-| URL | URL da request bloqueada |
-| User Agent | Agente da request |
-| Ray ID | ID único para correlação |
+|   Campo    | Descrição                |
+| :--------: | ------------------------ |
+| Timestamp  | Data e hora do evento    |
+|   Action   | BLOCK, CHALLENGE, LOG    |
+|  Rule ID   | Qual regra foi acionada  |
+|     IP     | IP do visitante          |
+|  Country   | País de origem           |
+|    URL     | URL da request bloqueada |
+| User Agent | Agente da request        |
+|   Ray ID   | ID único para correlação |
 
 ### 12.3 Estratégia de Logging com CF-Ray
 
-O Cloudflare adiciona o header `CF-Ray` em todas as requests. Este ID é registrado nos logs do Next.js e permite correlação:
+O Cloudflare adiciona o header `CF-Ray` em todas as requests. Este ID é
+registrado nos logs do Next.js e permite correlação:
 
 ```
 CORRELAÇÃO DE LOGS:
@@ -889,13 +922,13 @@ Resultado: É possível rastrear uma request específica
 
 O plano Free suporta **notificações por e-mail** para eventos críticos:
 
-| Evento | Alertas Disponíveis | Canal |
-|:------:|:-------------------:|:-----:|
-| Ataque DDoS detectado | ✅ | E-mail IT_MANAGER |
-| Domínio expirado | ✅ | E-mail IT_MANAGER |
-| Certificado SSL prestes a expirar | ✅ | E-mail IT_MANAGER |
-| Origem offline (Health Check falhou) | ✅ | E-mail IT_MANAGER |
-| Pico de tráfego anômalo | ✅ | E-mail IT_MANAGER |
+|                Evento                | Alertas Disponíveis |       Canal       |
+| :----------------------------------: | :-----------------: | :---------------: |
+|        Ataque DDoS detectado         |         ✅          | E-mail IT_MANAGER |
+|           Domínio expirado           |         ✅          | E-mail IT_MANAGER |
+|  Certificado SSL prestes a expirar   |         ✅          | E-mail IT_MANAGER |
+| Origem offline (Health Check falhou) |         ✅          | E-mail IT_MANAGER |
+|       Pico de tráfego anômalo        |         ✅          | E-mail IT_MANAGER |
 
 ### 13.2 Configuração de Alertas
 
@@ -922,11 +955,11 @@ Tipo 3: Security Events Alert (WAF)
 
 Além dos alertas nativos do Cloudflare:
 
-| Ferramenta | O que Monitora | Alerta |
-|:----------:|:--------------:|:------:|
-| UptimeRobot (Free) | `sgti.empresa.com.br` disponível | E-mail se DOWN > 1 min |
-| Cloudflare Status | Infraestrutura Cloudflare | status.cloudflare.com + E-mail |
-| GitHub Actions | Falhas de deploy | E-mail ao IT_MANAGER |
+|     Ferramenta     |          O que Monitora          |             Alerta             |
+| :----------------: | :------------------------------: | :----------------------------: |
+| UptimeRobot (Free) | `sgti.empresa.com.br` disponível |     E-mail se DOWN > 1 min     |
+| Cloudflare Status  |    Infraestrutura Cloudflare     | status.cloudflare.com + E-mail |
+|   GitHub Actions   |         Falhas de deploy         |      E-mail ao IT_MANAGER      |
 
 ---
 
@@ -936,33 +969,36 @@ Além dos alertas nativos do Cloudflare:
 
 O Cloudflare registra todas as alterações de configuração no **Audit Log**:
 
-| Ação | Registrada |
-|:----:|:----------:|
-| Adicionar/remover registro DNS | ✅ |
-| Alterar configuração SSL/TLS | ✅ |
-| Criar/modificar regra WAF | ✅ |
-| Alterar Page Rules | ✅ |
-| Modificar Rate Limiting | ✅ |
-| Ativar/desativar serviços | ✅ |
-| Acesso ao painel Cloudflare | ✅ |
+|              Ação              | Registrada |
+| :----------------------------: | :--------: |
+| Adicionar/remover registro DNS |     ✅     |
+|  Alterar configuração SSL/TLS  |     ✅     |
+|   Criar/modificar regra WAF    |     ✅     |
+|       Alterar Page Rules       |     ✅     |
+|    Modificar Rate Limiting     |     ✅     |
+|   Ativar/desativar serviços    |     ✅     |
+|  Acesso ao painel Cloudflare   |     ✅     |
 
 **Retenção:** 6 meses no plano Free.
 
 ### 14.2 Quem Tem Acesso ao Painel Cloudflare
 
-| Papel | Acesso | Permissões |
-|:-----:|:------:|:----------:|
-| IT_MANAGER | Administrador | Configurações completas |
-| SUPER_ADMIN SGTI | Administrador | Configurações completas |
-| Desenvolvedor Sênior | Membros | Somente leitura + DNS |
+|        Papel         |    Acesso     |       Permissões        |
+| :------------------: | :-----------: | :---------------------: |
+|      IT_MANAGER      | Administrador | Configurações completas |
+|   SUPER_ADMIN SGTI   | Administrador | Configurações completas |
+| Desenvolvedor Sênior |    Membros    |  Somente leitura + DNS  |
 
 ### 14.3 Correlação com Auditoria do SGTI
 
-O SGTI registra em `shared.audit_log` quando alterações de infraestrutura são feitas:
+O SGTI registra em `shared.audit_log` quando alterações de infraestrutura são
+feitas:
 
-- Ao alterar DNS, registrar manualmente no audit_log com `action = CLOUDFLARE_DNS_CHANGED`.
+- Ao alterar DNS, registrar manualmente no audit_log com
+  `action = CLOUDFLARE_DNS_CHANGED`.
 - Ao criar nova regra WAF, registrar com `action = CLOUDFLARE_WAF_RULE_CREATED`.
-- Ao alterar configurações SSL, registrar com `action = CLOUDFLARE_SSL_CONFIG_CHANGED`.
+- Ao alterar configurações SSL, registrar com
+  `action = CLOUDFLARE_SSL_CONFIG_CHANGED`.
 
 ---
 
@@ -970,32 +1006,32 @@ O SGTI registra em `shared.audit_log` quando alterações de infraestrutura são
 
 ### 15.1 Custo Atual (Plano Free)
 
-| Recurso | Limite Free | Custo |
-|:-------:|:-----------:|:-----:|
-| DNS autoritativo | Ilimitado | R$ 0,00 |
-| WAF (regras gerenciadas) | Ativo | R$ 0,00 |
-| DDoS Protection | Ilimitado | R$ 0,00 |
-| SSL/TLS Universal | ✅ Gratuito | R$ 0,00 |
-| CDN (bandwidth) | Ilimitado | R$ 0,00 |
-| Rate Limiting | 1 regra gratuita | R$ 0,00 |
-| WAF Custom Rules | 5 regras | R$ 0,00 |
-| Page Rules | 3 regras | R$ 0,00 |
-| Analytics | Básico (30 dias) | R$ 0,00 |
-| Health Checks | Básico | R$ 0,00 |
-| **Total** | | **R$ 0,00/mês** |
+|         Recurso          |   Limite Free    |      Custo      |
+| :----------------------: | :--------------: | :-------------: |
+|     DNS autoritativo     |    Ilimitado     |     R$ 0,00     |
+| WAF (regras gerenciadas) |      Ativo       |     R$ 0,00     |
+|     DDoS Protection      |    Ilimitado     |     R$ 0,00     |
+|    SSL/TLS Universal     |   ✅ Gratuito    |     R$ 0,00     |
+|     CDN (bandwidth)      |    Ilimitado     |     R$ 0,00     |
+|      Rate Limiting       | 1 regra gratuita |     R$ 0,00     |
+|     WAF Custom Rules     |     5 regras     |     R$ 0,00     |
+|        Page Rules        |     3 regras     |     R$ 0,00     |
+|        Analytics         | Básico (30 dias) |     R$ 0,00     |
+|      Health Checks       |      Básico      |     R$ 0,00     |
+|        **Total**         |                  | **R$ 0,00/mês** |
 
 ### 15.2 Custo ao Escalar (Cloudflare Pro — USD 20/mês)
 
-| Recurso Adicional | Valor |
-|:-----------------:|:-----:|
-| Plano base Pro | USD 20/mês (~R$ 100) |
-| WAF Custom Rules | 100 regras (vs. 5 no Free) |
-| Rate Limiting | 10 regras (vs. 1) |
-| Page Rules | 20 regras (vs. 3) |
-| Image Resizing | Incluído |
-| Analytics | 7 dias de logs detalhados |
-| Advanced DDoS | Maior granularidade |
-| **Total estimado Pro** | ~R$ 100/mês |
+|   Recurso Adicional    |           Valor            |
+| :--------------------: | :------------------------: |
+|     Plano base Pro     |    USD 20/mês (~R$ 100)    |
+|    WAF Custom Rules    | 100 regras (vs. 5 no Free) |
+|     Rate Limiting      |     10 regras (vs. 1)      |
+|       Page Rules       |     20 regras (vs. 3)      |
+|     Image Resizing     |          Incluído          |
+|       Analytics        | 7 dias de logs detalhados  |
+|     Advanced DDoS      |    Maior granularidade     |
+| **Total estimado Pro** |        ~R$ 100/mês         |
 
 ---
 
@@ -1003,18 +1039,18 @@ O SGTI registra em `shared.audit_log` quando alterações de infraestrutura são
 
 ### 16.1 Limitações Técnicas e Mitigações
 
-| Limitação | Impacto | Mitigação |
-|:----------:|:-------:|:---------:|
-| **1 regra de Rate Limiting** | Proteção limitada a 1 endpoint | Usar WAF Custom Rule como rate limiting alternativo |
-| **5 regras WAF customizadas** | Poucas regras para cenários específicos | Priorizar regras de maior impacto; OWASP CRS cobre a maioria |
-| **3 Page Rules** | Gestão de cache limitada | Usar Cache Rules no painel (interface mais moderna, mais regras no Pro) |
-| **Sem Logpush** | Sem logs detalhados de requests | CF-Ray nos logs Vercel para correlação |
-| **Analytics: 30 dias** | Histórico limitado | Dados de auditoria no banco SGTI para histórico longo |
-| **Sem Advanced Bots** | Detecção básica de bots | Bot Fight Mode básico é suficiente para o SGTI inicial |
-| **Sem Preview Protection** | Não aplicável (gerenciado pelo Vercel) | Autenticação Google do SGTI protege previews |
-| **Sem Custom SSL** | Certificado Cloudflare padrão | Universal SSL é suficiente para todos os subdomínios |
-| **Health Checks básicos** | Alertas menos granulares | UptimeRobot como complemento |
-| **Sem Workers** | Sem edge computing via Cloudflare | Vercel Edge Middleware como alternativa |
+|           Limitação           |                 Impacto                 |                                Mitigação                                |
+| :---------------------------: | :-------------------------------------: | :---------------------------------------------------------------------: |
+| **1 regra de Rate Limiting**  |     Proteção limitada a 1 endpoint      |           Usar WAF Custom Rule como rate limiting alternativo           |
+| **5 regras WAF customizadas** | Poucas regras para cenários específicos |      Priorizar regras de maior impacto; OWASP CRS cobre a maioria       |
+|       **3 Page Rules**        |        Gestão de cache limitada         | Usar Cache Rules no painel (interface mais moderna, mais regras no Pro) |
+|        **Sem Logpush**        |     Sem logs detalhados de requests     |                 CF-Ray nos logs Vercel para correlação                  |
+|    **Analytics: 30 dias**     |           Histórico limitado            |          Dados de auditoria no banco SGTI para histórico longo          |
+|     **Sem Advanced Bots**     |         Detecção básica de bots         |         Bot Fight Mode básico é suficiente para o SGTI inicial          |
+|  **Sem Preview Protection**   | Não aplicável (gerenciado pelo Vercel)  |              Autenticação Google do SGTI protege previews               |
+|      **Sem Custom SSL**       |      Certificado Cloudflare padrão      |          Universal SSL é suficiente para todos os subdomínios           |
+|   **Health Checks básicos**   |        Alertas menos granulares         |                      UptimeRobot como complemento                       |
+|        **Sem Workers**        |    Sem edge computing via Cloudflare    |                 Vercel Edge Middleware como alternativa                 |
 
 ---
 
@@ -1022,23 +1058,23 @@ O SGTI registra em `shared.audit_log` quando alterações de infraestrutura são
 
 ### 17.1 Critérios para Upgrade para Cloudflare Pro
 
-| Critério | Threshold | Ação |
-|:--------:|:---------:|:----:|
-| Ataques frequentes precisando de mais regras WAF | > 3 ataques/mês | Upgrade para Pro |
-| Necessidade de mais de 5 regras WAF customizadas | > 5 regras necessárias | Upgrade para Pro |
-| Necessidade de logs detalhados por request | Compliance requer | Upgrade para Pro |
-| Volume de bots causando problemas | Bot Fight Mode insuficiente | Upgrade para Pro |
-| Necessidade de Rate Limiting em múltiplos endpoints | > 1 regra necessária | Upgrade para Pro |
-| Necessidade de Image Resizing na borda | Performance crítica | Upgrade para Pro |
+|                      Critério                       |          Threshold          |       Ação       |
+| :-------------------------------------------------: | :-------------------------: | :--------------: |
+|  Ataques frequentes precisando de mais regras WAF   |       > 3 ataques/mês       | Upgrade para Pro |
+|  Necessidade de mais de 5 regras WAF customizadas   |   > 5 regras necessárias    | Upgrade para Pro |
+|     Necessidade de logs detalhados por request      |      Compliance requer      | Upgrade para Pro |
+|          Volume de bots causando problemas          | Bot Fight Mode insuficiente | Upgrade para Pro |
+| Necessidade de Rate Limiting em múltiplos endpoints |    > 1 regra necessária     | Upgrade para Pro |
+|       Necessidade de Image Resizing na borda        |     Performance crítica     | Upgrade para Pro |
 
 ### 17.2 Roadmap de Features Cloudflare
 
-| Fase | Feature | Plano |
-|:----:|:-------:|:-----:|
-| **v1 (atual)** | DNS + WAF básico + CDN + DDoS Free | Free |
-| **v1.x** | Mais regras WAF + Rate Limiting múltiplo | Pro (USD 20/mês) |
-| **v2** | Logpush + Advanced Bot + Workers | Pro + Logpush |
-| **v3 (enterprise)** | Dedicated IP + SLA + Compliance | Enterprise |
+|        Fase         |                 Feature                  |      Plano       |
+| :-----------------: | :--------------------------------------: | :--------------: |
+|   **v1 (atual)**    |    DNS + WAF básico + CDN + DDoS Free    |       Free       |
+|      **v1.x**       | Mais regras WAF + Rate Limiting múltiplo | Pro (USD 20/mês) |
+|       **v2**        |     Logpush + Advanced Bot + Workers     |  Pro + Logpush   |
+| **v3 (enterprise)** |     Dedicated IP + SLA + Compliance      |    Enterprise    |
 
 ---
 
@@ -1065,7 +1101,7 @@ Plano de contingência (se outage > 30 min):
      ATENÇÃO: Propagação de NS leva 24–48h — não é solução rápida
   2. Comunicar usuários sobre indisponibilidade temporária
   3. Aguardar resolução pelo Cloudflare (histórico: < 30 min)
-  
+
 MELHOR ESTRATÉGIA: Aguardar resolução (99% dos casos < 15 min)
 ```
 
@@ -1085,7 +1121,7 @@ Ações corretivas:
   A. Colocar a regra em modo "Log" (não Block):
      WAF → Managed Rules → {regra} → Action: Log
      → Usuário não é mais bloqueado mas evento é registrado
-  
+
   B. Adicionar IP específico à allowlist:
      Security → WAF → Tools → IP Access Rules → Allow
 
@@ -1152,12 +1188,12 @@ NÃO CRÍTICO (sem impacto ao usuário final):
 
 ### 19.2 RTO e RPO para Falha do Cloudflare
 
-| Cenário | RTO (Recovery Time Objective) | RPO (Recovery Point Objective) |
-|:-------:|:-----------------------------:|:------------------------------:|
-| Outage Cloudflare (< 30 min) | 30 minutos (aguardar resolução) | Zero (sem perda de dados) |
-| Outage Cloudflare (> 30 min) | 2 horas (migrar DNS) | Zero (sem perda de dados) |
-| Configuração WAF apagada acidentalmente | 30 minutos (restaurar via Export/Import) | Última configuração salva |
-| Domínio expirado | 24 horas (renovar domínio) | Zero (sem perda de dados) |
+|                 Cenário                 |      RTO (Recovery Time Objective)       | RPO (Recovery Point Objective) |
+| :-------------------------------------: | :--------------------------------------: | :----------------------------: |
+|      Outage Cloudflare (< 30 min)       |     30 minutos (aguardar resolução)      |   Zero (sem perda de dados)    |
+|      Outage Cloudflare (> 30 min)       |           2 horas (migrar DNS)           |   Zero (sem perda de dados)    |
+| Configuração WAF apagada acidentalmente | 30 minutos (restaurar via Export/Import) |   Última configuração salva    |
+|            Domínio expirado             |        24 horas (renovar domínio)        |   Zero (sem perda de dados)    |
 
 ### 19.3 Backup de Configurações Cloudflare
 
@@ -1221,10 +1257,13 @@ REVERTER PARA CLOUDFLARE:
 
 ### 20.1 DNS e SSL
 
-- [ ] **CA-01:** `sgti.empresa.com.br` resolve corretamente (CNAME para Vercel via Cloudflare).
+- [ ] **CA-01:** `sgti.empresa.com.br` resolve corretamente (CNAME para Vercel
+      via Cloudflare).
 - [ ] **CA-02:** Acesso via HTTP redireciona para HTTPS com status 301.
-- [ ] **CA-03:** Certificado SSL Universal ativo e válido para todos os subdomínios.
-- [ ] **CA-04:** HSTS configurado: `max-age=63072000; includeSubDomains; preload`.
+- [ ] **CA-03:** Certificado SSL Universal ativo e válido para todos os
+      subdomínios.
+- [ ] **CA-04:** HSTS configurado:
+      `max-age=63072000; includeSubDomains; preload`.
 - [ ] **CA-05:** Modo SSL/TLS configurado como Full (strict).
 - [ ] **CA-06:** DNSSEC habilitado e funcionando.
 
@@ -1233,7 +1272,8 @@ REVERTER PARA CLOUDFLARE:
 - [ ] **CA-07:** WAF em modo BLOCK em produção (não apenas LOG).
 - [ ] **CA-08:** OWASP Core Rule Set ativo.
 - [ ] **CA-09:** Bot Fight Mode habilitado.
-- [ ] **CA-10:** Rate Limiting configurado para `/api/auth/*` (10 req/min por IP).
+- [ ] **CA-10:** Rate Limiting configurado para `/api/auth/*` (10 req/min por
+      IP).
 - [ ] **CA-11:** Regra WAF customizada bloqueando métodos HTTP não utilizados.
 - [ ] **CA-12:** IP de origem da Vercel oculto (não exposto via DNS lookups).
 - [ ] **CA-13:** `cf.threat_score > 30` triggering CHALLENGE.
@@ -1241,15 +1281,19 @@ REVERTER PARA CLOUDFLARE:
 ### 20.3 Headers de Segurança
 
 - [ ] **CA-14:** `X-Frame-Options: SAMEORIGIN` presente em todas as responses.
-- [ ] **CA-15:** `X-Content-Type-Options: nosniff` presente em todas as responses.
+- [ ] **CA-15:** `X-Content-Type-Options: nosniff` presente em todas as
+      responses.
 - [ ] **CA-16:** `Referrer-Policy: strict-origin-when-cross-origin` configurado.
 - [ ] **CA-17:** Nota A+ em `securityheaders.com` para o domínio de produção.
 
 ### 20.4 CDN e Performance
 
-- [ ] **CA-18:** Assets estáticos (`/_next/static/`) sendo servidos com HIT no cache Cloudflare na segunda request.
-- [ ] **CA-19:** Páginas dinâmicas (`/dashboard`) com status BYPASS (não cacheadas).
-- [ ] **CA-20:** Compressão Brotli ativa (verificar header `Content-Encoding: br`).
+- [ ] **CA-18:** Assets estáticos (`/_next/static/`) sendo servidos com HIT no
+      cache Cloudflare na segunda request.
+- [ ] **CA-19:** Páginas dinâmicas (`/dashboard`) com status BYPASS (não
+      cacheadas).
+- [ ] **CA-20:** Compressão Brotli ativa (verificar header
+      `Content-Encoding: br`).
 - [ ] **CA-21:** HTTP/3 anunciado e funcionando para browsers compatíveis.
 
 ### 20.5 Monitoramento e Alertas
@@ -1257,26 +1301,27 @@ REVERTER PARA CLOUDFLARE:
 - [ ] **CA-22:** Health Check do Cloudflare configurado para `/api/health`.
 - [ ] **CA-23:** Alerta de e-mail ao IT_MANAGER quando origem fica offline.
 - [ ] **CA-24:** Alerta de DDoS configurado e funcional.
-- [ ] **CA-25:** Headers `CF-Connecting-IP` e `CF-Ray` chegando ao Next.js e sendo logados.
+- [ ] **CA-25:** Headers `CF-Connecting-IP` e `CF-Ray` chegando ao Next.js e
+      sendo logados.
 
 ### 20.6 Disaster Recovery
 
 - [ ] **CA-26:** Backup do zone file DNS salvo e atualizado mensalmente.
-- [ ] **CA-27:** Procedimento de migração emergencial de DNS documentado e testado.
+- [ ] **CA-27:** Procedimento de migração emergencial de DNS documentado e
+      testado.
 
 ---
 
 ## Controle de Versões do Documento
 
-| Versão | Data | Autor | Descrição |
-|--------|------|-------|-----------|
-| 1.0.0 | 2026-06-09 | Arquitetura Corporativa de TI | Criação com 20 seções e 27 critérios de aceitação |
+| Versão | Data       | Autor                         | Descrição                                         |
+| ------ | ---------- | ----------------------------- | ------------------------------------------------- |
+| 1.0.0  | 2026-06-09 | Arquitetura Corporativa de TI | Criação com 20 seções e 27 critérios de aceitação |
 
 ---
 
-> **Documentos relacionados:**
-> [`70_DEPLOYMENT.md`](./70_DEPLOYMENT.md) — Estratégia geral de deploy
-> [`71_SUPABASE.md`](./71_SUPABASE.md) — Arquitetura Supabase
-> [`72_GITHUB_ACTIONS.md`](./72_GITHUB_ACTIONS.md) — Pipelines CI/CD
+> **Documentos relacionados:** [`70_DEPLOYMENT.md`](./70_DEPLOYMENT.md) —
+> Estratégia geral de deploy [`71_SUPABASE.md`](./71_SUPABASE.md) — Arquitetura
+> Supabase [`72_GITHUB_ACTIONS.md`](./72_GITHUB_ACTIONS.md) — Pipelines CI/CD
 > [`73_VERCEL.md`](./73_VERCEL.md) — Arquitetura Vercel (Frontend)
 > [`50_INTEGRATIONS.md`](./50_INTEGRATIONS.md) — Integrações externas

@@ -1,25 +1,30 @@
 # SGTI — Sistema de Gestão de Tecnologia da Informação
 
-> Plataforma corporativa de Gestão de TI baseada em **ITIL v4**.
-> Gerenciamento unificado de incidentes, requisições, problemas, ativos, identidades, compliance, projetos e financeiro.
+> Plataforma corporativa de Gestão de TI baseada em **ITIL v4**. Gerenciamento
+> unificado de incidentes, requisições, problemas, ativos, identidades,
+> compliance, projetos e financeiro.
+
+![CI Full](https://github.com/LeandroDuarte28/SGTI/actions/workflows/ci-full.yml/badge.svg?branch=main)
+![Deploy Production](https://github.com/LeandroDuarte28/SGTI/actions/workflows/deploy-production.yml/badge.svg)
+![Security Scan](https://github.com/LeandroDuarte28/SGTI/actions/workflows/security-scan.yml/badge.svg)
 
 ---
 
 ## Stack Tecnológica
 
-| Camada | Tecnologia |
-|--------|-----------|
-| **Frontend** | Next.js 15 (App Router) · TypeScript 5 · Tailwind CSS 4 · shadcn/ui |
-| **Backend** | Supabase Edge Functions (Deno) |
-| **Banco de Dados** | Supabase PostgreSQL 15 |
-| **Autenticação** | Supabase Auth + Google OAuth 2.0 (Workspace SSO) |
-| **Storage** | Supabase Storage |
-| **Realtime** | Supabase Realtime (WebSocket) |
-| **Hospedagem** | Vercel (Hobby → Pro) |
-| **CDN / DNS** | Cloudflare (Free) |
-| **CI/CD** | GitHub Actions |
-| **Package Manager** | npm |
-| **Node.js** | 20 LTS |
+| Camada              | Tecnologia                                                          |
+| ------------------- | ------------------------------------------------------------------- |
+| **Frontend**        | Next.js 15 (App Router) · TypeScript 5 · Tailwind CSS 4 · shadcn/ui |
+| **Backend**         | Supabase Edge Functions (Deno)                                      |
+| **Banco de Dados**  | Supabase PostgreSQL 15                                              |
+| **Autenticação**    | Supabase Auth + Google OAuth 2.0 (Workspace SSO)                    |
+| **Storage**         | Supabase Storage                                                    |
+| **Realtime**        | Supabase Realtime (WebSocket)                                       |
+| **Hospedagem**      | Vercel (Hobby → Pro)                                                |
+| **CDN / DNS**       | Cloudflare (Free)                                                   |
+| **CI/CD**           | GitHub Actions                                                      |
+| **Package Manager** | npm                                                                 |
+| **Node.js**         | 20 LTS                                                              |
 
 ---
 
@@ -56,7 +61,8 @@ npm install
 cp .env.example .env.local
 ```
 
-Edite `.env.local` e preencha todas as variáveis. Consulte `.env.example` para a descrição de cada uma.
+Edite `.env.local` e preencha todas as variáveis. Consulte `.env.example` para a
+descrição de cada uma.
 
 ### 4. Inicializar Supabase local
 
@@ -64,7 +70,8 @@ Edite `.env.local` e preencha todas as variáveis. Consulte `.env.example` para 
 supabase start
 ```
 
-Aguarde o Supabase iniciar localmente. O Studio estará disponível em `http://localhost:54323`.
+Aguarde o Supabase iniciar localmente. O Studio estará disponível em
+`http://localhost:54323`.
 
 ### 5. Aplicar migrations do banco
 
@@ -72,7 +79,8 @@ Aguarde o Supabase iniciar localmente. O Studio estará disponível em `http://l
 supabase db reset
 ```
 
-Isso aplica todas as migrations de `supabase/migrations/` e executa o `supabase/seed.sql`.
+Isso aplica todas as migrations de `supabase/migrations/` e executa o
+`supabase/seed.sql`.
 
 ### 6. Gerar tipos do Supabase
 
@@ -130,9 +138,17 @@ npm run supabase:gen-types  # Gera tipos TypeScript do schema
 sgti/
 ├── .github/
 │   ├── workflows/
-│   │   ├── ci.yml              # CI: lint, type-check, test, build
-│   │   ├── cd.yml              # CD: deploy para staging e produção
-│   │   └── keepalive.yml       # Mantém Supabase free tier ativo
+│   │   ├── ci-quick.yml         # Lint + type-check rápido (feature branches)
+│   │   ├── ci-full.yml          # Lint, test, build, security (PRs)
+│   │   ├── deploy-preview.yml   # Preview na Vercel (PRs)
+│   │   ├── deploy-dev.yml       # Deploy dev (merge em develop)
+│   │   ├── deploy-staging.yml   # Deploy staging (merge em staging)
+│   │   ├── deploy-production.yml # Deploy produção (merge em main)
+│   │   ├── security-scan.yml    # npm audit + CodeQL + gitleaks (semanal)
+│   │   ├── release.yml          # semantic-release pós-deploy
+│   │   └── keepalive.yml        # Mantém Supabase free tier ativo
+│   ├── ISSUE_TEMPLATE/
+│   ├── CODEOWNERS
 │   └── pull_request_template.md
 │
 ├── app/                        # Next.js App Router
@@ -183,9 +199,11 @@ sgti/
 
 ## Autenticação
 
-O SGTI utiliza exclusivamente **Google Workspace SSO** — nenhuma senha local é armazenada.
+O SGTI utiliza exclusivamente **Google Workspace SSO** — nenhuma senha local é
+armazenada.
 
 **Fluxo OAuth:**
+
 1. Usuário clica "Entrar com Google"
 2. Supabase Auth redireciona para o Google OAuth
 3. Google autentica e redireciona para `/auth/callback`
@@ -193,7 +211,8 @@ O SGTI utiliza exclusivamente **Google Workspace SSO** — nenhuma senha local �
 5. Tokens armazenados em cookies HttpOnly
 6. Middleware valida o JWT em cada requisição
 
-**Restrição de domínio:** Apenas contas do domínio corporativo são aceitas (configurado via Supabase Auth hook).
+**Restrição de domínio:** Apenas contas do domínio corporativo são aceitas
+(configurado via Supabase Auth hook).
 
 ---
 
@@ -201,45 +220,51 @@ O SGTI utiliza exclusivamente **Google Workspace SSO** — nenhuma senha local �
 
 O banco é organizado em **schemas isolados por módulo** (bounded context):
 
-| Schema | Módulo |
-|--------|--------|
-| `shared` | Usuários, roles, audit log, notificações |
-| `ticket` | Incidentes, Requisições, Problemas |
-| `catalog` | Catálogo de Serviços, SLA |
-| `asset` | ITAM |
-| `identity` | IAM |
-| `compliance` | Compliance |
-| `financial` | OPEX / CAPEX |
-| `procurement` | Compras |
-| `project` | Projetos |
-| `knowledge` | Base de Conhecimento |
+| Schema        | Módulo                                   |
+| ------------- | ---------------------------------------- |
+| `shared`      | Usuários, roles, audit log, notificações |
+| `ticket`      | Incidentes, Requisições, Problemas       |
+| `catalog`     | Catálogo de Serviços, SLA                |
+| `asset`       | ITAM                                     |
+| `identity`    | IAM                                      |
+| `compliance`  | Compliance                               |
+| `financial`   | OPEX / CAPEX                             |
+| `procurement` | Compras                                  |
+| `project`     | Projetos                                 |
+| `knowledge`   | Base de Conhecimento                     |
 
-**RLS (Row Level Security)** está habilitado em todas as tabelas com dados sensíveis.
+**RLS (Row Level Security)** está habilitado em todas as tabelas com dados
+sensíveis.
 
 ---
 
 ## Deploy
 
 ### Staging
-Push para a branch `staging` → GitHub Actions executa CI → deploy automático para Vercel.
+
+Push para a branch `staging` → GitHub Actions executa CI → deploy automático
+para Vercel.
 
 ### Produção
-Push para a branch `main` → GitHub Actions executa CI → aguarda aprovação manual → deploy para Vercel.
 
-**Rollback:** No dashboard da Vercel → Deployments → selecionar deployment anterior → "Promote to Production". Tempo estimado: < 2 minutos.
+Push para a branch `main` → GitHub Actions executa CI → aguarda aprovação manual
+→ deploy para Vercel.
+
+**Rollback:** No dashboard da Vercel → Deployments → selecionar deployment
+anterior → "Promote to Production". Tempo estimado: < 2 minutos.
 
 ---
 
 ## Branches
 
-| Branch | Propósito |
-|--------|-----------|
-| `main` | Produção — protegida, só aceita PR |
-| `staging` | Homologação — protegida, só aceita PR |
-| `develop` | Integração contínua de features |
-| `feature/*` | Desenvolvimento de features |
-| `fix/*` | Correção de bugs |
-| `hotfix/*` | Correção urgente em produção |
+| Branch      | Propósito                             |
+| ----------- | ------------------------------------- |
+| `main`      | Produção — protegida, só aceita PR    |
+| `staging`   | Homologação — protegida, só aceita PR |
+| `develop`   | Integração contínua de features       |
+| `feature/*` | Desenvolvimento de features           |
+| `fix/*`     | Correção de bugs                      |
+| `hotfix/*`  | Correção urgente em produção          |
 
 Commits seguem [Conventional Commits](https://www.conventionalcommits.org/):
 `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `test:`, `ci:`
@@ -250,30 +275,33 @@ Commits seguem [Conventional Commits](https://www.conventionalcommits.org/):
 
 Configure em: **GitHub → Settings → Secrets and Variables → Actions**
 
-| Secret | Descrição |
-|--------|-----------|
-| `NEXT_PUBLIC_SUPABASE_URL_DEV` | URL do projeto Supabase (dev) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV` | Anon key do Supabase (dev) |
-| `NEXT_PUBLIC_SUPABASE_URL_STAGING` | URL do projeto Supabase (staging) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY_STAGING` | Anon key do Supabase (staging) |
-| `NEXT_PUBLIC_SUPABASE_URL_PROD` | URL do projeto Supabase (produção) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY_PROD` | Anon key do Supabase (produção) |
-| `VERCEL_TOKEN` | Personal access token da Vercel |
-| `VERCEL_ORG_ID` | ID da organização na Vercel |
-| `VERCEL_PROJECT_ID` | ID do projeto na Vercel |
+| Secret                                  | Descrição                          |
+| --------------------------------------- | ---------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL_DEV`          | URL do projeto Supabase (dev)      |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV`     | Anon key do Supabase (dev)         |
+| `NEXT_PUBLIC_SUPABASE_URL_STAGING`      | URL do projeto Supabase (staging)  |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY_STAGING` | Anon key do Supabase (staging)     |
+| `NEXT_PUBLIC_SUPABASE_URL_PROD`         | URL do projeto Supabase (produção) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY_PROD`    | Anon key do Supabase (produção)    |
+| `VERCEL_TOKEN`                          | Personal access token da Vercel    |
+| `VERCEL_ORG_ID`                         | ID da organização na Vercel        |
+| `VERCEL_PROJECT_ID`                     | ID do projeto na Vercel            |
 
 ---
 
 ## Referências
 
-- [Documentação do Projeto](./Docs/) — Toda a documentação técnica e funcional do SGTI
-- [Ordem de Implementação](./Docs/80_IMPLEMENTATION_ORDER.md) — Roadmap de 22 fases
+- [Documentação do Projeto](./Docs/) — Toda a documentação técnica e funcional
+  do SGTI
+- [Ordem de Implementação](./Docs/80_IMPLEMENTATION_ORDER.md) — Roadmap de 22
+  fases
 - [Padrões de Código](./Docs/81_CODING_STANDARDS.md) — Convenções obrigatórias
-- [Arquitetura Supabase](./Docs/71_SUPABASE.md) — Detalhes da infraestrutura Supabase
-- [Regras para Claude Code](./CLAUDE.md) — Diretrizes para desenvolvimento com IA
+- [Arquitetura Supabase](./Docs/71_SUPABASE.md) — Detalhes da infraestrutura
+  Supabase
+- [Regras para Claude Code](./CLAUDE.md) — Diretrizes para desenvolvimento com
+  IA
 
 ---
 
-> **SGTI v0.1.0 — Sprint 0**
-> Classificação: Interno — Restrito
-> Responsável: Arquitetura Corporativa de TI
+> **SGTI v0.1.0 — Sprint 0** Classificação: Interno — Restrito Responsável:
+> Arquitetura Corporativa de TI

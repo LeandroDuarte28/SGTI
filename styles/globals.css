@@ -144,14 +144,16 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /* ─── Focus visible ─────────────────────────────────────────────────────── */
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply ring-ring ring-offset-background ring-2 ring-offset-2 outline-none;
   }
 
   /* ─── Scrollbar (webkit) ────────────────────────────────────────────────── */
@@ -163,7 +165,7 @@
     @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-border;
+    @apply bg-border rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/30;

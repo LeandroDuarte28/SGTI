@@ -38,8 +38,8 @@ export function StatCard({
   tone?: StatTone;
 }): React.JSX.Element {
   const content = (
-    <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+    <div className="border-border bg-card rounded-lg border p-4 shadow-sm">
+      <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">{label}</p>
       <p className={`mt-2 text-2xl font-semibold ${TONE_CLASS[tone]}`}>{value}</p>
     </div>
   );
@@ -62,10 +62,16 @@ export function getSlaComplianceTone(percent: number): StatTone {
   return percent >= 90 ? "good" : "bad";
 }
 
-export function Section({ title, children }: { title: string; children: React.ReactNode }): React.JSX.Element {
+export function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}): React.JSX.Element {
   return (
     <section className="mb-8">
-      <h2 className="mb-3 font-medium text-foreground">{title}</h2>
+      <h2 className="text-foreground mb-3 font-medium">{title}</h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{children}</div>
     </section>
   );

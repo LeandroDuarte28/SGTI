@@ -35,13 +35,16 @@ export async function createSlaDefinition(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.schema("catalog").from("SLADefinition").insert({
-    name: name.trim(),
-    priority,
-    response_time_minutes: Number(responseTimeMinutes),
-    resolution_time_minutes: Number(resolutionTimeMinutes),
-    business_hours_only: businessHoursOnly === "on",
-  });
+  const { error } = await supabase
+    .schema("catalog")
+    .from("SLADefinition")
+    .insert({
+      name: name.trim(),
+      priority,
+      response_time_minutes: Number(responseTimeMinutes),
+      resolution_time_minutes: Number(resolutionTimeMinutes),
+      business_hours_only: businessHoursOnly === "on",
+    });
 
   if (error) {
     throw new Error(`Não foi possível criar a definição de SLA: ${error.message}`);
