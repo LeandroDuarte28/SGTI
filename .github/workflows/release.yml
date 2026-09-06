@@ -39,3 +39,10 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # @semantic-release/git commits the changelog itself (chore(release):
+          # ...), which includes the full auto-generated release notes as the
+          # commit body — that trips this repo's local commit-msg hook
+          # (commitlint's body/footer-max-line-length rules, meant for human-
+          # authored commits). HUSKY=0 disables husky hooks for this one CI
+          # step; local developer commits are unaffected.
+          HUSKY: "0"
