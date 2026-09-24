@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 
 import "@/styles/globals.css";
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
-const fontSans = Inter({
+const fontSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
