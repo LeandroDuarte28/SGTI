@@ -21,8 +21,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* ─── Primary — Corporate Blue ──────────────────────────────────────── */
-    --primary: 221 83% 53%;
+    /* ─── Primary — PinPag Green ────────────────────────────────────────── */
+    --primary: 145 65% 39%;
     --primary-foreground: 0 0% 100%;
 
     /* ─── Secondary ─────────────────────────────────────────────────────── */
@@ -44,24 +44,24 @@
     /* ─── Border / Input / Ring ─────────────────────────────────────────── */
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --ring: 145 65% 39%;
 
     /* ─── Border radius ─────────────────────────────────────────────────── */
     --radius: 0.5rem;
 
     /* ─── Typography ────────────────────────────────────────────────────── */
-    --font-sans: "Inter", system-ui, sans-serif;
+    --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
     --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
     /* ─── Sidebar ───────────────────────────────────────────────────────── */
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 40% 96%;
-    --sidebar-primary: 221 83% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 145 55% 52%;
+    --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 222 47% 16%;
     --sidebar-accent-foreground: 210 40% 96%;
     --sidebar-border: 222 47% 18%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-ring: 145 55% 52%;
     --sidebar-width: 256px;
     --sidebar-width-icon: 48px;
 
@@ -102,8 +102,8 @@
     --popover: 222 47% 10%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 145 55% 48%;
+    --primary-foreground: 222 47% 7%;
 
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -119,16 +119,16 @@
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    --ring: 145 55% 48%;
 
     --sidebar-background: 222 47% 5%;
     --sidebar-foreground: 210 40% 92%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 145 55% 52%;
+    --sidebar-primary-foreground: 222 47% 7%;
     --sidebar-accent: 222 47% 10%;
     --sidebar-accent-foreground: 210 40% 92%;
     --sidebar-border: 222 47% 12%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-ring: 145 55% 52%;
 
     --chart-1: 217 91% 60%;
     --chart-2: 173 58% 39%;
