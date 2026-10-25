@@ -43,7 +43,13 @@ export function Sidebar(): React.JSX.Element {
     <aside className="bg-sidebar border-sidebar-border flex h-screen w-64 flex-col border-r">
       <div className="flex items-center gap-2 px-6 py-5">
         <div className="flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5">
-          <Image alt="PinPag" className="h-4 w-auto" height={16} src="/branding/pinpag-logo.jpg" width={64} />
+          <Image
+            alt="PinPag"
+            className="h-4 w-auto"
+            height={16}
+            src="/branding/pinpag-logo.jpg"
+            width={64}
+          />
         </div>
         <span className="text-sidebar-foreground text-base font-bold tracking-wide">SGTI</span>
       </div>
